@@ -1,5 +1,5 @@
 {
-    "cli": "canvas.cli.assignment.upload-score",
+    "cli": "lms.cli.assignment.upload-score",
     "arguments": [
         "67890",
         "10001",

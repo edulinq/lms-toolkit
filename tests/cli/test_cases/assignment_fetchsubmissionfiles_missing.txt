@@ -1,5 +1,5 @@
 {
-    "cli": "canvas.cli.assignment.fetch-submission-files",
+    "cli": "lms.cli.assignment.fetch-submission-files",
     "arguments": [
         "ZZZ",
         "--out-dir", "__TEMP_DIR__()"

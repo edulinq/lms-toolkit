@@ -1,8 +1,8 @@
 {
-    "cli": "canvas.cli.group.list-groupings",
+    "cli": "lms.cli.group.list-groupings",
     "arguments": ["--table"]
 }
 ---
-name	canvas_id
+name	lms_id
 Group 1 - No Leader	30001
 Group 2 - Leader	30002

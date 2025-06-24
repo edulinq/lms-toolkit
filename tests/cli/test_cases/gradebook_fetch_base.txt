@@ -1,5 +1,5 @@
 {
-    "cli": "canvas.cli.gradebook.fetch"
+    "cli": "lms.cli.gradebook.fetch"
 }
 ---
 email	Assignment 1 (67890)	Quiz 1 (67891)

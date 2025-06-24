@@ -21,7 +21,7 @@ class APITest(tests.server.base.ServerBaseTest):
         prefix = parts[0]
         suffix = ''.join(parts[1:])
 
-        module_name = '.'.join(['canvas', 'api', prefix, suffix])
+        module_name = '.'.join(['lms', 'api', prefix, suffix])
 
         expected = data['expected']
         is_error = data.get('error', False)
@@ -82,7 +82,7 @@ def clean_output_noop(output):
 
 def clean_output_fetch_submission_files(output):
     # Replace the temp path with a known one.
-    output[0] = '/tmp/canvas-submission-files-ABC-123'
+    output[0] = '/tmp/lms-submission-files-ABC-123'
 
     return output
 

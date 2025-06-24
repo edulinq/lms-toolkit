@@ -1,9 +1,9 @@
 {
-    "cli": "canvas.cli.group.list-groupings"
+    "cli": "lms.cli.group.list-groupings"
 }
 ---
 Name: Group 1 - No Leader
-Canvas ID: 30001
+LMS ID: 30001
 
 Name: Group 2 - Leader
-Canvas ID: 30002
+LMS ID: 30002

@@ -1,5 +1,5 @@
 {
-    "cli": "canvas.cli.user.fetch",
+    "cli": "lms.cli.user.fetch",
     "arguments": ["zzz"]
 }
 ---

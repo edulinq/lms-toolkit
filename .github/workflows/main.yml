@@ -34,7 +34,7 @@ jobs:
 
       - name: Check Python Version Compatibility
         shell: bash
-        run: vermin --no-tips --no-parse-comments --exclude ast.unparse --target=3.8- --violations canvas
+        run: vermin --no-tips --no-parse-comments --exclude ast.unparse --target=3.8- --violations lms
 
       - name: Run Tests
         shell: bash

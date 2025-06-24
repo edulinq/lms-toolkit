@@ -1,5 +1,5 @@
 {
-    "cli": "canvas.cli.group.list-groups",
+    "cli": "lms.cli.group.list-groups",
     "arguments": [
         "30001",
         "--table",

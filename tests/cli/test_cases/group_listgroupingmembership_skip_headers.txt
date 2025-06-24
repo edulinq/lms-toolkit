@@ -1,5 +1,5 @@
 {
-    "cli": "canvas.cli.group.list-grouping-membership",
+    "cli": "lms.cli.group.list-grouping-membership",
     "arguments": [
         "30001",
         "--table",

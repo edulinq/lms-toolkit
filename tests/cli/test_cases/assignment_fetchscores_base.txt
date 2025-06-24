@@ -1,5 +1,5 @@
 {
-    "cli": "canvas.cli.assignment.fetch-scores",
+    "cli": "lms.cli.assignment.fetch-scores",
     "arguments": ["67890"]
 }
 ---

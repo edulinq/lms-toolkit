@@ -8,7 +8,7 @@ import re
 import sys
 
 import tests.server.base
-import canvas.util.file
+import lms.util.file
 
 THIS_DIR = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 TEST_CASES_DIR = os.path.join(THIS_DIR, "test_cases")
@@ -25,7 +25,7 @@ class CLITest(tests.server.base.ServerBaseTest):
     Test CLI tools.
     """
 
-    _base_temp_dir = canvas.util.file.get_temp_path('canvas_CLITest_')
+    _base_temp_dir = lms.util.file.get_temp_path('lms_CLITest_')
 
     def _get_test_info(self, test_name, path):
         options, expected_output = _read_test_file(path)

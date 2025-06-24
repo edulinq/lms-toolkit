@@ -1,5 +1,5 @@
 {
-    "cli": "canvas.cli.group.list-groupings",
+    "cli": "lms.cli.group.list-groupings",
     "arguments": [
         "--table",
         "--skip-headers"

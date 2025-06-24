@@ -1,18 +1,18 @@
 {
-    "cli": "canvas.cli.user.list",
+    "cli": "lms.cli.user.list",
     "arguments": ["--json"]
 }
 ---
 [
     {
-        "canvas_id": "10001",
         "email": "aalvarez@ucsc.edu",
+        "lms_id": "10001",
         "name": "Alice Alvarez",
         "student_id": "1000001"
     },
     {
-        "canvas_id": "10002",
         "email": "bburnquist@ucsc.edu",
+        "lms_id": "10002",
         "name": "Bob Burnquist",
         "student_id": "1000002"
     }

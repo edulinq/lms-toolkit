@@ -1,5 +1,5 @@
 {
-    "cli": "canvas.cli.user.list",
+    "cli": "lms.cli.user.list",
     "arguments": ["--table", "--skip-headers"]
 }
 ---

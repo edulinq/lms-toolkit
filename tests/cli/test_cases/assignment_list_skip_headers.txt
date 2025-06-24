@@ -1,5 +1,5 @@
 {
-    "cli": "canvas.cli.assignment.list",
+    "cli": "lms.cli.assignment.list",
     "arguments": ["--table", "--skip-headers"]
 }
 ---

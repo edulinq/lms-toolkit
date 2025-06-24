@@ -1,5 +1,5 @@
 {
-    "cli": "canvas.cli.gradebook.upload",
+    "cli": "lms.cli.gradebook.upload",
     "arguments": ["__DATA_DIR__(gradebook_upload_empty_assignment_name.txt)"],
     "error": true
 }

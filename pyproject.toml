@@ -8,8 +8,8 @@ requires = [
 ]
 
 [project]
-name = "edq-canvas"
-description = "A suite of tools and Python interface for Instructure's Canvas LMS."
+name = "edq-lms-toolkit"
+description = "A suite of CLI tools and Python library interfacing with Learning Management Systems (LMSs)."
 readme = "README.md"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
@@ -32,15 +32,15 @@ dynamic = [
 ]
 
 [tool.setuptools.dynamic]
-version = {attr = "canvas.__version__"}
+version = {attr = "lms.__version__"}
 dependencies = {file = ["requirements.txt"]}
 optional-dependencies = {dev = {file = ["requirements-dev.txt"]}}
 
 [project.urls]
-Homepage = "https://github.com/edulinq/py-canvas"
-Repository = "https://github.com/edulinq/py-canvas"
+Homepage = "https://github.com/edulinq/lms-toolkit"
+Repository = "https://github.com/edulinq/lms-toolkit"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["canvas*"]
+include = ["lms*"]
 namespaces = false
