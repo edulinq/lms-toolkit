@@ -51,7 +51,14 @@ def request(server = None, token = None, course = None,
             if (user_id not in users):
                 continue
 
-            user_email = users[user_id]['email']
+            # Try to get email and fall back to login id.
+            user_email = users[user_id].get('email', None)
+            if (user_email is None):
+                user_email = users[user_id].get('login_id', None)
+
+            if (user_email is None):
+                logging.warning("Unable to get email for user '%s'.", user_id)
+                continue
 
             assignment_id = item.get('assignment_id', None)
             if (assignment_id is None):
