@@ -13,20 +13,24 @@ Documentation Table of Contents:
     - [Groupings and Groups](#groupings-and-groups)
     - [Tables](#tables)
  - [CLI Tools](#cli-tools)
-    - [List Course Users](#list-course-users)
-    - [Fetch a Single User](#fetch-a-single-user)
-    - [List Assignments](#list-assignments)
-    - [Fetch a Single Assignment](#fetch-a-single-assignment)
-    - [Fetch Assignment Scores](#fetch-assignment-scores)
-    - [Fetch Assignment Submission Files](#fetch-assignment-submission-files)
-    - [Upload Assignment Scores](#upload-assignment-scores)
-    - [Upload Single Assignment Score](#upload-single-assignment-score)
-    - [Fetch Gradebook](#fetch-gradebook)
-    - [Upload Gradebook](#upload-gradebook)
-    - [List Groupings](#list-groupings)
-    - [List Groups](#list-groups)
-    - [List Membership in a Grouping](#list-membership-in-a-grouping)
-    - [List Members in a Group](#list-members-in-a-group)
+    - [Users](#user-tools)
+      - [List Course Users](#list-course-users)
+      - [Fetch a Single User](#fetch-a-single-user)
+    - [Assignments](#assignment-tools)
+      - [List Assignments](#list-assignments)
+      - [Fetch a Single Assignment](#fetch-a-single-assignment)
+      - [Fetch Assignment Scores](#fetch-assignment-scores)
+      - [Fetch Assignment Submission Files](#fetch-assignment-submission-files)
+      - [Upload Assignment Scores](#upload-assignment-scores)
+      - [Upload Single Assignment Score](#upload-single-assignment-score)
+    - [Gradebooks](#gradebook-tools)
+      - [Fetch Gradebook](#fetch-gradebook)
+      - [Upload Gradebook](#upload-gradebook)
+    - [Assignment Groups](#assignment-group-tools)
+      - [List Groupings](#list-groupings)
+      - [List Groups](#list-groups)
+      - [List Membership in a Grouping](#list-membership-in-a-grouping)
+      - [List Members in a Group](#list-members-in-a-group)
 
 ## Installation
 
@@ -145,7 +149,9 @@ Most commands that list results can output them as JSON to stdout using the `--j
 
 All CLI tools can be invoked with `-h` / `--help` to see the full usage and all options.
 
-### List Course Users
+### User Tools
+
+#### List Course Users
 
 Course users can be listed using the `lms.cli.user.list` tool.
 For example:
@@ -153,7 +159,7 @@ For example:
 python3 -m lms.cli.user.list
 ```
 
-### Fetch a Single User
+#### Fetch a Single User
 
 To fetch information about a single course user, use the `lms.cli.user.fetch` tool.
 For example:
@@ -164,7 +170,9 @@ python3 -m lms.cli.user.fetch 12345
 python3 -m lms.cli.user.fetch alice@uni.edu
 ```
 
-### List Assignments
+### Assignment Tools
+
+#### List Assignments
 
 Course assignments can be listed using the `lms.cli.assignment.list` tool.
 For example:
@@ -172,7 +180,7 @@ For example:
 python3 -m lms.cli.assignment.list
 ```
 
-### Fetch a Single Assignment
+#### Fetch a Single Assignment
 
 Fetch information about a single assignment using the `lms.cli.assignment.fetch` tool.
 For example:
@@ -183,7 +191,7 @@ python3 -m lms.cli.assignment.fetch 123456
 python3 -m lms.cli.assignment.fetch 'My Assignment'
 ```
 
-### Fetch Assignment Scores
+#### Fetch Assignment Scores
 
 To fetch the scores for a specific assignment, use the `lms.cli.assignment.fetch-scores` tool.
 For example:
@@ -196,7 +204,7 @@ python3 -m lms.cli.assignment.fetch-scores 'My Assignment'
 
 The student's email and score will be written to stdout as a tab-separated row.
 
-### Fetch Assignment Submission Files
+#### Fetch Assignment Submission Files
 
 To fetch the files students have submitted for an assignment, use the `lms.cli.assignment.fetch-submission-files` tool.
 For example:
@@ -212,7 +220,7 @@ Only assignment with a submission type of "Online - Text Entry" or "Online - Fil
 By default, files will be written to the `out` directory.
 This can be controlled with the `--out-dir` argument.
 
-### Upload Assignment Scores
+#### Upload Assignment Scores
 
 Uploading scores for an assignment can be done with the `lms.cli.assignment.upload-scores` tool:
 ```
@@ -236,7 +244,7 @@ user	score	comment?
 alice@uni.edu	100	Great Job!
 ```
 
-### Upload Single Assignment Score
+#### Upload Single Assignment Score
 
 To upload just one assignment score without a file, you can use the `lms.cli.assignment.upload-score` tool:
 ```
@@ -250,7 +258,9 @@ For example:
 python3 -m lms.cli.assignment.upload-score 'My Assignment' alice@uni.edu 100 'Great Job!'
 ```
 
-### Fetch Gradebook
+### Gradebook Tools
+
+#### Fetch Gradebook
 
 To fetch the full gradebook for a course, use the `lms.cli.gradebook.fetch` tool.
 For example:
@@ -281,7 +291,7 @@ To include scores that are computed by the LMS (such as the final score), use th
 python3 -m lms.cli.gradebook.fetch --include-computed-scores
 ```
 
-### Upload Gradebook
+#### Upload Gradebook
 
 To upload a gradebook, use the `lms.cli.gradebook.upload` tool:
 ```
@@ -303,7 +313,9 @@ user	98765	Assignment 2
 alice@uni.edu	3	
 ```
 
-### List Groupings
+### Assignment Group Tools
+
+#### List Groupings
 
 Groups in a course can be listed using the `lms.cli.group.list-groupings` tool.
 For example:
@@ -314,7 +326,7 @@ python3 -m lms.cli.group.list-groupings
 Note that this lists the groupings themselves,
 not groups in the groupings or the users in those groups.
 
-### List Groups
+#### List Groups
 
 To list the groups (not groupings) in a course, use the `lms.cli.group.list-groups` tool.
 For example:
@@ -331,7 +343,7 @@ python3 -m lms.cli.group.list-groups 12345
 python3 -m lms.cli.group.list-groups 'My Grouping'
 ```
 
-### List Membership in a Grouping
+#### List Membership in a Grouping
 
 To list the users inside each group within a grouping, use the `lms.cli.group.list-grouping-membership` tool.
 For example:
@@ -342,7 +354,7 @@ python3 -m lms.cli.group.list-grouping-membership 12345
 python3 -m lms.cli.group.list-grouping-membership 'My Grouping'
 ```
 
-### List Members in a Group
+#### List Members in a Group
 
 To list the users inside a specific group (not a grouping), use the `lms.cli.group.list-group-members` tool.
 For example:
