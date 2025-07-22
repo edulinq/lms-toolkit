@@ -6,9 +6,12 @@ DEFAULT_TABLE = False
 DEFAULT_SKIP_HEADERS = False
 
 # keys: [(items key, title, pretty title), ...]
-def cli_list(items, keys, collective_name = 'items', sort_key = 'id', output_json = DEFAULT_JSON,
+def cli_list(items, keys = None, collective_name = 'items', sort_key = 'id', output_json = DEFAULT_JSON,
         output_table = DEFAULT_TABLE, skip_headers = DEFAULT_SKIP_HEADERS, **kwargs):
     items = list(sorted(items, key = lambda item: item.get(sort_key, '')))
+
+    if (keys is None):
+        keys = _build_default_keys(items)
 
     if (output_json):
         _cli_list_json(items, keys)
@@ -81,6 +84,15 @@ def _clean_cell(text):
     """
 
     return str(text).replace("\t", " ").replace("\n", " ")
+
+def _build_default_keys(items):
+    """ Get the default keys from the first item, or None if there are no items. """
+
+    if (len(items) == 0):
+        return None
+
+    base_keys = list(sorted(items[0].keys()))
+    return [(key, key, key) for key in base_keys]
 
 def add_output_args(parser):
     group = parser.add_mutually_exclusive_group()

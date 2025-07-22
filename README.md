@@ -31,6 +31,8 @@ Documentation Table of Contents:
       - [List Groups](#list-groups)
       - [List Membership in a Grouping](#list-membership-in-a-grouping)
       - [List Members in a Group](#list-members-in-a-group)
+    - [Quizzes](#quiz-tools)
+      - [List Quizzes](#list-quizzes)
 
 ## Installation
 
@@ -363,4 +365,13 @@ python3 -m lms.cli.group.list-group-members 12345
 
 # Or
 python3 -m lms.cli.group.list-group-members 'My Group'
+```
+
+### Quizzes
+
+#### List Quizzes
+
+Course quizzes can be listed using the `lms.cli.quiz.list` tool:
+```
+python3 -m lms.cli.quiz.list
 ```
