@@ -5,6 +5,7 @@ import lms.api.common
 BASE_ENDPOINT = "/api/v1/courses/{course}/quizzes?per_page={page_size}"
 
 def request(server = None, token = None, course = None,
+        missing_value = None, keys = None,
         **kwargs):
     server = lms.api.common.validate_param(server, 'server')
     token = lms.api.common.validate_param(token, 'token')
@@ -15,9 +16,6 @@ def request(server = None, token = None, course = None,
     url = server + BASE_ENDPOINT.format(course = course, page_size = lms.api.common.DEFAULT_PAGE_SIZE)
     headers = lms.api.common.standard_headers(token)
 
-    return list_quizzes(url, headers)
-
-def list_quizzes(url, headers, keys = None, missing_value = None):
     output = []
 
     while (url is not None):

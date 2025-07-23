@@ -1,0 +1,630 @@
+{
+    "cli": "lms.cli.quiz.question.list",
+    "arguments": [
+        "Regular Expressions",
+        "--json"
+    ]
+}
+---
+[
+    {
+        "answer_tolerance": null,
+        "answers": [],
+        "assessment_question_id": "40000001",
+        "correct_comments": "",
+        "correct_comments_html": "",
+        "formula_decimal_places": null,
+        "formulas": null,
+        "id": "20000001",
+        "incorrect_comments": "",
+        "incorrect_comments_html": "",
+        "matches": null,
+        "matching_answer_incorrect_matches": null,
+        "neutral_comments": "",
+        "neutral_comments_html": "<div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">You can have any answer you want.</p></div>",
+        "points_possible": 1.0,
+        "position": null,
+        "question_name": "Ice Breaker",
+        "question_text": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Taking inspiration from the XKCD comic below,\nhow would you save the day using regular expressions?</p><div class=\"qg-block\" style=\"display: flex; flex-direction: column; justify-content: flex-start; align-items: center\"><p style=\"margin-top: 0\"><img src=\"https://canvas.ucsc.edu/courses/12345/files/8735164/preview?verifier=jg255Kka2iPLE0goBUQkhNqrnc3a9c9LbcxaQO3e\" alt=\"XKCD Comic 208\" width=\"100.00%\" loading=\"lazy\" data-api-endpoint=\"https://canvas.ucsc.edu/api/v1/courses/12345/files/8735164\" data-api-returntype=\"File\"></p></div></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+        "question_type": "essay_question",
+        "quiz_group_id": "30000001",
+        "quiz_id": "10000001",
+        "variables": null
+    },
+    {
+        "answer_tolerance": null,
+        "answers": [
+            {
+                "comments": "",
+                "comments_html": "",
+                "id": "20000002001",
+                "text": "True",
+                "weight": 100
+            },
+            {
+                "comments": "",
+                "comments_html": "",
+                "id": "20000002002",
+                "text": "False",
+                "weight": 0
+            }
+        ],
+        "assessment_question_id": "40000002",
+        "correct_comments": "",
+        "correct_comments_html": "<div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">You are right!</p></div>",
+        "formula_decimal_places": null,
+        "formulas": null,
+        "id": "20000002",
+        "incorrect_comments": "",
+        "incorrect_comments_html": "<div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Regular expressions are so useful that almost every language supports them.</p></div>",
+        "matches": null,
+        "matching_answer_incorrect_matches": null,
+        "neutral_comments": "",
+        "neutral_comments_html": "",
+        "points_possible": 1.0,
+        "position": null,
+        "question_name": "Regular Expression in Programming Languages",
+        "question_text": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Regular expressions are implemented as either a core feature or in the standard library of almost every major programming language.</p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+        "question_type": "true_false_question",
+        "quiz_group_id": "30000002",
+        "quiz_id": "10000001",
+        "variables": null
+    },
+    {
+        "answer_tolerance": null,
+        "answers": [
+            {
+                "comments": "",
+                "comments_html": "",
+                "id": "20000003001",
+                "left": "Character Class",
+                "match_id": "20000003101",
+                "right": "A set of character where any single member of the group can be matched.",
+                "text": "Character Class"
+            },
+            {
+                "comments": "",
+                "comments_html": "",
+                "id": "20000003002",
+                "left": "Anchor",
+                "match_id": "20000003102",
+                "right": "A special character that can be used to match the beginning or end of a line.",
+                "text": "Anchor"
+            },
+            {
+                "comments": "",
+                "comments_html": "",
+                "id": "20000003003",
+                "left": "Word Boundary",
+                "match_id": "20000003103",
+                "right": "The empty string between ([\\W^] and \\w) or between (\\w and [\\W$]).",
+                "text": "Word Boundary"
+            },
+            {
+                "comments": "",
+                "comments_html": "",
+                "id": "20000003004",
+                "left": "Kleene Star",
+                "match_id": "20000003104",
+                "right": "A repetition operator that matches the range [0, infinity].",
+                "text": "Kleene Star"
+            },
+            {
+                "comments": "",
+                "comments_html": "",
+                "id": "20000003005",
+                "left": "Group",
+                "match_id": "20000003105",
+                "right": "A collection of character that can be treated as a single unit.",
+                "text": "Group"
+            },
+            {
+                "comments": "",
+                "comments_html": "",
+                "id": "20000003006",
+                "left": "Disjunction",
+                "match_id": "20000003106",
+                "right": "An operator that allows us to select one of two options.",
+                "text": "Disjunction"
+            },
+            {
+                "comments": "",
+                "comments_html": "",
+                "id": "20000003007",
+                "left": "Back Reference",
+                "match_id": "20000003107",
+                "right": "A special character that allows us to invoke a previous group.",
+                "text": "Back Reference"
+            }
+        ],
+        "assessment_question_id": "40000003",
+        "correct_comments": "",
+        "correct_comments_html": "",
+        "formula_decimal_places": null,
+        "formulas": null,
+        "id": "20000003",
+        "incorrect_comments": "",
+        "incorrect_comments_html": "",
+        "matches": [
+            {
+                "match_id": "20000003101",
+                "text": "A set of character where any single member of the group can be matched."
+            },
+            {
+                "match_id": "20000003102",
+                "text": "A special character that can be used to match the beginning or end of a line."
+            },
+            {
+                "match_id": "20000003103",
+                "text": "The empty string between ([\\W^] and \\w) or between (\\w and [\\W$])."
+            },
+            {
+                "match_id": "20000003104",
+                "text": "A repetition operator that matches the range [0, infinity]."
+            },
+            {
+                "match_id": "20000003105",
+                "text": "A collection of character that can be treated as a single unit."
+            },
+            {
+                "match_id": "20000003106",
+                "text": "An operator that allows us to select one of two options."
+            },
+            {
+                "match_id": "20000003107",
+                "text": "A special character that allows us to invoke a previous group."
+            },
+            {
+                "match_id": "20000003201",
+                "text": "The set of all alphanumeric characters and underscore."
+            },
+            {
+                "match_id": "20000003202",
+                "text": "All digits."
+            },
+            {
+                "match_id": "20000003203",
+                "text": "A repetition operator that matches the range [1, infinity]."
+            },
+            {
+                "match_id": "20000003204",
+                "text": "An operator that allows us to select both of two options."
+            }
+        ],
+        "matching_answer_incorrect_matches": "The set of all alphanumeric characters and underscore.\nAll digits.\nA repetition operator that matches the range [1, infinity].\nAn operator that allows us to select both of two options.",
+        "neutral_comments": "",
+        "neutral_comments_html": "",
+        "points_possible": 1.0,
+        "position": null,
+        "question_name": "Regular Expression Vocabulary",
+        "question_text": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Match the following terms to their corresponding definitions.</p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+        "question_type": "matching_question",
+        "quiz_group_id": "30000003",
+        "quiz_id": "10000001",
+        "variables": null
+    },
+    {
+        "answer_tolerance": null,
+        "answers": [
+            {
+                "comments": "",
+                "comments_html": "",
+                "html": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">r'\\d{3} \\d{3}-\\d{4}'</code></p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+                "id": "20000004001",
+                "text": "",
+                "weight": 100.0
+            },
+            {
+                "comments": "",
+                "comments_html": "<div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">What about whitespace?</p></div>",
+                "html": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">r'\\d{10}'</code></p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+                "id": "20000004002",
+                "text": "",
+                "weight": 0.0
+            },
+            {
+                "comments": "",
+                "comments_html": "<div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">What if there are no digits in the string?</p></div>",
+                "html": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">r'\\d* \\d*-\\d*'</code></p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+                "id": "20000004003",
+                "text": "",
+                "weight": 0.0
+            },
+            {
+                "comments": "",
+                "comments_html": "<div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Can this take too many digits?</p></div>",
+                "html": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">r'\\d+ \\d+-\\d+'</code></p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+                "id": "20000004004",
+                "text": "",
+                "weight": 0.0
+            }
+        ],
+        "assessment_question_id": "40000004",
+        "correct_comments": "",
+        "correct_comments_html": "",
+        "formula_decimal_places": null,
+        "formulas": null,
+        "id": "20000004",
+        "incorrect_comments": "",
+        "incorrect_comments_html": "",
+        "matches": null,
+        "matching_answer_incorrect_matches": null,
+        "neutral_comments": "",
+        "neutral_comments_html": "",
+        "points_possible": 1.0,
+        "position": null,
+        "question_name": "Basic Regular Expressions",
+        "question_text": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Which of the following regular expressions would be best to match a 10-digit phone number formatted as: '123 456-7890'. (Assume any stretch of continuous whitespace is a single space character.)</p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+        "question_type": "multiple_choice_question",
+        "quiz_group_id": "30000004",
+        "quiz_id": "10000001",
+        "variables": null
+    },
+    {
+        "answer_tolerance": null,
+        "answers": [],
+        "assessment_question_id": null,
+        "correct_comments": "",
+        "correct_comments_html": "",
+        "formula_decimal_places": null,
+        "formulas": null,
+        "id": "20000005",
+        "incorrect_comments": "",
+        "incorrect_comments_html": "",
+        "matches": null,
+        "matching_answer_incorrect_matches": null,
+        "neutral_comments": "",
+        "neutral_comments_html": "",
+        "points_possible": 0,
+        "position": null,
+        "question_name": "Question",
+        "question_text": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Below is the opening paragraph (which is actually just one sentence) from\n<em>A Tale Of Two Cities</em> written by Charles Dickens.\nFuture questions may reference this passage as \"the provided passage\".</p><p style=\"margin-top: 0\">\"It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness,\nit was the epoch of belief, it was the epoch of incredulity, it was the season of Light,\nit was the season of Darkness, it was the spring of hope, it was the winter of despair, we had everything before us,\nwe had nothing before us, we were all going direct to Heaven, we were all going direct the other way\n\u2014 in short, the period was so far like the present period, that some of its noisiest authorities insisted on its being received,\nfor good or for evil, in the superlative degree of comparison only.\"</p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+        "question_type": "text_only_question",
+        "quiz_group_id": "30000005",
+        "quiz_id": "10000001",
+        "variables": null
+    },
+    {
+        "answer_tolerance": null,
+        "answers": [
+            {
+                "comments": "",
+                "comments_html": "",
+                "exact": 6.0,
+                "id": "20000006001",
+                "margin": 0.0,
+                "numerical_answer_type": "exact_answer",
+                "text": "",
+                "weight": 100
+            }
+        ],
+        "assessment_question_id": "40000006",
+        "correct_comments": "",
+        "correct_comments_html": "",
+        "formula_decimal_places": null,
+        "formulas": null,
+        "id": "20000006",
+        "incorrect_comments": "",
+        "incorrect_comments_html": "",
+        "matches": null,
+        "matching_answer_incorrect_matches": null,
+        "neutral_comments": "",
+        "neutral_comments_html": "<div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Remember that your answer should be an integer.</p></div>",
+        "points_possible": 1.0,
+        "position": null,
+        "question_name": "Passage Search",
+        "question_text": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">In the provided passage, how many non-specific time periods are mentioned,\ni.e., how many matches are there for the following regular expression:</p><pre><code class=\"language-python\">r'(age|season|epoch)\\s+of\\s+(\\w+)'\n</code></pre></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+        "question_type": "numerical_question",
+        "quiz_group_id": "30000006",
+        "quiz_id": "10000001",
+        "variables": null
+    },
+    {
+        "answer_tolerance": null,
+        "answers": [
+            {
+                "blank_id": "PART1",
+                "comments": "",
+                "comments_html": "",
+                "id": "20000007001",
+                "text": "?",
+                "weight": 0.0
+            },
+            {
+                "blank_id": "PART1",
+                "comments": "",
+                "comments_html": "",
+                "id": "20000007002",
+                "text": "*",
+                "weight": 100.0
+            },
+            {
+                "blank_id": "PART1",
+                "comments": "",
+                "comments_html": "",
+                "id": "20000007003",
+                "text": "+",
+                "weight": 0.0
+            },
+            {
+                "blank_id": "PART2",
+                "comments": "",
+                "comments_html": "",
+                "id": "20000007004",
+                "text": "?",
+                "weight": 100.0
+            },
+            {
+                "blank_id": "PART2",
+                "comments": "",
+                "comments_html": "",
+                "id": "20000007005",
+                "text": "*",
+                "weight": 0.0
+            },
+            {
+                "blank_id": "PART2",
+                "comments": "",
+                "comments_html": "",
+                "id": "20000007006",
+                "text": "+",
+                "weight": 0.0
+            },
+            {
+                "blank_id": "PART3",
+                "comments": "",
+                "comments_html": "",
+                "id": "20000007007",
+                "text": "?",
+                "weight": 0.0
+            },
+            {
+                "blank_id": "PART3",
+                "comments": "",
+                "comments_html": "",
+                "id": "20000007008",
+                "text": "*",
+                "weight": 0.0
+            },
+            {
+                "blank_id": "PART3",
+                "comments": "",
+                "comments_html": "",
+                "id": "20000007009",
+                "text": "+",
+                "weight": 100.0
+            }
+        ],
+        "assessment_question_id": "40000007",
+        "correct_comments": "",
+        "correct_comments_html": "",
+        "formula_decimal_places": null,
+        "formulas": null,
+        "id": "20000007",
+        "incorrect_comments": "",
+        "incorrect_comments_html": "",
+        "matches": null,
+        "matching_answer_incorrect_matches": null,
+        "neutral_comments": "",
+        "neutral_comments_html": "",
+        "points_possible": 1.0,
+        "position": null,
+        "question_name": "Quantifiers",
+        "question_text": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">For each scenario, select the quantifier that is most appropriate.</p><p style=\"margin-top: 0\">You want to match the leading zeros for some number. E.g., \"00\" for \"005\".<br>\n\n[PART1]</p><p style=\"margin-top: 0\">You want to match the negative sign for some number. E.g., \"-\" for \"-9\".<br>\n\n[PART2]</p><p style=\"margin-top: 0\">You want to match the main digits (before any decimal point) for a required number,\ne.g., \"123\" for \"123\".<br>\n\n[PART3]</p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+        "question_type": "multiple_dropdowns_question",
+        "quiz_group_id": "30000007",
+        "quiz_id": "10000001",
+        "variables": null
+    },
+    {
+        "answer_tolerance": null,
+        "answers": [
+            {
+                "comments": "",
+                "comments_html": "",
+                "html": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Long Cat</p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+                "id": "20000008001",
+                "text": "",
+                "weight": 0.0
+            },
+            {
+                "comments": "",
+                "comments_html": "",
+                "html": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Loong Cat</p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+                "id": "20000008002",
+                "text": "",
+                "weight": 100.0
+            },
+            {
+                "comments": "",
+                "comments_html": "",
+                "html": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Looong Cat</p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+                "id": "20000008003",
+                "text": "",
+                "weight": 100.0
+            },
+            {
+                "comments": "",
+                "comments_html": "",
+                "html": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Loooong Cat</p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+                "id": "20000008004",
+                "text": "",
+                "weight": 0.0
+            }
+        ],
+        "assessment_question_id": "40000008",
+        "correct_comments": "",
+        "correct_comments_html": "",
+        "formula_decimal_places": null,
+        "formulas": null,
+        "id": "20000008",
+        "incorrect_comments": "",
+        "incorrect_comments_html": "",
+        "matches": null,
+        "matching_answer_incorrect_matches": null,
+        "neutral_comments": "",
+        "neutral_comments_html": "",
+        "points_possible": 1.0,
+        "position": null,
+        "question_name": "General Quantification",
+        "question_text": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Which of the following does the regex <code style=\"margin-left: 0.25em; margin-right: 0.25em\">r'Lo{2,3}ng Cat'</code> match? Select all that apply.</p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+        "question_type": "multiple_answers_question",
+        "quiz_group_id": "30000008",
+        "quiz_id": "10000001",
+        "variables": null
+    },
+    {
+        "answer_tolerance": null,
+        "answers": [
+            {
+                "blank_id": "A",
+                "comments": "",
+                "comments_html": "",
+                "id": "20000009001",
+                "text": "4",
+                "weight": 100.0
+            },
+            {
+                "blank_id": "B",
+                "comments": "",
+                "comments_html": "",
+                "id": "20000009002",
+                "text": "3",
+                "weight": 100.0
+            },
+            {
+                "blank_id": "C",
+                "comments": "",
+                "comments_html": "",
+                "id": "20000009003",
+                "text": "2",
+                "weight": 100.0
+            }
+        ],
+        "assessment_question_id": "40000009",
+        "correct_comments": "",
+        "correct_comments_html": "",
+        "formula_decimal_places": null,
+        "formulas": null,
+        "id": "20000009",
+        "incorrect_comments": "",
+        "incorrect_comments_html": "",
+        "matches": null,
+        "matching_answer_incorrect_matches": null,
+        "neutral_comments": "",
+        "neutral_comments_html": "",
+        "points_possible": 1.0,
+        "position": null,
+        "question_name": "Backreference Matching",
+        "question_text": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Suppose that we are trying to write a script extract name information from text and put it into a CSV (comma-separated value) file.\nThe order of the columns in our CSV file are: first name, last name, and title.\nAs part of our script, we have a regular expression that looks for people that have their name's written as \"last, first\".</p><pre><code class=\"language-python\">import re\n\ndef create_csv_line(text_line):\n    regex = r'^\\s*((Dr).?)?\\s*([^,]+)\\s*,\\s*(.+)\\s*$'\n    replacement = MY_REPLACEMENT_STRING\n\n    return re.sub(regex, replacement, text_line)\n</code></pre><p style=\"margin-top: 0\">Fill in the blanks in <code style=\"margin-left: 0.25em; margin-right: 0.25em\">MY_REPLACEMENT_STRING</code> to make the above code work correctly.</p><p style=\"margin-top: 0\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">MY_REPLACEMENT_STRING = r'</code>[A]<code style=\"margin-left: 0.25em; margin-right: 0.25em\">,</code>[B]<code style=\"margin-left: 0.25em; margin-right: 0.25em\">,</code>[C]<code style=\"margin-left: 0.25em; margin-right: 0.25em\">'</code></p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+        "question_type": "fill_in_multiple_blanks_question",
+        "quiz_group_id": "30000009",
+        "quiz_id": "10000001",
+        "variables": null
+    },
+    {
+        "answer_tolerance": null,
+        "answers": [],
+        "assessment_question_id": "40000010",
+        "correct_comments": "",
+        "correct_comments_html": "",
+        "formula_decimal_places": null,
+        "formulas": null,
+        "id": "20000010",
+        "incorrect_comments": "",
+        "incorrect_comments_html": "",
+        "matches": null,
+        "matching_answer_incorrect_matches": null,
+        "neutral_comments": "",
+        "neutral_comments_html": "",
+        "points_possible": 1.0,
+        "position": null,
+        "question_name": "Regex Golf",
+        "question_text": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Create a regular expression that matches successfully completes a game a golf with the table below.</p><p style=\"margin-top: 0\">Specifics:</p><ul><li>Match all values in the <code style=\"margin-left: 0.25em; margin-right: 0.25em\">Match</code> column.</li><li>Do not match any values in the <code style=\"margin-left: 0.25em; margin-right: 0.25em\">No Match</code> column.</li><li>Write you regex as a raw string using a single or double quotes (not triple quotes).</li><li>Treat the contents of each table cell as a string (so you do not have the match the quotes).</li><li>You may assume that any contiguous whitespace is a single space character.</li><li>You only need to match (or not match) the values in the table, you do not need to extend this pattern to unseen values.</li></ul><table style=\"border-collapse: collapse; border-style: hidden\"><thead style=\"border-bottom: 1px solid black\"><tr><th style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em; \">Match</th><th style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em; \">No Match</th></tr></thead><tbody><tr><td style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">'12:00 AM'</code></td><td style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">'00:00'</code></td></tr><tr><td style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">'05:30 PM'</code></td><td style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">'17:30'</code></td></tr><tr><td style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">'01:45 AM'</code></td><td style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">'01:65 AM'</code></td></tr><tr><td style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">'10:10 PM'</code></td><td style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">'10:10 ZZ'</code></td></tr><tr><td style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">'12:34 PM'</code></td><td style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">'12:34 pm'</code></td></tr><tr><td style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">'11:59 PM'</code></td><td style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">'23:59'</code></td></tr><tr><td style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em\"></td><td style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">'123:45 AM'</code></td></tr><tr><td style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em\"></td><td style=\"padding-top: 0.25em; padding-bottom: 0.25em; padding-left: 0.25em; padding-right: 0.25em\"><code style=\"margin-left: 0.25em; margin-right: 0.25em\">'12:345 PM'</code></td></tr></tbody></table></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+        "question_type": "short_answer_question",
+        "quiz_group_id": "30000010",
+        "quiz_id": "10000001",
+        "variables": null
+    },
+    {
+        "answer_tolerance": null,
+        "answers": [],
+        "assessment_question_id": "40000011",
+        "correct_comments": "",
+        "correct_comments_html": "",
+        "formula_decimal_places": null,
+        "formulas": null,
+        "id": "20000011",
+        "incorrect_comments": "",
+        "incorrect_comments_html": "",
+        "matches": null,
+        "matching_answer_incorrect_matches": null,
+        "neutral_comments": "",
+        "neutral_comments_html": "",
+        "points_possible": 1.0,
+        "position": null,
+        "question_name": "Write a Function",
+        "question_text": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Implement a function with the following signature and description:</p><pre><code>import re\n\ndef compute(text):\n    \"\"\"\n    Compute the result of the binary expression represented in the |text| variable.\n    The possible operators are: \"+\", \"-\", \"*\", and \"/\".\n    Operands may be any real number.\n    If the operation is division, the RHS (denominator) will not be zero.\n    \"\"\"\n\n    return NotImplemented\n</code></pre><p style=\"margin-top: 0\">Specifics:</p><ul><li>Your function must use regular expressions.</li><li>You may not use <code style=\"margin-left: 0.25em; margin-right: 0.25em\">eval()</code> or any other Python ast functionality.</li><li>You may only import modules from the Python standard library.</li><li>You should return a float that is the result of the binary operation represented by <code style=\"margin-left: 0.25em; margin-right: 0.25em\">text</code>.</li><li>The operator will be one of:  <span style=\"margin-left: 0.25em; margin-right: 0.25em\"><span class=\"katex\"><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><semantics><mrow><mo stretchy=\"false\">{</mo><mo>+</mo><mo separator=\"true\">,</mo><mo>\u2212</mo><mo separator=\"true\">,</mo><mo>\u2217</mo><mo separator=\"true\">,</mo><mi mathvariant=\"normal\">/</mi><mo stretchy=\"false\">}</mo></mrow><annotation encoding=\"application/x-tex\">\\{+, -, *, /\\}</annotation></semantics></math></span></span>.</li><li>Operands may be any real number.</li></ul></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+        "question_type": "essay_question",
+        "quiz_group_id": "30000011",
+        "quiz_id": "10000001",
+        "variables": null
+    },
+    {
+        "answer_tolerance": null,
+        "answers": [
+            {
+                "comments": "",
+                "comments_html": "",
+                "html": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">I'm So Hungry!</p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+                "id": "20000012001",
+                "text": "",
+                "weight": 0.0
+            },
+            {
+                "comments": "",
+                "comments_html": "",
+                "html": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">I'm Soo Hungry!</p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+                "id": "20000012002",
+                "text": "",
+                "weight": 0.0
+            },
+            {
+                "comments": "",
+                "comments_html": "",
+                "html": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">I'm Sooo Hungry!</p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+                "id": "20000012003",
+                "text": "",
+                "weight": 100.0
+            },
+            {
+                "comments": "",
+                "comments_html": "",
+                "html": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">I'm Soooo Hungry!</p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+                "id": "20000012004",
+                "text": "",
+                "weight": 100.0
+            }
+        ],
+        "assessment_question_id": "40000012",
+        "correct_comments": "",
+        "correct_comments_html": "",
+        "formula_decimal_places": null,
+        "formulas": null,
+        "id": "20000012",
+        "incorrect_comments": "",
+        "incorrect_comments_html": "",
+        "matches": null,
+        "matching_answer_incorrect_matches": null,
+        "neutral_comments": "",
+        "neutral_comments_html": "",
+        "points_possible": 1.0,
+        "position": null,
+        "question_name": "General Quantification",
+        "question_text": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Which of the following does the regex <code style=\"margin-left: 0.25em; margin-right: 0.25em\">r'I'm So{3,4} Hungry!'</code> match? Select all that apply.</p></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+        "question_type": "multiple_answers_question",
+        "quiz_group_id": "30000012",
+        "quiz_id": "10000001",
+        "variables": null
+    }
+]
