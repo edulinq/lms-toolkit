@@ -17,11 +17,7 @@ class APITest(tests.server.base.ServerBaseTest):
         with open(path, 'r') as file:
             data = json.load(file)
 
-        parts = data['endpoint'].split('/')
-        prefix = parts[0]
-        suffix = ''.join(parts[1:])
-
-        module_name = '.'.join(['lms', 'api', prefix, suffix])
+        module_name = data['module']
 
         expected = data['expected']
         is_error = data.get('error', False)

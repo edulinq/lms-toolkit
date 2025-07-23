@@ -1,5 +1,5 @@
 {
-    "endpoint": "assignment/fetchsubmissionfiles",
+    "module": "lms.api.assignment.fetchsubmissionfiles",
     "arguments": {
         "assignment": 67892
     },

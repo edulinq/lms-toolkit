@@ -1,5 +1,5 @@
 {
-    "endpoint": "quiz/fetch",
+    "module": "lms.api.quiz.fetch",
     "arguments": {
         "quizzes": [
         ]

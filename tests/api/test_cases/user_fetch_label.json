@@ -1,5 +1,5 @@
 {
-    "endpoint": "user/fetch",
+    "module": "lms.api.user.fetch",
     "arguments": {
         "users": [
             "aalvarez@ucsc.edu (10001)"

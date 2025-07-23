@@ -1,5 +1,5 @@
 {
-    "endpoint": "gradebook/fetch",
+    "module": "lms.api.gradebook.fetch",
     "arguments": {
         "user_queries": [
             "10001"

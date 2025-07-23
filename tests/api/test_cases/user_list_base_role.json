@@ -1,5 +1,5 @@
 {
-    "endpoint": "user/list",
+    "module": "lms.api.user.list",
     "arguments": {
         "include_role": true
     },

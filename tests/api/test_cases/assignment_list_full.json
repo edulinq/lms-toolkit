@@ -1,5 +1,5 @@
 {
-    "endpoint": "assignment/list",
+    "module": "lms.api.assignment.list",
     "arguments": {
         "keys": null
     },

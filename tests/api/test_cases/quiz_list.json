@@ -1,5 +1,5 @@
 {
-    "endpoint": "quiz/list",
+    "module": "lms.api.quiz.list",
     "arguments": {
     },
     "expected": [

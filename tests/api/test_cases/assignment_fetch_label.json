@@ -1,5 +1,5 @@
 {
-    "endpoint": "assignment/fetch",
+    "module": "lms.api.assignment.fetch",
     "arguments": {
         "assignments": [
             "Assignment 1 (67890)"

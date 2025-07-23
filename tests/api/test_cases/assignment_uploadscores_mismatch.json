@@ -1,5 +1,5 @@
 {
-    "endpoint": "assignment/uploadscores",
+    "module": "lms.api.assignment.uploadscores",
     "arguments": {
         "assignment": "67890",
         "users": [

@@ -1,5 +1,5 @@
 {
-    "endpoint": "group/listgroupingmembership",
+    "module": "lms.api.group.listgroupingmembership",
     "arguments": {
         "grouping": "30002"
     },

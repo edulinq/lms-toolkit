@@ -1,5 +1,5 @@
 {
-    "endpoint": "group/listgroups",
+    "module": "lms.api.group.listgroups",
     "arguments": {
     },
     "expected": [
