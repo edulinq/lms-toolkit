@@ -87,6 +87,7 @@ def resolve(queries, course_items, fill_missing = False,
                     item.get('name', ''),
                     item.get('sortable_name', ''),
                     item.get('short_name', ''),
+                    item.get('title', ''),
                 ]
 
                 if (name in names):

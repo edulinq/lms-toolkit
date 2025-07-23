@@ -1,0 +1,9 @@
+{
+    "endpoint": "quiz/fetch",
+    "arguments": {
+        "quizzes": [
+        ]
+    },
+    "expected": [
+    ]
+}

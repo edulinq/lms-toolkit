@@ -1,0 +1,90 @@
+{
+    "cli": "lms.cli.quiz.fetch",
+    "arguments": [
+        "--json",
+        "10000001"
+    ]
+}
+---
+[
+    {
+        "access_code": null,
+        "all_dates": [
+            {
+                "base": true,
+                "due_at": null,
+                "lock_at": null,
+                "unlock_at": null
+            }
+        ],
+        "allowed_attempts": 1,
+        "assignment_group_id": null,
+        "assignment_id": null,
+        "can_unpublish": true,
+        "can_update": true,
+        "cant_go_back": false,
+        "description": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><p></p><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">This quiz is open note, open book, and open world. Assume all regular expressions are done in Python using the <code style=\"margin-left: 0.25em; margin-right: 0.25em\">re</code> standard library. Good luck!</p></div><p></p><br><hr><p>Version: 23ba44bf</p><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+        "due_at": null,
+        "has_access_code": false,
+        "hide_correct_answers_at": null,
+        "hide_results": null,
+        "html_url": "https://canvas.ucsc.edu/courses/12345/quizzes/10000001",
+        "id": "10000001",
+        "important_dates": false,
+        "in_paced_course": false,
+        "ip_filter": null,
+        "lock_at": null,
+        "lock_explanation": "This quiz is currently locked.",
+        "lock_info": {
+            "asset_string": "quizzes:quiz_10000001",
+            "missing_permission": "participate_as_student"
+        },
+        "lockdown_browser_monitor_data": null,
+        "locked_for_user": true,
+        "message_students_url": "https://canvas.ucsc.edu/api/v1/courses/12345/quizzes/10000001/submission_users/message",
+        "migration_id": null,
+        "mobile_url": "https://canvas.ucsc.edu/courses/12345/quizzes/10000001?force_user=1&persist_headless=1",
+        "one_question_at_a_time": false,
+        "one_time_results": false,
+        "only_visible_to_overrides": false,
+        "permissions": {
+            "create": true,
+            "delete": true,
+            "grade": true,
+            "manage": true,
+            "manage_assign_to": true,
+            "preview": true,
+            "read": true,
+            "read_statistics": true,
+            "review_grades": true,
+            "submit": true,
+            "update": true,
+            "view_answer_audits": false
+        },
+        "points_possible": 0.0,
+        "post_to_sis": null,
+        "published": false,
+        "question_count": 2,
+        "quiz_reports_url": "https://canvas.ucsc.edu/api/v1/courses/12345/quizzes/10000001/reports",
+        "quiz_statistics_url": "https://canvas.ucsc.edu/api/v1/courses/12345/quizzes/10000001/statistics",
+        "quiz_submission_versions_html_url": "https://canvas.ucsc.edu/courses/12345/quizzes/10000001/submission_versions",
+        "quiz_type": "practice_quiz",
+        "require_lockdown_browser": false,
+        "require_lockdown_browser_for_results": false,
+        "require_lockdown_browser_monitor": false,
+        "scoring_policy": "keep_highest",
+        "section_count": 1,
+        "show_correct_answers": true,
+        "show_correct_answers_at": null,
+        "show_correct_answers_last_attempt": false,
+        "shuffle_answers": true,
+        "speed_grader_url": null,
+        "time_limit": 30,
+        "timer_autosubmit_disabled": false,
+        "title": "Regular Expressions",
+        "unlock_at": null,
+        "unpublishable": true,
+        "version_number": 2,
+        "visible_to_everyone": true
+    }
+]

@@ -33,6 +33,7 @@ Documentation Table of Contents:
       - [List Members in a Group](#list-members-in-a-group)
     - [Quizzes](#quiz-tools)
       - [List Quizzes](#list-quizzes)
+      - [Fetch a Single Quiz](#fetch-a-single-quiz)
 
 ## Installation
 
@@ -367,11 +368,22 @@ python3 -m lms.cli.group.list-group-members 12345
 python3 -m lms.cli.group.list-group-members 'My Group'
 ```
 
-### Quizzes
+### Quiz Tools
 
 #### List Quizzes
 
 Course quizzes can be listed using the `lms.cli.quiz.list` tool:
 ```
 python3 -m lms.cli.quiz.list
+```
+
+#### Fetch a Single Quiz
+
+Fetch information about a single quiz using the `lms.cli.quiz.fetch` tool.
+For example:
+```
+python3 -m lms.cli.quiz.fetch 123456
+
+# Or using the quiz's name.
+python3 -m lms.cli.quiz.fetch 'My Quiz'
 ```
