@@ -8,10 +8,9 @@ Documentation Table of Contents:
  - [Installation](#installation)
  - [CLI Configuration](#cli-configuration)
  - [Usage Notes](#usage-notes)
-    - [Users](#users)
-    - [Assignments](#assignments)
-    - [Groupings and Groups](#groupings-and-groups)
+    - [Name Resolution and Labels](#name-resolution-and-labels)
     - [Tables](#tables)
+    - [JSON Output](#json-output)
  - [CLI Tools](#cli-tools)
     - [Users](#user-tools)
       - [List Course Users](#list-course-users)
@@ -92,51 +91,16 @@ config files (and thus will not need to be specified).
 
 ## Usage Notes
 
-### Users
+### Name Resolution and Labels
 
-When a user is required, tools and API functions accept a "user query" (unless specified).
-A user query is any object that can be used to uniquely identify a user.
-Valid user queries are:
- - LMS User ID (as an integer or string of digits)
- - Email
- - Full Name
- - "email (id)" where "email" is an email and "id" is a LMS ID
+The LMS Toolkit is able to resolve most objects that have a name,
+so you can refer to that object by name instead of by ID.
+Fields with this resolution will be referred to as "queries".
+The exact attributes that can be used as a query depend on the underlying object,
+for example users can use their name or email in a user query.
 
-User queries must be unambiguous within the pool of possible users (e.g., students in a course).
-It is recommended to use an email or LMS ID as a user query.
-Resolving a user query that is not a LMS ID will take longer,
-because a list of users must be fetched from the LMS.
-
-### Assignments
-
-When an assignment is required, tools and API functions accept an "assignment query" (unless specified).
-An assignment query is any object that can be used to uniquely identify an assignment.
-Valid assignment queries are:
- - LMS Assignment ID (as an integer or string of digits)
- - Full Name
- - "name (id)" where "name" is a full assignment name and "id" is a LMS ID
-
-Assignment queries must be unambiguous within the pool of possible assignments (e.g., assignments in a course).
-Resolving an assignment query that is not a LMS ID will take longer,
-because a list of assignments must be fetched from the LMS.
-
-### Groupings and Groups
-
-A "grouping", also called a "group set" or "group category" in LMS,
-is a set of groups created for a specific purpose (like for a specific assignment).
-A grouping has a name and contains groups.
-A "group" is a collection of users (usually students).
-The hierarchy goes "grouping" -> "group" -> "user".
-
-When a group is required, tools and API functions accept a "group query" (unless specified).
-(All information about group queries also applies to grouping queries.)
-A group query is any object that can be used to uniquely identify a group.
-Valid group queries are:
- - LMS Group ID (as an integer or string of digits)
- - Full Name
- - "name (id)" where "name" is a full group name and "id" is a LMS ID
-
-Group queries must be unambiguous within the pool of possible groups (e.g., groups in a course).
+A "label" is a formatted field that the LMS Toolkit will use in certain cases that includes both the name and id in a single field:
+"name (id)".
 
 ### Tables
 
@@ -153,6 +117,19 @@ Most commands that list results can output them as JSON to stdout using the `--j
 All CLI tools can be invoked with `-h` / `--help` to see the full usage and all options.
 
 ### User Tools
+
+When a user is required, tools and API functions accept a "user query" (unless specified).
+A user query is any object that can be used to uniquely identify a user.
+Valid user queries are:
+ - LMS User ID (as an integer or string of digits)
+ - Email
+ - Full Name
+ - "email (id)" where "email" is an email and "id" is a LMS ID
+
+User queries must be unambiguous within the pool of possible users (e.g., students in a course).
+It is recommended to use an email or LMS ID as a user query.
+Resolving a user query that is not a LMS ID will take longer,
+because a list of users must be fetched from the LMS.
 
 #### List Course Users
 
@@ -174,6 +151,17 @@ python3 -m lms.cli.user.fetch alice@uni.edu
 ```
 
 ### Assignment Tools
+
+When an assignment is required, tools and API functions accept an "assignment query" (unless specified).
+An assignment query is any object that can be used to uniquely identify an assignment.
+Valid assignment queries are:
+ - LMS Assignment ID (as an integer or string of digits)
+ - Full Name
+ - "name (id)" where "name" is a full assignment name and "id" is a LMS ID
+
+Assignment queries must be unambiguous within the pool of possible assignments (e.g., assignments in a course).
+Resolving an assignment query that is not a LMS ID will take longer,
+because a list of assignments must be fetched from the LMS.
 
 #### List Assignments
 
@@ -317,6 +305,22 @@ alice@uni.edu	3
 ```
 
 ### Assignment Group Tools
+
+A "grouping", also called a "group set" or "group category" in LMS,
+is a set of groups created for a specific purpose (like for a specific assignment).
+A grouping has a name and contains groups.
+A "group" is a collection of users (usually students).
+The hierarchy goes "grouping" -> "group" -> "user".
+
+When a group is required, tools and API functions accept a "group query" (unless specified).
+(All information about group queries also applies to grouping queries.)
+A group query is any object that can be used to uniquely identify a group.
+Valid group queries are:
+ - LMS Group ID (as an integer or string of digits)
+ - Full Name
+ - "name (id)" where "name" is a full group name and "id" is a LMS ID
+
+Group queries must be unambiguous within the pool of possible groups (e.g., groups in a course).
 
 #### List Groupings
 
