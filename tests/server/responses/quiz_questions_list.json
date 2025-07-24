@@ -567,7 +567,7 @@
         {
             "id": "20000012",
             "quiz_id": "10000001",
-            "quiz_group_id": "30000012",
+            "quiz_group_id": "30000008",
             "assessment_question_id": "40000012",
             "position": null,
             "question_name": "General Quantification",
