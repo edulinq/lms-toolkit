@@ -1,0 +1,33 @@
+{
+    "module": "lms.api.quiz.question.fetch",
+    "arguments": {
+        "quiz": 10000001,
+        "questions": ["Ice Breaker"]
+    },
+    "expected": [
+        {
+            "id": "20000001",
+            "quiz_id": "10000001",
+            "quiz_group_id": "30000001",
+            "assessment_question_id": "40000001",
+            "position": null,
+            "question_name": "Ice Breaker",
+            "question_type": "essay_question",
+            "question_text": "<link rel=\"stylesheet\" href=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318941/dp_app.css\"><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Taking inspiration from the XKCD comic below,\nhow would you save the day using regular expressions?</p><div class=\"qg-block\" style=\"display: flex; flex-direction: column; justify-content: flex-start; align-items: center\"><p style=\"margin-top: 0\"><img src=\"https://canvas.ucsc.edu/courses/12345/files/8735164/preview?verifier=jg255Kka2iPLE0goBUQkhNqrnc3a9c9LbcxaQO3e\" alt=\"XKCD Comic 208\" width=\"100.00%\" loading=\"lazy\" data-api-endpoint=\"https://canvas.ucsc.edu/api/v1/courses/12345/files/8735164\" data-api-returntype=\"File\"></p></div></div><script src=\"https://instructure-uploads.s3.amazonaws.com/account_92700000000000001/attachments/8318940/dp_app.js\"></script>",
+            "points_possible": 1.0,
+            "correct_comments": "",
+            "incorrect_comments": "",
+            "neutral_comments": "",
+            "correct_comments_html": "",
+            "incorrect_comments_html": "",
+            "neutral_comments_html": "<div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">You can have any answer you want.</p></div>",
+            "answers": [],
+            "variables": null,
+            "formulas": null,
+            "answer_tolerance": null,
+            "formula_decimal_places": null,
+            "matches": null,
+            "matching_answer_incorrect_matches": null
+        }
+    ]
+}

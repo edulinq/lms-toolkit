@@ -22,7 +22,8 @@ def fetch_and_resolve(server, token, course, queries,
 
 def resolve(queries, course_items, fill_missing = False,
         label_uses_email = True,
-        match_email = True, match_name = True):
+        match_email = True, match_name = True,
+        allow_multiple_matches = False):
     """
     Try to match each query to an actual course item.
 
@@ -88,6 +89,7 @@ def resolve(queries, course_items, fill_missing = False,
                     item.get('sortable_name', ''),
                     item.get('short_name', ''),
                     item.get('title', ''),
+                    item.get('question_name', ''),
                 ]
 
                 if (name in names):
@@ -98,14 +100,14 @@ def resolve(queries, course_items, fill_missing = False,
 
             if (fill_missing):
                 items.append(None)
-        elif (len(found_items) > 1):
+        elif ((not allow_multiple_matches) and (len(found_items) > 1)):
             labels = ["%s (%s)" % (str(item.get('email', '')), str(item.get('id', ''))) for item in found_items.values()]
             logging.warning("Query ('%s') matches multiple items: '%s'." % (query, labels))
 
             if (fill_missing):
                 items.append(None)
         else:
-            items.append(list(found_items.values())[0])
+            items += list(found_items.values())
 
     return items
 
