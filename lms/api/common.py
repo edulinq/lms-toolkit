@@ -99,6 +99,11 @@ def validate_param(value, name, param_type = str, optional = False, strip = True
 
         return value
 
+    if (param_type == int):
+        value = int(value)
+
+        return value
+
     if (not isinstance(value, param_type)):
         raise ValueError("Parameter '%s' has the incorrect type '%s', expected '%s'." % (name, type(value), param_type))
 
