@@ -1,0 +1,8 @@
+{
+    "method": "POST",
+    "url": "/api/v1/courses/12345/assignments/67891/submissions/update_grades",
+    "parameters": {
+        "grade_data[10001][posted_grade]": "1.0"
+    },
+    "response_body": "true"
+}

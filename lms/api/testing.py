@@ -89,9 +89,25 @@ class HTTPTest(edq.testing.httpserver.HTTPServerTest):
                 if (error_substring is not None):
                     self.fail(f"Did not get expected error: '{error_substring}'.")
 
-                if (isinstance(expected, dict)):
-                    self.assertJSONDictEqual(expected, actual)
-                elif (isinstance(expected, list)):
-                    self.assertJSONListEqual(expected, actual)
+                # If we expect a tuple, compare the tuple contents instead of the tuple itself.
+                if (isinstance(expected, tuple)):
+                    if (not isinstance(actual, tuple)):
+                        raise ValueError(f"Expected results to be a tuple, found '{type(actual)}'.")
+
+                    if (len(expected) != len(actual)):
+                        raise ValueError(f"Result size mismatch. Expected: {len(expected)}, Actual: {len(actual)}.")
                 else:
-                    self.assertEqual(expected, actual)
+                    # Wrap the results in a tuple.
+                    expected = (expected, )
+                    actual = (actual, )
+
+                for i in range(len(expected)):
+                    expected_value = expected[i]
+                    actual_value = actual[i]
+
+                    if (isinstance(expected_value, dict)):
+                        self.assertJSONDictEqual(expected_value, actual_value)
+                    elif (isinstance(expected_value, list)):
+                        self.assertJSONListEqual(expected_value, actual_value)
+                    else:
+                        self.assertEqual(expected_value, actual_value)
