@@ -13,6 +13,7 @@ __pycache__/
 
 /test.*
 /*_test.*
+/test_*
 
 /.secrets
 
