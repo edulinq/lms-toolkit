@@ -1,28 +1,12 @@
 import lms.api.testing
 import lms.api.user.fetch
+import lms.api.user.testing
 
 class UserGetTest(lms.api.testing.HTTPTest):
     """ Test getting course users. """
 
     def test_user_get_base(self):
-        """ Test the base functionality of users/get. """
-
-        user_infos = {
-            '10001': {
-                "email": "aalvarez@ucsc.edu",
-                "enrollment": "<unknown>",
-                "id": "10001",
-                "name": "Alice Alvarez",
-                "sis_user_id": "1000001"
-            },
-            '10002': {
-                "email": "bburnquist@ucsc.edu",
-                "enrollment": "<unknown>",
-                "id": "10002",
-                "name": "Bob Burnquist",
-                "sis_user_id": "1000002"
-            }
-        }
+        """ Test the base functionality of fetching a user. """
 
         # [(kwargs (and overrides), expected, error substring), ...]
         test_cases = [
@@ -42,7 +26,7 @@ class UserGetTest(lms.api.testing.HTTPTest):
                 {
                     'users': ['10001'],
                 },
-                [user_infos['10001']],
+                [lms.api.user.testing.USERS['10001']],
                 None,
             ),
 
@@ -50,7 +34,7 @@ class UserGetTest(lms.api.testing.HTTPTest):
                 {
                     'users': ['10001'],
                 },
-                [user_infos['10001']],
+                [lms.api.user.testing.USERS['10001']],
                 None,
             ),
 
@@ -58,7 +42,7 @@ class UserGetTest(lms.api.testing.HTTPTest):
                 {
                     'users': ['aalvarez@ucsc.edu'],
                 },
-                [user_infos['10001']],
+                [lms.api.user.testing.USERS['10001']],
                 None,
             ),
 
@@ -66,7 +50,7 @@ class UserGetTest(lms.api.testing.HTTPTest):
                 {
                     'users': ['aalvarez@ucsc.edu (10001)'],
                 },
-                [user_infos['10001']],
+                [lms.api.user.testing.USERS['10001']],
                 None,
             ),
 
@@ -74,7 +58,7 @@ class UserGetTest(lms.api.testing.HTTPTest):
                 {
                     'users': ['Alice Alvarez'],
                 },
-                [user_infos['10001']],
+                [lms.api.user.testing.USERS['10001']],
                 None,
             ),
 
@@ -98,8 +82,8 @@ class UserGetTest(lms.api.testing.HTTPTest):
                     ],
                 },
                 [
-                    user_infos['10001'],
-                    user_infos['10002'],
+                    lms.api.user.testing.USERS['10001'],
+                    lms.api.user.testing.USERS['10002'],
                 ],
                 None,
             ),
@@ -112,8 +96,8 @@ class UserGetTest(lms.api.testing.HTTPTest):
                     ],
                 },
                 [
-                    user_infos['10001'],
-                    user_infos['10002'],
+                    lms.api.user.testing.USERS['10001'],
+                    lms.api.user.testing.USERS['10002'],
                 ],
                 None,
             ),
@@ -126,8 +110,8 @@ class UserGetTest(lms.api.testing.HTTPTest):
                     ],
                 },
                 [
-                    user_infos['10001'],
-                    user_infos['10002'],
+                    lms.api.user.testing.USERS['10001'],
+                    lms.api.user.testing.USERS['10002'],
                 ],
                 None,
             ),
@@ -140,8 +124,8 @@ class UserGetTest(lms.api.testing.HTTPTest):
                     ],
                 },
                 [
-                    user_infos['10001'],
-                    user_infos['10002'],
+                    lms.api.user.testing.USERS['10001'],
+                    lms.api.user.testing.USERS['10002'],
                 ],
                 None,
             ),
@@ -154,7 +138,7 @@ class UserGetTest(lms.api.testing.HTTPTest):
                     ],
                 },
                 [
-                    user_infos['10001'],
+                    lms.api.user.testing.USERS['10001'],
                 ],
                 None,
             ),

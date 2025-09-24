@@ -72,6 +72,12 @@ def request(server = None, token = None, course = None, assignment = None, **kwa
                     logging.warning("Attachment at index %d for user %s has no URL." % (i, email))
                     continue
 
+                url = url.strip()
+
+                # Tests will leave off the server portion.
+                if (not url.startswith('http')):
+                    url = server + url
+
                 if (email not in file_targets):
                     file_targets[email] = []
 
