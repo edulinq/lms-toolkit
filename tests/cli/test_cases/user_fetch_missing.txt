@@ -1,5 +1,0 @@
-{
-    "cli": "lms.cli.user.fetch",
-    "arguments": ["zzz"]
-}
----

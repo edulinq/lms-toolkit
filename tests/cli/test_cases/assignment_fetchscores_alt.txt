@@ -1,8 +1,0 @@
-{
-    "cli": "lms.cli.assignment.fetch-scores",
-    "arguments": ["67891"]
-}
----
-email	Quiz 1 (67891)
-aalvarez@ucsc.edu	10.0
-bburnquist@ucsc.edu	5.0

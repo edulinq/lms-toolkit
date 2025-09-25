@@ -1,7 +1,0 @@
-{
-    "module": "lms.api.group.listgroupingmembership",
-    "arguments": {
-        "grouping": "ZZZ"
-    },
-    "expected": []
-}

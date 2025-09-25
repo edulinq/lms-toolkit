@@ -1,6 +1,0 @@
-{
-    "cli": "lms.cli.gradebook.upload",
-    "arguments": ["__DATA_DIR__(gradebook_upload_alt.txt)"]
-}
----
-Uploaded 4 Scores

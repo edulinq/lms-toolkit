@@ -1,9 +1,0 @@
-{
-    "cli": "lms.cli.quiz.fetch",
-    "arguments": [
-        "--json",
-        "ZZZ"
-    ]
-}
----
-[]

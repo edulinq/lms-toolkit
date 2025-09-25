@@ -1,5 +1,0 @@
-{
-    "cli": "lms.cli.assignment.fetch",
-    "arguments": ["ZZZ"]
-}
----

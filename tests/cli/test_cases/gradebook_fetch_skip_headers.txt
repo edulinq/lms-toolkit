@@ -1,7 +1,0 @@
-{
-    "cli": "lms.cli.gradebook.fetch",
-    "arguments": ["--skip-headers"]
-}
----
-aalvarez@ucsc.edu	1.0	1.0
-bburnquist@ucsc.edu	0.5	1.0

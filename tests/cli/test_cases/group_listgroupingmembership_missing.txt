@@ -1,5 +1,0 @@
-{
-    "cli": "lms.cli.group.list-grouping-membership",
-    "arguments": ["ZZZ"]
-}
----

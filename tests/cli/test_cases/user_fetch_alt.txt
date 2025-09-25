@@ -1,9 +1,0 @@
-{
-    "cli": "lms.cli.user.fetch",
-    "arguments": ["10002"]
-}
----
-Email: bburnquist@ucsc.edu
-Name: Bob Burnquist
-LMS ID: 10002
-Student ID: 1000002

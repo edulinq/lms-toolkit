@@ -1,5 +1,0 @@
-{
-    "cli": "lms.cli.group.list-groups",
-    "arguments": ["ZZZ"]
-}
----

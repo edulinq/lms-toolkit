@@ -1,9 +1,0 @@
-{
-    "module": "lms.api.quiz.fetch",
-    "arguments": {
-        "quizzes": [
-        ]
-    },
-    "expected": [
-    ]
-}

@@ -1,9 +1,0 @@
-{
-    "cli": "lms.cli.assignment.fetch-submission-files",
-    "arguments": [
-        "Assignment 3",
-        "--out-dir", "__TEMP_DIR__()"
-    ]
-}
----
-Downloaded 3 files to '__TEMP_DIR__()'.

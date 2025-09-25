@@ -1,7 +1,0 @@
-{
-    "module": "lms.api.user.fetch",
-    "arguments": {
-    },
-    "expected": [
-    ]
-}

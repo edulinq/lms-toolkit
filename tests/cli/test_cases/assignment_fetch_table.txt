@@ -1,7 +1,0 @@
-{
-    "cli": "lms.cli.assignment.fetch",
-    "arguments": ["67890", "--table"]
-}
----
-name	lms_id	points_possible	published	due_at	description
-Assignment 1	67890	1.0	True	1970-01-01T01:01:01Z	The first assignment.

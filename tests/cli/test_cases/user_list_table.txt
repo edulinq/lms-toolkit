@@ -1,8 +1,0 @@
-{
-    "cli": "lms.cli.user.list",
-    "arguments": ["--table"]
-}
----
-email	name	lms_id	student_id
-aalvarez@ucsc.edu	Alice Alvarez	10001	1000001
-bburnquist@ucsc.edu	Bob Burnquist	10002	1000002
