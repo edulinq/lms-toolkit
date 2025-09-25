@@ -41,3 +41,24 @@ class APIBackend():
         """
 
         raise NotImplementedError('courses_assignments_list')
+
+    def validate_string(self, raw_value: typing.Any, name: str, strip: bool = True) -> str:
+        """ Validate and clean a string parameter. """
+
+        if (raw_value is None):
+            raise ValueError(f"Parameter '{name}' is None, when it should be a string.")
+
+        value = str(raw_value)
+
+        if (strip):
+            text = text.strip()
+
+        return text
+
+    def validate_int(self, raw_value: typing.Any, name: str) -> int:
+        """ Validate and clean an int parameter. """
+
+        if (raw_value is None):
+            raise ValueError(f"Parameter '{name}' is None, when it should be an int.")
+
+        return int(raw_value)

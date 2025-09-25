@@ -1,6 +1,8 @@
 import typing
 
+import lms.backend.canvas.courses.assignments.list
 import lms.backend.canvas.courses.users.list
+import lms.model.assignments
 import lms.model.backend
 import lms.model.users
 
@@ -27,7 +29,11 @@ class CanvasBackend(lms.model.backend.APIBackend):
     def courses_users_list(self,
             course_id: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
-        # TEST - Common validation
-        parsed_course_id = int(course_id)
-
+        parsed_course_id = self.validate_int(course_id, 'course_id')
         return lms.backend.canvas.courses.users.list.request(self, parsed_course_id)
+
+    def courses_assignments_list(self,
+            course_id: str,
+            **kwargs: typing.Any) -> typing.List[lms.model.assignments.Assignment]:
+        parsed_course_id = self.validate_int(course_id, 'course_id')
+        return lms.backend.canvas.courses.assignments.list.request(self, parsed_course_id)

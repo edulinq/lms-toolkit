@@ -7,7 +7,7 @@ import lms.model.backend
 THIS_DIR: str = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 TEST_EXCHANGES_DIR: str = os.path.join(THIS_DIR, "testdata", "http", 'exchanges')
 
-TEST_TOKEN: str = 'TEST'
+TEST_TOKEN: str = 'CANVAS_TEST_TOKEN'
 
 class CanvasBackendTest(lms.backend.testing.BackendTest):
     """ A backend test for Canvas. """
