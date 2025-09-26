@@ -51,9 +51,9 @@ class APIBackend():
         value = str(raw_value)
 
         if (strip):
-            text = text.strip()
+            value = value.strip()
 
-        return text
+        return value
 
     def validate_int(self, raw_value: typing.Any, name: str) -> int:
         """ Validate and clean an int parameter. """

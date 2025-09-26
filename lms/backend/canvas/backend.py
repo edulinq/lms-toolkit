@@ -21,6 +21,8 @@ class CanvasBackend(lms.model.backend.APIBackend):
         self.token: str = token
 
     def get_standard_headers(self) -> typing.Dict[str, str]:
+        """ Get standard Canvas headers. """
+
         return {
             "Authorization": f"Bearer {self.token}",
             "Accept": "application/json+canvas-string-ids",

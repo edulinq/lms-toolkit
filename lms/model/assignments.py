@@ -3,7 +3,7 @@ import typing
 import edq.util.json
 import edq.util.time
 
-class Assignment(edq.util.json.DictConverter):
+class Assignment(edq.util.json.DictConverter):  # type: ignore[misc]
     """
     An assignment within a course.
     """

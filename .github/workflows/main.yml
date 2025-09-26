@@ -7,6 +7,7 @@ on:
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
         os: ['ubuntu-22.04', 'ubuntu-24.04', 'macos-13', 'macos-14', 'macos-15', 'windows-2022', 'windows-2025']
@@ -17,8 +18,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set Up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
+        env:
+          PIP_DISABLE_PIP_VERSION_CHECK: 1
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -26,15 +29,23 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.pythonLocation }}
-          key: ${{ runner.os }}-os:${{ matrix.os }}-python:${{ matrix.python-version }}-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('requirements.txt') }}
+          key: ${{ runner.os }}-os:${{ matrix.os }}-python:${{ matrix.python-version }}-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}-${{ hashFiles('requirements-dev.txt') }}-${{ hashFiles('pyproject.toml') }}
 
-      - name: Install Python Dependencies
+      - name: Install Dependencies
         shell: bash
         run: pip3 install -r requirements.txt -r requirements-dev.txt
 
       - name: Check Python Version Compatibility
         shell: bash
-        run: vermin --no-tips --no-parse-comments --exclude ast.unparse --target=3.8- --violations lms
+        run: scripts/check_python_version.sh
+
+      - name: Check Types
+        shell: bash
+        run: ./scripts/check_types.sh
+
+      - name: Check Lint
+        shell: bash
+        run: ./scripts/check_lint.sh
 
       - name: Run Tests
         shell: bash
@@ -56,6 +67,8 @@ jobs:
 
       - name: Set Up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
+        env:
+          PIP_DISABLE_PIP_VERSION_CHECK: 1
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -63,11 +76,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.pythonLocation }}
-          key: ${{ runner.os }}-os:${{ matrix.os }}-python:${{ matrix.python-version }}-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('requirements.txt') }}
+          key: ${{ runner.os }}-os:${{ matrix.os }}-python:${{ matrix.python-version }}-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}-${{ hashFiles('requirements-dev.txt') }}-${{ hashFiles('pyproject.toml') }}
 
       - name: Install Python Dependencies
         shell: bash
         run: pip3 install -r requirements.txt -r requirements-dev.txt
+
+      - name: Generate Documentation
+        shell: bash
+        run: ./scripts/gen_docs.sh
 
       - name: Deploy
         uses: casperdcl/deploy-pypi@10cf4cd83fc885003a8d4f37f93a5a0f0fc2d2f4  # v2.4.1

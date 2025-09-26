@@ -2,18 +2,21 @@ import datetime
 import typing
 
 import edq.util.json
+import edq.util.net
 import edq.util.time
+import requests
 
-import lms.util.net
+DEFAULT_PAGE_SIZE: int = 95
+HEADER_LINK: str = 'Link'
 
-DEFAULT_PAGE_SIZE = 95
-HEADER_LINK = 'Link'
+def fetch_next_canvas_link(response: requests.Response) -> typing.Union[str, None]:
+    """
+    Fetch the Canvas-style next link within the headers.
+    If there is no next link, return None.
+    """
 
-# TEST - Clean
+    headers = response.headers
 
-# TEST - Type
-
-def fetch_next_canvas_link(headers):
     if (HEADER_LINK not in headers):
         return None
 
@@ -26,18 +29,22 @@ def fetch_next_canvas_link(headers):
         if (parts[1].strip() != 'rel="next"'):
             continue
 
-        return parts[0].strip().strip('<>')
+        return str(parts[0].strip().strip('<>'))
 
     return None
 
-# Repeatedly call make_get_request() (using a JSON body and next link) until there are no more results.
-def make_get_request_list(url, headers):
+def make_get_request_list(
+        url: typing.Union[str, None],
+        headers: typing.Dict[str, typing.Any],
+        ) -> typing.List[typing.Dict[str, typing.Any]]:
+    """ Repeatedly call make_get_request() (using a JSON body and next link) until there are no more results. """
+
     output = []
 
     while (url is not None):
-        response, body_text = lms.util.net.make_get(url, headers)
+        response, body_text = edq.util.net.make_get(url, headers = headers)
 
-        url = fetch_next_canvas_link(response.headers)
+        url = fetch_next_canvas_link(response)
         new_results = edq.util.json.loads(body_text)
 
         for new_result in new_results:
@@ -46,7 +53,7 @@ def make_get_request_list(url, headers):
     return output
 
 def parse_timestamp(value: typing.Union[str, None]) -> typing.Union[edq.util.time.Timestamp, None]:
-    """ Parse a Canvas timestamp into a common form. """
+    """ Parse a Canvas-style timestamp into a common form. """
 
     if (value is None):
         return None

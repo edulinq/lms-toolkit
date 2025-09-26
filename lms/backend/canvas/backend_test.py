@@ -1,5 +1,4 @@
 import os
-import typing
 
 import lms.backend.testing
 import lms.model.backend

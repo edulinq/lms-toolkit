@@ -2,7 +2,7 @@ import typing
 
 import edq.util.json
 
-class CourseUser(edq.util.json.DictConverter):
+class CourseUser(edq.util.json.DictConverter):  # type: ignore[misc]
     """
     A user associated with a course, e.g., an instructor or student.
     """

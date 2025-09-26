@@ -1,4 +1,2 @@
 edq-utils>=0.0.5
-json5>=0.9.14
-platformdirs>=3.10.0
 requests>=2.31.0

@@ -1,8 +1,10 @@
 [build-system]
 build-backend = "setuptools.build_meta"
 requires = [
-    "setuptools",
+    "build",
     "packaging>=21.3",
+    "setuptools>=60",
+    "setuptools-scm>=8.0",
     "twine",
     "vermin",
 ]
@@ -40,7 +42,12 @@ optional-dependencies = {dev = {file = ["requirements-dev.txt"]}}
 Homepage = "https://github.com/edulinq/lms-toolkit"
 Repository = "https://github.com/edulinq/lms-toolkit"
 
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"*" = ["*"]
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["lms*"]
-namespaces = false

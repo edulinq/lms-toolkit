@@ -17,20 +17,7 @@ TEST_FILENAME_GLOB_PATTERN: str = '*_backendtest.py'
 TEST_COURSE_ID: str = '12345'
 """ The standard test course ID. """
 
-@typing.runtime_checkable
-class BackendTestFunction(typing.Protocol):
-    """
-    A test function for backend tests.
-    A copy of this function will be attached to a test class created for each backend.
-    Therefore, `self` will be an instance of BackendTest.
-    """
-
-    def __call__(self) -> None:
-        """
-        A unit test for a BackendTest.
-        """
-
-class BackendTest(edq.testing.httpserver.HTTPServerTest):
+class BackendTest(edq.testing.httpserver.HTTPServerTest):  # type: ignore[misc]
     """
     A special test suite that is common across all LMS backends.
 
@@ -128,8 +115,8 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
                     if (stop_on_notimplemented):
                         skip_reason = str(ex)
                         break
-                    else:
-                        self.skipTest(f"Backend component not implemented: {str(ex)}.")
+
+                    self.skipTest(f"Backend component not implemented: {str(ex)}.")
                 except Exception as ex:
                     error_string = self.format_error_string(ex)
                     if (error_substring is None):
@@ -154,7 +141,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
                     expected = (expected, )
                     actual = (actual, )
 
-                for i in range(len(expected)):
+                for i in range(len(expected)):  # pylint: disable=consider-using-enumerate
                     expected_value = expected[i]
                     actual_value = actual[i]
 
@@ -167,6 +154,19 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
 
         if (skip_reason is not None):
             self.skipTest(f"Backend component not implemented: {skip_reason}.")
+
+@typing.runtime_checkable
+class BackendTestFunction(typing.Protocol):
+    """
+    A test function for backend tests.
+    A copy of this function will be attached to a test class created for each backend.
+    Therefore, `self` will be an instance of BackendTest.
+    """
+
+    def __call__(self, test: BackendTest) -> None:
+        """
+        A unit test for a BackendTest.
+        """
 
 def _wrap_test_function(test_function: BackendTestFunction) -> typing.Callable:
     """ Wrap the backend test function in some common code for backend tests. """
