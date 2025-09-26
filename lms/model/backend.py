@@ -3,11 +3,6 @@ import typing
 import lms.model.assignments
 import lms.model.users
 
-BACKEND_TYPE_CANVAS: str = 'canvas'
-BACKEND_TYPES: typing.List[str] = [
-    BACKEND_TYPE_CANVAS,
-]
-
 class APIBackend():
     """
     API backends provide a unified interface to an LMS.

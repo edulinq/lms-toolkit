@@ -1,6 +1,7 @@
 import typing
 
 import lms.backend.canvas.backend
+import lms.model.constants
 import lms.model.backend
 
 def get_backend(
@@ -16,10 +17,10 @@ def get_backend(
     if (backend_type is None):
         backend_type = guess_backend_type(server)
 
-    if (backend_type == lms.model.backend.BACKEND_TYPE_CANVAS):
+    if (backend_type == lms.model.constants.BACKEND_TYPE_CANVAS):
         return lms.backend.canvas.backend.CanvasBackend(server, **kwargs)
 
-    raise ValueError(f"Unknown backend type: '{backend_type}'. Known backend types: {lms.model.backend.BACKEND_TYPES}.")
+    raise ValueError(f"Unknown backend type: '{backend_type}'. Known backend types: {lms.model.constants.BACKEND_TYPES}.")
 
 def guess_backend_type(server: str) -> str:
     """
@@ -28,6 +29,6 @@ def guess_backend_type(server: str) -> str:
     """
 
     if ('canvas' in server.lower()):
-        return lms.model.backend.BACKEND_TYPE_CANVAS
+        return lms.model.constants.BACKEND_TYPE_CANVAS
 
     raise ValueError(f"Unable to guess backend type from server: '{server}'.")

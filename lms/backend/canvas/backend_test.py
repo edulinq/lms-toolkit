@@ -1,7 +1,7 @@
 import os
 
 import lms.backend.testing
-import lms.model.backend
+import lms.model.constants
 
 THIS_DIR: str = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 TEST_EXCHANGES_DIR: str = os.path.join(THIS_DIR, "testdata", "http", 'exchanges')
@@ -13,9 +13,9 @@ class CanvasBackendTest(lms.backend.testing.BackendTest):
 
     @classmethod
     def child_class_setup(cls) -> None:
-        cls.server_key = lms.model.backend.BACKEND_TYPE_CANVAS
+        cls.server_key = lms.model.constants.BACKEND_TYPE_CANVAS
 
-        cls.backend_type = lms.model.backend.BACKEND_TYPE_CANVAS
+        cls.backend_type = lms.model.constants.BACKEND_TYPE_CANVAS
 
         cls.exchanges_dir = TEST_EXCHANGES_DIR
 
