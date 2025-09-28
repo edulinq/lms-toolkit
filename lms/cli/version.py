@@ -5,9 +5,8 @@ Get the version of the LMS Toolkit package.
 import argparse
 import sys
 
-import edq.core.argparser
-
 import lms
+import lms.cli.parser
 
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
@@ -19,10 +18,12 @@ def main() -> int:
     """ Get a parser, parse the args, and call run. """
     return run_cli(_get_parser().parse_args())
 
-def _get_parser() -> edq.core.argparser.Parser:
+def _get_parser() -> argparse.ArgumentParser:
     """ Get the parser. """
 
-    return edq.core.argparser.get_default_parser(__doc__.strip())
+    return lms.cli.parser.get_parser(__doc__.strip(),
+            include_server = False,
+    )
 
 if (__name__ == '__main__'):
     sys.exit(main())

@@ -5,7 +5,7 @@ import lms.model.constants
 import lms.model.backend
 
 def get_backend(
-        server: str,
+        server: typing.Union[str, None] = None,
         backend_type: typing.Union[str, None] = None,
         **kwargs: typing.Any) -> lms.model.backend.APIBackend:
     """
@@ -13,6 +13,13 @@ def get_backend(
     If the backend type is not explicitly provided,
     this function will attempt to guess it from other information.
     """
+
+    if (server is None):
+        raise ValueError("No LMS server address provided.")
+
+    server = server.strip()
+    if (not server.startswith('http')):
+        server = 'http://' + server
 
     if (backend_type is None):
         backend_type = guess_backend_type(server)
