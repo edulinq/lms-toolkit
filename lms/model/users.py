@@ -1,13 +1,13 @@
 import typing
 
-import edq.util.json
+import lms.model.base
 
-class CourseUser(edq.util.json.DictConverter):  # type: ignore[misc]
+class CourseUser(lms.model.base.BaseType):
     """
     A user associated with a course, e.g., an instructor or student.
     """
 
-    COMMON_FIELDS: list[str] = ['id', 'name', 'email', 'username', 'role']
+    CORE_FIELDS: list[str] = ['id', 'name', 'email', 'username', 'role']
     """ The common fields shared across backends for this type. """
 
     def __init__(self,
@@ -34,14 +34,3 @@ class CourseUser(edq.util.json.DictConverter):  # type: ignore[misc]
 
         self.extra_fields: typing.Dict[str, typing.Any] = kwargs.copy()
         """ Additional fields not common to all backends or explicitly used by the creating child backend. """
-
-    def __eq__(self, other: object) -> bool:
-        if (not isinstance(other, CourseUser)):
-            return False
-
-        # Check the common fields only.
-        for field_name in self.COMMON_FIELDS:
-            if (getattr(self, field_name) != getattr(other, field_name)):
-                return False
-
-        return True

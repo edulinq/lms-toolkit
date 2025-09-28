@@ -1,6 +1,7 @@
 import typing
 
 BACKEND_TYPE_CANVAS: str = 'canvas'
+
 BACKEND_TYPES: typing.List[str] = [
     BACKEND_TYPE_CANVAS,
 ]

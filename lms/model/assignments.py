@@ -1,19 +1,19 @@
 import typing
 
-import edq.util.json
 import edq.util.time
 
-class Assignment(edq.util.json.DictConverter):  # type: ignore[misc]
+import lms.model.base
+
+class Assignment(lms.model.base.BaseType):
     """
     An assignment within a course.
     """
 
-    COMMON_FIELDS: list[str] = [
+    CORE_FIELDS = [
         'id', 'name', 'description',
         'open_date', 'close_date', 'due_date',
         'points_possible', 'position', 'group_id',
     ]
-    """ The common fields shared across backends for this type. """
 
     def __init__(self,
             id: typing.Union[str, None] = None,
@@ -55,14 +55,3 @@ class Assignment(edq.util.json.DictConverter):  # type: ignore[misc]
 
         self.extra_fields: typing.Dict[str, typing.Any] = kwargs.copy()
         """ Additional fields not common to all backends or explicitly used by the creating child backend. """
-
-    def __eq__(self, other: object) -> bool:
-        if (not isinstance(other, Assignment)):
-            return False
-
-        # Check the common fields only.
-        for field_name in self.COMMON_FIELDS:
-            if (getattr(self, field_name) != getattr(other, field_name)):
-                return False
-
-        return True
