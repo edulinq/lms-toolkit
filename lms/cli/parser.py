@@ -9,6 +9,8 @@ import edq.core.argparser
 
 import lms.model.constants
 
+CONFIG_FILENAME: str = 'edq-lms.json'
+
 def get_parser(description: str,
         include_server: bool = True,
         include_token: bool = False,
@@ -20,11 +22,10 @@ def get_parser(description: str,
     Get an argument parser specialized for LMS Toolkit.
     """
 
-    # TEST - Set a filename for the config search. "edq-lms.json"?
-
     parser = edq.core.argparser.get_default_parser(
             description,
             include_net = include_net,
+            config_filename = CONFIG_FILENAME,
     )
 
     if (include_server):
