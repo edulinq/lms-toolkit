@@ -4,7 +4,8 @@ import lms.backend.testing
 import lms.model.constants
 
 THIS_DIR: str = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-TEST_EXCHANGES_DIR: str = os.path.join(THIS_DIR, "testdata", "http", 'exchanges')
+ROOT_DIR: str = os.path.join(THIS_DIR, '..', '..', '..')
+TEST_EXCHANGES_DIR: str = os.path.join(ROOT_DIR, "testdata", "canvas")
 
 TEST_TOKEN: str = 'CANVAS_TEST_TOKEN'
 

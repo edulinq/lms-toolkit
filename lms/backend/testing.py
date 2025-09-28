@@ -14,7 +14,7 @@ TESTS_DIR: str = os.path.join(THIS_DIR, "tests")
 TEST_FUNC_NAME_PREFIX: str = 'test_'
 TEST_FILENAME_GLOB_PATTERN: str = '*_backendtest.py'
 
-TEST_COURSE_ID: str = '12345'
+TEST_COURSE_ID: str = '1'
 """ The standard test course ID. """
 
 class BackendTest(edq.testing.httpserver.HTTPServerTest):  # type: ignore[misc]

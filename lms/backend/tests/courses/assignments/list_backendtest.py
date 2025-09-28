@@ -1,5 +1,5 @@
 import lms.backend.testing
-import lms.backend.tests.courses.assignments.testing
+import testdata.common.model.assignments
 
 def test_courses_assignments_list_base(test: lms.backend.testing.BackendTest):
     """ Test the base functionality of listing course assignments. """
@@ -9,9 +9,7 @@ def test_courses_assignments_list_base(test: lms.backend.testing.BackendTest):
         (
             {},
             [
-                lms.backend.tests.courses.assignments.testing.ASSIGNMENTS['67890'],
-                lms.backend.tests.courses.assignments.testing.ASSIGNMENTS['67891'],
-                lms.backend.tests.courses.assignments.testing.ASSIGNMENTS['67892'],
+                testdata.common.model.assignments.COURSE_ASSIGNMENTS['1']['Homework 0'],
             ],
             None,
         ),
