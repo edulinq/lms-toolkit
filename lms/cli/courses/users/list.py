@@ -33,8 +33,6 @@ def main() -> int:
 def _get_parser() -> argparse.ArgumentParser:
     """ Get the parser. """
 
-    # TEST - Include Role
-
     return lms.cli.parser.get_parser(__doc__.strip(),
             include_token = True,
             include_output_format = True,
