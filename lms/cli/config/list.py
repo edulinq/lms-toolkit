@@ -14,7 +14,7 @@ CONFIG_FIELD_SEPARATOR: str = "\t"
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
-    return edq.cli.config.list.run_cli(args)
+    return int(edq.cli.config.list.run_cli(args))
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """

@@ -22,10 +22,20 @@ def get_parser(description: str,
     Get an argument parser specialized for LMS Toolkit.
     """
 
+    config_options = {
+        'config_filename': CONFIG_FILENAME,
+        'cli_arg_config_map': {
+            'server': 'server',
+            'backend_type': 'backend_type',
+            'token': 'token',
+            'course': 'course',
+        },
+    }
+
     parser = edq.core.argparser.get_default_parser(
             description,
             include_net = include_net,
-            config_filename = CONFIG_FILENAME,
+            config_options = config_options,
     )
 
     if (include_server):
