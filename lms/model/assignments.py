@@ -26,6 +26,8 @@ class Assignment(lms.model.base.BaseType):
             position: typing.Union[int, None] = None,
             group_id: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
+        super().__init__(**kwargs)
+
         self.id: typing.Union[str, None] = id
         """ The LMS's identifier for this assignment. """
 
@@ -52,6 +54,3 @@ class Assignment(lms.model.base.BaseType):
 
         self.group_id: typing.Union[str, None] = group_id
         """ The LMS's identifier for the group this assignment appears in. """
-
-        self.extra_fields: typing.Dict[str, typing.Any] = kwargs.copy()
-        """ Additional fields not common to all backends or explicitly used by the creating child backend. """

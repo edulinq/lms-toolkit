@@ -17,6 +17,8 @@ class CourseUser(lms.model.base.BaseType):
             name: typing.Union[str, None] = None,
             role: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
+        super().__init__(**kwargs)
+
         self.id: typing.Union[str, None] = id
         """ The LMS's identifier for this user. """
 
@@ -31,6 +33,3 @@ class CourseUser(lms.model.base.BaseType):
 
         self.role: typing.Union[str, None] = role
         """ The role of this user within this course (e.g., instructor, student). """
-
-        self.extra_fields: typing.Dict[str, typing.Any] = kwargs.copy()
-        """ Additional fields not common to all backends or explicitly used by the creating child backend. """

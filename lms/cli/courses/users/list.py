@@ -19,6 +19,7 @@ def run_cli(args: argparse.Namespace) -> int:
     output = lms.model.base.base_list_to_output_format(users, args.output_format,
             skip_headers = args.skip_headers,
             pretty_headers = args.pretty_headers,
+            include_extra_fields = args.include_extra_fields,
     )
 
     print(output)

@@ -62,7 +62,7 @@ def get_parser(description: str,
         parser.add_argument('--format', dest = 'output_format',
             action = 'store', type = str,
             default = lms.model.constants.OUTPUT_FORMAT_TEXT, choices = lms.model.constants.OUTPUT_FORMATS,
-            help = 'The format to display the outut as (default: %(default)s).')
+            help = 'The format to display the output as (default: %(default)s).')
 
         parser.add_argument('--skip-headers', dest = 'skip_headers',
             action = 'store_true', default = False,
@@ -71,5 +71,9 @@ def get_parser(description: str,
         parser.add_argument('--pretty-headers', dest = 'pretty_headers',
             action = 'store_true', default = False,
             help = 'When displaying headers, try to make them look "pretty" (default: %(default)s).')
+
+        parser.add_argument('--include-extra-fields', dest = 'include_extra_fields',
+            action = 'store_true', default = False,
+            help = 'Include non-common (usually LMS-specific) fields in results (default: %(default)s).')
 
     return typing.cast(argparse.ArgumentParser, parser)
