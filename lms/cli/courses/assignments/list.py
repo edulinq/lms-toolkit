@@ -12,10 +12,10 @@ import lms.model.base
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
-    # TEST - Adjust when new CLI changes come in.
-    backend = lms.backend.backend.get_backend(**vars(args))
+    config = args._config
+    backend = lms.backend.backend.get_backend(**config)
 
-    assignments = backend.courses_assignments_list(args.course)
+    assignments = backend.courses_assignments_list(config['course'])
     output = lms.model.base.base_list_to_output_format(assignments, args.output_format,
             skip_headers = args.skip_headers,
             pretty_headers = args.pretty_headers,
