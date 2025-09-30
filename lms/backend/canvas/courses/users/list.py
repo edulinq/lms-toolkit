@@ -3,7 +3,7 @@ import typing
 import lms.backend.canvas.common
 import lms.backend.canvas.model.users
 
-BASE_ENDPOINT = "/api/v1/courses/{course}/users?per_page={page_size}"
+BASE_ENDPOINT = "/api/v1/courses/{course_id}/users?per_page={page_size}"
 
 def request(backend: typing.Any,
         course_id: int,
@@ -11,7 +11,7 @@ def request(backend: typing.Any,
         ) -> typing.List[lms.backend.canvas.model.users.CourseUser]:
     """ List course users. """
 
-    url = backend.server + BASE_ENDPOINT.format(course = course_id, page_size = lms.backend.canvas.common.DEFAULT_PAGE_SIZE)
+    url = backend.server + BASE_ENDPOINT.format(course_id = course_id, page_size = lms.backend.canvas.common.DEFAULT_PAGE_SIZE)
     headers = backend.get_standard_headers()
 
     if (include_role):

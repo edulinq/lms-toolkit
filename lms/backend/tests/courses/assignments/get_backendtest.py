@@ -1,0 +1,133 @@
+import lms.backend.testing
+import lms.model.assignments
+import testdata.common.model.assignments
+
+def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
+    """ Test the base functionality of getting course assignments. """
+
+    # [(kwargs (and overrides), expected, error substring), ...]
+    test_cases = [
+        # Empty
+        (
+            {
+                'queries': [],
+            },
+            [
+            ],
+            None,
+        ),
+
+        # Base - List
+        (
+            {
+                'course_id': '2',
+                'queries': [
+                    lms.model.assignments.AssignmentQuery(id = '2'),
+                    lms.model.assignments.AssignmentQuery(id = '3'),
+                ],
+            },
+            [
+                testdata.common.model.assignments.COURSE_ASSIGNMENTS['2']['2'],
+                testdata.common.model.assignments.COURSE_ASSIGNMENTS['2']['3'],
+            ],
+            None,
+        ),
+
+        # Base - Fetch
+        (
+            {
+                'course_id': '2',
+                'queries': [
+                    lms.model.assignments.AssignmentQuery(id = '2'),
+                ],
+            },
+            [
+                testdata.common.model.assignments.COURSE_ASSIGNMENTS['2']['2'],
+            ],
+            None,
+        ),
+
+        # Query - Name
+        (
+            {
+                'course_id': '2',
+                'queries': [
+                    lms.model.assignments.AssignmentQuery(name = 'A Simple Bash Assignment'),
+                ],
+            },
+            [
+                testdata.common.model.assignments.COURSE_ASSIGNMENTS['2']['2'],
+            ],
+            None,
+        ),
+
+        # Query - Label
+        (
+            {
+                'course_id': '2',
+                'queries': [
+                    lms.model.assignments.AssignmentQuery(name = 'A Simple Bash Assignment', id = '2'),
+                ],
+            },
+            [
+                testdata.common.model.assignments.COURSE_ASSIGNMENTS['2']['2'],
+            ],
+            None,
+        ),
+
+        # Miss - ID
+        (
+            {
+                'course_id': '2',
+                'queries': [
+                    lms.model.assignments.AssignmentQuery(id = 999),
+                ],
+            },
+            [
+            ],
+            None,
+        ),
+
+        # Miss - Query
+        (
+            {
+                'course_id': '2',
+                'queries': [
+                    lms.model.assignments.AssignmentQuery(name = 'ZZZ'),
+                ],
+            },
+            [
+            ],
+            None,
+        ),
+
+        # Miss - Partial Match
+        (
+            {
+                'course_id': '2',
+                'queries': [
+                    lms.model.assignments.AssignmentQuery(id = '2', name = 'ZZZ'),
+                ],
+            },
+            [
+            ],
+            None,
+        ),
+
+        # Multiple Match
+        (
+            {
+                'course_id': '2',
+                'queries': [
+                    lms.model.assignments.AssignmentQuery(id = '2'),
+                    lms.model.assignments.AssignmentQuery(name = 'A Simple Bash Assignment'),
+                ],
+            },
+            [
+                testdata.common.model.assignments.COURSE_ASSIGNMENTS['2']['2'],
+            ],
+            None,
+        ),
+    ]
+
+    test.base_request_test(test.backend.courses_assignments_get, test_cases)

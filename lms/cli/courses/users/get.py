@@ -1,0 +1,50 @@
+"""
+Get specific users of a course.
+"""
+
+import argparse
+import sys
+
+import lms.backend.backend
+import lms.cli.parser
+import lms.model.base
+
+def run_cli(args: argparse.Namespace) -> int:
+    """ Run the CLI. """
+
+    config = args._config
+    backend = lms.backend.backend.get_backend(**config)
+
+    queries = backend.parse_user_queries(args.users)
+    users = backend.courses_users_get(config['course'], queries)
+    output = lms.model.base.base_list_to_output_format(users, args.output_format,
+            skip_headers = args.skip_headers,
+            pretty_headers = args.pretty_headers,
+            include_extra_fields = args.include_extra_fields,
+    )
+
+    print(output)
+
+    return 0
+
+def main() -> int:
+    """ Get a parser, parse the args, and call run. """
+    return run_cli(_get_parser().parse_args())
+
+def _get_parser() -> argparse.ArgumentParser:
+    """ Get the parser. """
+
+    parser = lms.cli.parser.get_parser(__doc__.strip(),
+            include_token = True,
+            include_output_format = True,
+            include_course = True,
+    )
+
+    parser.add_argument('users', metavar = 'USER_QUERY',
+        type = str, nargs = '+',
+        help = 'A query for a user to get.')
+
+    return parser
+
+if (__name__ == '__main__'):
+    sys.exit(main())

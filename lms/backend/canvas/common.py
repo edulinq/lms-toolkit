@@ -1,4 +1,5 @@
 import datetime
+import http
 import typing
 
 import edq.util.json
@@ -33,16 +34,40 @@ def fetch_next_canvas_link(response: requests.Response) -> typing.Union[str, Non
 
     return None
 
+def make_get_request(
+        url: typing.Union[str, None],
+        headers: typing.Dict[str, typing.Any],
+        raise_on_404: bool = True,
+        ) -> typing.Union[typing.Any, None]:
+    """ Make a single Canvas get request and return the decoded JSON body. """
+
+    try:
+        _, body_text = edq.util.net.make_get(url, headers = headers)
+    except requests.HTTPError as ex:
+        if (raise_on_404 or (ex.response is None) or (ex.response.status_code != http.HTTPStatus.NOT_FOUND)):
+            raise ex
+
+        return None
+
+    return edq.util.json.loads(body_text)
+
 def make_get_request_list(
         url: typing.Union[str, None],
         headers: typing.Dict[str, typing.Any],
+        raise_on_404: bool = True,
         ) -> typing.List[typing.Dict[str, typing.Any]]:
     """ Repeatedly call make_get_request() (using a JSON body and next link) until there are no more results. """
 
-    output = []
+    output: typing.List[typing.Dict[str, typing.Any]] = []
 
     while (url is not None):
-        response, body_text = edq.util.net.make_get(url, headers = headers)
+        try:
+            response, body_text = edq.util.net.make_get(url, headers = headers)
+        except requests.HTTPError as ex:
+            if (raise_on_404 or (ex.response is None) or (ex.response.status_code != http.HTTPStatus.NOT_FOUND)):
+                raise ex
+
+            return output
 
         url = fetch_next_canvas_link(response)
         new_results = edq.util.json.loads(body_text)

@@ -9,7 +9,19 @@ def test_courses_assignments_list_base(test: lms.backend.testing.BackendTest):
         (
             {},
             [
-                testdata.common.model.assignments.COURSE_ASSIGNMENTS['1']['Homework 0'],
+                testdata.common.model.assignments.COURSE_ASSIGNMENTS['1']['1'],
+            ],
+            None,
+        ),
+
+        (
+            {
+                'course_id': '2',
+            },
+            [
+                testdata.common.model.assignments.COURSE_ASSIGNMENTS['2']['2'],
+                testdata.common.model.assignments.COURSE_ASSIGNMENTS['2']['3'],
+                testdata.common.model.assignments.COURSE_ASSIGNMENTS['2']['4'],
             ],
             None,
         ),
