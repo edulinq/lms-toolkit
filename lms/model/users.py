@@ -28,7 +28,7 @@ class ServerUser(lms.model.base.BaseType):
         """ The email address of this user. """
 
         self.username: typing.Union[str, None] = username
-        """ The username for this user (often overlaps with email. """
+        """ The username for this user (often overlaps with email). """
 
 class CourseUser(ServerUser):
     """

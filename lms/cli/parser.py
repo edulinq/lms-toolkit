@@ -6,8 +6,11 @@ import argparse
 import typing
 
 import edq.core.argparser
+import edq.util.net
+import edq.util.reflection
 
 import lms.model.constants
+import lms.util.net
 
 CONFIG_FILENAME: str = 'edq-lms.json'
 
@@ -37,6 +40,10 @@ def get_parser(description: str,
             include_net = include_net,
             config_options = config_options,
     )
+
+    # Ensure that responses are cleaned as LMS responses.
+    if (include_net):
+        edq.util.net._exchanges_clean_func = edq.util.reflection.get_qualified_name(lms.util.net.clean_lms_response)
 
     if (include_server):
         parser.add_argument('--server', dest = 'server',

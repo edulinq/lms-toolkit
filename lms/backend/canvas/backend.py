@@ -27,7 +27,6 @@ class CanvasBackend(lms.model.backend.APIBackend):
 
         return {
             "Authorization": f"Bearer {self.token}",
-            "Accept": "application/json+canvas-string-ids",
         }
 
     def courses_assignments_fetch(self,
