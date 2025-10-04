@@ -1,0 +1,45 @@
+{
+    "cli": "lms.cli.courses.users.list",
+    "arguments": [
+        '--course', '1',
+        '--format', 'json',
+    ],
+}
+---
+[
+    {
+        "id": "2",
+        "name": "course-admin",
+        "email": "course-admin@test.edulinq.org",
+        "username": "course-admin@test.edulinq.org",
+        "role": "TaEnrollment"
+    },
+    {
+        "id": "3",
+        "name": "course-grader",
+        "email": "course-grader@test.edulinq.org",
+        "username": "course-grader@test.edulinq.org",
+        "role": "TaEnrollment"
+    },
+    {
+        "id": "4",
+        "name": "course-other",
+        "email": "course-other@test.edulinq.org",
+        "username": "course-other@test.edulinq.org",
+        "role": "ObserverEnrollment"
+    },
+    {
+        "id": "5",
+        "name": "course-owner",
+        "email": "course-owner@test.edulinq.org",
+        "username": "course-owner@test.edulinq.org",
+        "role": "TeacherEnrollment"
+    },
+    {
+        "id": "6",
+        "name": "course-student",
+        "email": "course-student@test.edulinq.org",
+        "username": "course-student@test.edulinq.org",
+        "role": "StudentEnrollment"
+    }
+]

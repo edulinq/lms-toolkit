@@ -20,8 +20,8 @@ def run_cli(args: argparse.Namespace) -> int:
         return 1
 
     backend = lms.backend.backend.get_backend(**config)
+    users = backend.courses_users_list(course)
 
-    users = backend.courses_users_list(config['course'])
     output = lms.model.base.base_list_to_output_format(users, args.output_format,
             skip_headers = args.skip_headers,
             pretty_headers = args.pretty_headers,

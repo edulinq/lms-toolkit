@@ -6,6 +6,7 @@ import argparse
 import sys
 
 import lms.backend.backend
+import lms.cli.common
 import lms.cli.parser
 import lms.model.base
 
@@ -13,10 +14,15 @@ def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
     config = args._config
-    backend = lms.backend.backend.get_backend(**config)
 
+    course = lms.cli.common.check_required_course(config)
+    if (course is None):
+        return 1
+
+    backend = lms.backend.backend.get_backend(**config)
     queries = backend.parse_user_queries(args.users)
-    users = backend.courses_users_get(config['course'], queries)
+    users = backend.courses_users_get(course, queries)
+
     output = lms.model.base.base_list_to_output_format(users, args.output_format,
             skip_headers = args.skip_headers,
             pretty_headers = args.pretty_headers,
@@ -41,7 +47,7 @@ def _get_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument('users', metavar = 'USER_QUERY',
-        type = str, nargs = '+',
+        type = str, nargs = '*',
         help = 'A query for a user to get.')
 
     return parser

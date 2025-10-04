@@ -1,0 +1,9 @@
+{
+    "cli": "lms.cli.courses.users.get",
+    "arguments": [
+        '--course', '1',
+        '--format', 'text',
+    ],
+}
+---
+

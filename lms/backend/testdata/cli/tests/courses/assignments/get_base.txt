@@ -1,0 +1,17 @@
+{
+    "cli": "lms.cli.courses.assignments.get",
+    "arguments": [
+        '--course', '1',
+        'Homework 0',
+    ],
+}
+---
+id: 1
+name: Homework 0
+description: 
+open_date: 
+close_date: 
+due_date: 
+points_possible: 2.0
+position: 1
+group_id: 1
