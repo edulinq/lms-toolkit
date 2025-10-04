@@ -2,6 +2,7 @@ import typing
 
 import lms.backend.canvas.common
 import lms.model.assignments
+import lms.util.parse
 
 CORE_FIELDS: typing.List[str] = [
     'id',
@@ -26,8 +27,8 @@ class Assignment(lms.model.assignments.Assignment):
                 raise ValueError(f"Canvas assignment is missing '{field}'.")
 
         # Modify specific arguments before sending them to super.
-        kwargs['id'] = str(kwargs['id'])
-        kwargs['group_id'] = kwargs.get('assignment_group_id', None)
+        kwargs['id'] = lms.util.parse.required_string(kwargs['id'], 'id')
+        kwargs['group_id'] = lms.util.parse.required_string(kwargs.get('assignment_group_id', None), 'id')
         kwargs['due_date'] = lms.backend.canvas.common.parse_timestamp(kwargs.get('due_at', None))
         kwargs['open_date'] = lms.backend.canvas.common.parse_timestamp(kwargs.get('unlock_at', None))
         kwargs['close_date'] = lms.backend.canvas.common.parse_timestamp(kwargs.get('lock_at', None))

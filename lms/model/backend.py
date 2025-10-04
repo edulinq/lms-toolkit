@@ -156,27 +156,6 @@ class APIBackend():
 
     # Utility Methods
 
-    def validate_int(self, raw_value: typing.Any, name: str) -> int:
-        """ Validate and clean an int parameter. """
-
-        if (raw_value is None):
-            raise ValueError(f"Parameter '{name}' is None, when it should be an int.")
-
-        return int(raw_value)
-
-    def validate_string(self, raw_value: typing.Any, name: str, strip: bool = True) -> str:
-        """ Validate and clean a string parameter. """
-
-        if (raw_value is None):
-            raise ValueError(f"Parameter '{name}' is None, when it should be a string.")
-
-        value = str(raw_value)
-
-        if (strip):
-            value = value.strip()
-
-        return value
-
     def parse_assignment_query(self, text: typing.Union[str, None]) -> typing.Union[lms.model.assignments.AssignmentQuery, None]:
         """
         Attempt to parse an assignment query from a string.
