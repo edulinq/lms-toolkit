@@ -9,6 +9,7 @@ import edq.core.argparser
 import edq.util.net
 import edq.util.reflection
 
+import lms
 import lms.model.constants
 import lms.util.net
 
@@ -37,6 +38,7 @@ def get_parser(description: str,
 
     parser = edq.core.argparser.get_default_parser(
             description,
+            version = f"v{lms.__version__}",
             include_net = include_net,
             config_options = config_options,
     )
