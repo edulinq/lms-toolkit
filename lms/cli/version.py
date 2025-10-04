@@ -16,7 +16,8 @@ def run_cli(args: argparse.Namespace) -> int:
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """
-    return run_cli(_get_parser().parse_args())
+    args, _ = _get_parser().parse_known_args()
+    return run_cli(args)
 
 def _get_parser() -> argparse.ArgumentParser:
     """ Get the parser. """

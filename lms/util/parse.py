@@ -8,17 +8,19 @@ def required_int(raw_value: typing.Any, name: str) -> int:
 
     return int(raw_value)
 
-def required_string(raw_value: typing.Any, name: str, strip: bool = True) -> str:
+def required_string(raw_value: typing.Any, name: str, **kwargs: typing.Any) -> str:
     """ Parse and clean a string value. """
 
-    value = optional_string(raw_value, name, strip = strip)
-
+    value = optional_string(raw_value, **kwargs)
     if (value is None):
         raise ValueError(f"Value '{name}' is None, when it should be a string.")
 
     return value
 
-def optional_string(raw_value: typing.Any, name: str, strip: bool = True) -> typing.Union[str, None]:
+def optional_string(raw_value: typing.Any,
+        strip: bool = True,
+        allow_empty: bool = False,
+        **kwargs: typing.Any) -> typing.Union[str, None]:
     """ Parse and clean an optional string value. """
 
     if (raw_value is None):
@@ -27,5 +29,8 @@ def optional_string(raw_value: typing.Any, name: str, strip: bool = True) -> typ
     value = str(raw_value)
     if (strip):
         value = value.strip()
+
+    if ((not allow_empty) and (len(value) == 0)):
+        return None
 
     return value

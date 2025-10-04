@@ -10,10 +10,6 @@ ROOT_DIR: str = os.path.join(THIS_DIR, '..', '..', '..')
 
 CANVAS_TEST_EXCHANGES_DIR: str = os.path.join(ROOT_DIR, 'testdata', 'canvas')
 
-BACKEND_CLI_TESTDATA_DIR: str = os.path.join(THIS_DIR, '..', 'testdata', 'cli')
-TEST_CASES_DIR: str = os.path.join(BACKEND_CLI_TESTDATA_DIR, 'tests')
-DATA_DIR: str = os.path.join(BACKEND_CLI_TESTDATA_DIR, 'data')
-
 TEST_TOKEN: str = 'CANVAS_TEST_TOKEN'
 
 class CanvasBackendTest(lms.backend.testing.BackendTest):
@@ -39,8 +35,12 @@ class CanvasBackendTest(lms.backend.testing.BackendTest):
             'Authorization',
         ]
 
-# Attatch the backend tests to this class.
-lms.backend.testing.discover_test_cases(CanvasBackendTest)
+    def modify_cli_test_info(self, test_info: edq.testing.cli.CLITestInfo) -> None:
+        super().modify_cli_test_info(test_info)
 
-# Attatch the CLI tests to this class.
-edq.testing.cli.discover_test_cases(CanvasBackendTest, TEST_CASES_DIR, DATA_DIR)
+        test_info.arguments += [
+            '--token', TEST_TOKEN,
+        ]
+
+# Attatch tests to this class.
+lms.backend.testing.attach_test_cases(CanvasBackendTest)

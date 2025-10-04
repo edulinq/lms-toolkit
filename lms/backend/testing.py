@@ -2,6 +2,7 @@ import glob
 import os
 import typing
 
+import edq.testing.cli
 import edq.testing.httpserver
 import edq.util.pyimport
 
@@ -9,7 +10,14 @@ import lms.model.backend
 import lms.backend.backend
 
 THIS_DIR: str = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-TESTS_DIR: str = os.path.join(THIS_DIR, 'testdata', 'backendtests')
+TESTDATA_DIR: str = os.path.join(THIS_DIR, 'testdata')
+
+BACKEND_TESTS_DIR: str = os.path.join(TESTDATA_DIR, 'backendtests')
+
+CLI_TESTDATA_DIR: str = os.path.join(TESTDATA_DIR, 'cli')
+CLI_TESTS_DIR: str = os.path.join(CLI_TESTDATA_DIR, 'tests')
+CLI_DATA_DIR: str = os.path.join(CLI_TESTDATA_DIR, 'data')
+CLI_GLOBAL_CONFG_PATH: str = os.path.join(CLI_DATA_DIR, 'testing-edq-lms.json')
 
 TEST_FUNC_NAME_PREFIX: str = 'test_'
 TEST_FILENAME_GLOB_PATTERN: str = '*_backendtest.py'
@@ -23,7 +31,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):  # type: ignore[misc]
 
     This is an HTTP test that will start a test server with exchanges specific to the target backend.
 
-    A common directory (TESTS_DIR) will be searched for any file that starts with TEST_FILENAME_GLOB_PATTERN.
+    A common directory (BACKEND_TESTS_DIR) will be searched for any file that starts with TEST_FILENAME_GLOB_PATTERN.
     Then, that file will be checked for any function that starts with TEST_FUNC_NAME_PREFIX and matches BackendTestFunction.
     """
 
@@ -155,6 +163,34 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):  # type: ignore[misc]
         if (skip_reason is not None):
             self.skipTest(f"Backend component not implemented: {skip_reason}.")
 
+    def modify_cli_test_info(self, test_info: edq.testing.cli.CLITestInfo) -> None:
+        """ Adjust the CLI test info to include core info (like server information). """
+
+        test_info.arguments += [
+            '--config-global', CLI_GLOBAL_CONFG_PATH,
+            '--server', self.get_server_url(),
+            '--server-type', self.backend_type,
+        ]
+
+    @classmethod
+    def get_test_basename(cls, path: str) -> str:
+        """ Get the test's name based off of is filename and location. """
+
+        path = os.path.abspath(path)
+
+        name = os.path.splitext(os.path.basename(path))[0]
+
+        ancestors = os.path.dirname(path).replace(CLI_TESTS_DIR, '')
+        prefix = ancestors.replace(os.sep, '_')
+
+        if (prefix.startswith('_')):
+            prefix = prefix.replace('_', '', count = 1)
+
+        if (len(prefix) > 0):
+            name =  f"{prefix}_{name}"
+
+        return name
+
 @typing.runtime_checkable
 class BackendTestFunction(typing.Protocol):
     """
@@ -195,6 +231,15 @@ def add_test_path(target_class: type, path: str) -> None:
 def discover_test_cases(target_class: type) -> None:
     """ Look in the text cases directory for any test cases and add them as test methods to the test class. """
 
-    paths = list(sorted(glob.glob(os.path.join(TESTS_DIR, "**", TEST_FILENAME_GLOB_PATTERN), recursive = True)))
+    paths = list(sorted(glob.glob(os.path.join(BACKEND_TESTS_DIR, "**", TEST_FILENAME_GLOB_PATTERN), recursive = True)))
     for path in sorted(paths):
         add_test_path(target_class, path)
+
+def attach_test_cases(target_class: type) -> None:
+    """ Attatch all the standard test cases to the given class. """
+
+    # Attach backend tests.
+    discover_test_cases(target_class)
+
+    # Attach CLI tests.
+    edq.testing.cli.discover_test_cases(target_class, CLI_TESTS_DIR, CLI_DATA_DIR)

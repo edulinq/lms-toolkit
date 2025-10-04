@@ -6,6 +6,7 @@ import argparse
 import sys
 
 import lms.backend.backend
+import lms.cli.common
 import lms.cli.parser
 import lms.model.base
 
@@ -13,6 +14,11 @@ def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
     config = args._config
+
+    course = lms.cli.common.check_required_course(config)
+    if (course is None):
+        return 1
+
     backend = lms.backend.backend.get_backend(**config)
 
     users = backend.courses_users_list(config['course'])
