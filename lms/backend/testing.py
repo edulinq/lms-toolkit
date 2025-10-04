@@ -9,7 +9,7 @@ import lms.model.backend
 import lms.backend.backend
 
 THIS_DIR: str = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-TESTS_DIR: str = os.path.join(THIS_DIR, "tests")
+TESTS_DIR: str = os.path.join(THIS_DIR, 'testdata', 'backendtests')
 
 TEST_FUNC_NAME_PREFIX: str = 'test_'
 TEST_FILENAME_GLOB_PATTERN: str = '*_backendtest.py'

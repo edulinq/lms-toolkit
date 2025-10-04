@@ -1,11 +1,18 @@
 import os
 
+import edq.testing.cli
+
 import lms.backend.testing
 import lms.model.constants
 
 THIS_DIR: str = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 ROOT_DIR: str = os.path.join(THIS_DIR, '..', '..', '..')
-TEST_EXCHANGES_DIR: str = os.path.join(ROOT_DIR, "testdata", "canvas")
+
+CANVAS_TEST_EXCHANGES_DIR: str = os.path.join(ROOT_DIR, 'testdata', 'canvas')
+
+BACKEND_CLI_TESTDATA_DIR: str = os.path.join(THIS_DIR, '..', 'testdata', 'cli')
+TEST_CASES_DIR: str = os.path.join(BACKEND_CLI_TESTDATA_DIR, 'tests')
+DATA_DIR: str = os.path.join(BACKEND_CLI_TESTDATA_DIR, 'data')
 
 TEST_TOKEN: str = 'CANVAS_TEST_TOKEN'
 
@@ -18,7 +25,7 @@ class CanvasBackendTest(lms.backend.testing.BackendTest):
 
         cls.backend_type = lms.model.constants.BACKEND_TYPE_CANVAS
 
-        cls.exchanges_dir = TEST_EXCHANGES_DIR
+        cls.exchanges_dir = CANVAS_TEST_EXCHANGES_DIR
 
         cls.backend_args.update({
             'token': TEST_TOKEN,
@@ -34,3 +41,6 @@ class CanvasBackendTest(lms.backend.testing.BackendTest):
 
 # Attatch the backend tests to this class.
 lms.backend.testing.discover_test_cases(CanvasBackendTest)
+
+# Attatch the CLI tests to this class.
+edq.testing.cli.discover_test_cases(CanvasBackendTest, TEST_CASES_DIR, DATA_DIR)
