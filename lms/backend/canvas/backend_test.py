@@ -10,7 +10,7 @@ ROOT_DIR: str = os.path.join(THIS_DIR, '..', '..', '..')
 
 CANVAS_TEST_EXCHANGES_DIR: str = os.path.join(ROOT_DIR, 'testdata', 'canvas')
 
-TEST_TOKEN: str = 'CANVAS_TEST_TOKEN'
+TEST_TOKEN: str = 'CKa4QeVkC9ZL3aUGQ2kUvtVKnUaBrCuXAvMYNcL34mxMLkc9UrmttFR924FFMRXY'
 
 class CanvasBackendTest(lms.backend.testing.BackendTest):
     """ A backend test for Canvas. """

@@ -60,9 +60,16 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):  # type: ignore[misc]
     """
 
     backend_args: typing.Dict[str, typing.Any] = {}
-    """
-    Any additional arguments to send to get_backend().
-    """
+    """ Any additional arguments to send to get_backend(). """
+
+    skip_base_request_test: bool = False
+    """ Skip any base request tests. """
+
+    allowed_backend: typing.Union[str, None] = None
+    """ If set, skip any backend tests that do not match this filter. """
+
+    override_server_url: typing.Union[str, None] = None
+    """ If set, return this URL from get_server_url(). """
 
     @classmethod
     def setup_server(cls, server: edq.testing.httpserver.HTTPTestServer) -> None:
@@ -97,6 +104,13 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):  # type: ignore[misc]
             'course_id': TEST_COURSE_ID,
         }
 
+    @classmethod
+    def get_server_url(cls) -> str:
+        if (cls.override_server_url is not None):
+            return cls.override_server_url
+
+        return str(super().get_server_url())
+
     def base_request_test(self,
             request_function: typing.Callable,
             test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], typing.Any, typing.Union[str, None]]],
@@ -106,6 +120,9 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):  # type: ignore[misc]
         A common test for the base request functionality.
         Test cases are passed in as: `[(kwargs (and overrides), expected, error substring), ...]`.
         """
+
+        if ((self.allowed_backend is not None) and (self.allowed_backend != self.backend_type)):
+            self.skipTest(f"Backend {self.backend_type} has been filtered.")
 
         skip_reason = None
 
@@ -171,6 +188,10 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):  # type: ignore[misc]
             '--server', self.get_server_url(),
             '--server-type', self.backend_type,
         ]
+
+        # Mark this CLI test for skipping based on the backend filter.
+        if ((self.allowed_backend is not None) and (self.allowed_backend != self.backend_type)):
+            test_info.skip_reasons.append(f"Backend {self.backend_type} has been filtered.")
 
     @classmethod
     def get_test_basename(cls, path: str) -> str:

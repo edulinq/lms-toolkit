@@ -1,5 +1,5 @@
 {
-    "cli": "lms.cli.version",
+    "cli": "lms.cli.lib.version",
     "arguments": [],
 }
 ---
