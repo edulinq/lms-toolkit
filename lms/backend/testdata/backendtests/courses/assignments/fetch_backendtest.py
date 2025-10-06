@@ -1,6 +1,6 @@
 import lms.backend.testing
 import lms.model.assignments
-import testdata.common.model.assignments
+import lms.model.testdata.assignments
 
 def test_courses_assignments_fetch_base(test: lms.backend.testing.BackendTest):
     """ Test the base functionality of fetching course assignments. """
@@ -12,7 +12,7 @@ def test_courses_assignments_fetch_base(test: lms.backend.testing.BackendTest):
             {
                 'assignment_id': '1',
             },
-            testdata.common.model.assignments.COURSE_ASSIGNMENTS['1']['1'],
+            lms.model.testdata.assignments.COURSE_ASSIGNMENTS['1']['1'],
             None,
         ),
 

@@ -1,6 +1,6 @@
 import lms.backend.testing
 import lms.model.users
-import testdata.common.model.users
+import lms.model.testdata.users
 
 def test_courses_users_fetch_base(test: lms.backend.testing.BackendTest):
     """ Test the base functionality of fetching course users. """
@@ -12,7 +12,7 @@ def test_courses_users_fetch_base(test: lms.backend.testing.BackendTest):
             {
                 'user_id': '6',
             },
-            testdata.common.model.users.COURSE_USERS['1']['course-student@test.edulinq.org'],
+            lms.model.testdata.users.COURSE_USERS['1']['course-student@test.edulinq.org'],
             None,
         ),
 

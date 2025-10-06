@@ -1,6 +1,6 @@
 import lms.backend.testing
 import lms.model.assignments
-import testdata.common.model.assignments
+import lms.model.testdata.assignments
 
 def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
     """ Test the base functionality of getting course assignments. """
@@ -27,8 +27,8 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                testdata.common.model.assignments.COURSE_ASSIGNMENTS['2']['2'],
-                testdata.common.model.assignments.COURSE_ASSIGNMENTS['2']['3'],
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['2']['2'],
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['2']['3'],
             ],
             None,
         ),
@@ -42,7 +42,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                testdata.common.model.assignments.COURSE_ASSIGNMENTS['2']['2'],
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['2']['2'],
             ],
             None,
         ),
@@ -56,7 +56,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                testdata.common.model.assignments.COURSE_ASSIGNMENTS['2']['2'],
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['2']['2'],
             ],
             None,
         ),
@@ -70,7 +70,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                testdata.common.model.assignments.COURSE_ASSIGNMENTS['2']['2'],
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['2']['2'],
             ],
             None,
         ),
@@ -124,7 +124,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                testdata.common.model.assignments.COURSE_ASSIGNMENTS['2']['2'],
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['2']['2'],
             ],
             None,
         ),

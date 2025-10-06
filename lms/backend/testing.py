@@ -120,7 +120,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):  # type: ignore[misc]
 
         return str(super().get_server_url())
 
-    def setup(self) -> None:
+    def setUp(self) -> None:
         self.clear_user()
 
     def set_user(self, email: str) -> None:

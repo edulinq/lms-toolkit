@@ -67,7 +67,7 @@ class CanvasBackendTest(lms.backend.testing.BackendTest):
         self.backend.token = USER_TOKENS[email]
 
     def clear_user(self) -> None:
-        super().clear_user(email)
+        super().clear_user()
 
         # Switch back to the default token.
         self.backend.token = DEFAULT_TOKEN
