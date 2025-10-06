@@ -1,5 +1,7 @@
 import typing
 
+import lms.util.net
+
 BACKEND_TYPE_CANVAS: str = 'canvas'
 
 BACKEND_TYPES: typing.List[str] = [
@@ -15,3 +17,7 @@ OUTPUT_FORMATS: typing.List[str] = [
     OUTPUT_FORMAT_TABLE,
     OUTPUT_FORMAT_TEXT,
 ]
+
+BACKEND_REQUEST_CLEANING_FUNCS: typing.Dict[str, typing.Callable] = {
+    BACKEND_TYPE_CANVAS: lms.util.net.clean_canvas_response,
+}
