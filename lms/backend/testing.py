@@ -71,6 +71,15 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):  # type: ignore[misc]
     override_server_url: typing.Union[str, None] = None
     """ If set, return this URL from get_server_url(). """
 
+    def __init__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
+        super().__init__(*args, **kwargs)
+
+        self._user_email: typing.Union[str, None] = None
+        """
+        The email of the current user for this backend.
+        Setting the user allows child classes to fetch specific information (like authentication information).
+        """
+
     @classmethod
     def setup_server(cls, server: edq.testing.httpserver.HTTPTestServer) -> None:
         if (cls.server_key == ''):
@@ -110,6 +119,26 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):  # type: ignore[misc]
             return cls.override_server_url
 
         return str(super().get_server_url())
+
+    def setup(self) -> None:
+        self.clear_user()
+
+    def set_user(self, email: str) -> None:
+        """
+        Set the current user for this test.
+        This can be especially useful for child classes that need to set information based on the user
+        (like authentication headers).
+        """
+
+        self._user_email = email
+
+    def clear_user(self) -> None:
+        """
+        Clear the current user for this test.
+        This is automatically called before each test method.
+        """
+
+        self._user_email = None
 
     def base_request_test(self,
             request_function: typing.Callable,
