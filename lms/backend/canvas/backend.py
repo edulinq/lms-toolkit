@@ -40,7 +40,7 @@ class CanvasBackend(lms.model.backend.APIBackend):
 
     def courses_assignments_list(self,
             course_id: str,
-            **kwargs: typing.Any) -> typing.List[lms.model.assignments.Assignment]:
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         return lms.backend.canvas.courses.assignments.list.request(self, parsed_course_id)
 
@@ -54,6 +54,6 @@ class CanvasBackend(lms.model.backend.APIBackend):
 
     def courses_users_list(self,
             course_id: typing.Union[str, None] = None,
-            **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.users.CourseUser]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         return lms.backend.canvas.courses.users.list.request(self, parsed_course_id)

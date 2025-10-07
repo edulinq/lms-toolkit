@@ -4,7 +4,7 @@ import edq.util.json
 
 import lms.model.constants
 
-class BaseType(edq.util.json.DictConverter):  # type: ignore[misc]
+class BaseType(edq.util.json.DictConverter):
     """
     The base class for all core LMS types.
     This class ensures that all children have the core functionality necessary for this package.
@@ -45,7 +45,7 @@ class BaseType(edq.util.json.DictConverter):  # type: ignore[misc]
         values = tuple(getattr(self, field_name) for field_name in self.CORE_FIELDS)
         return hash(values)
 
-    def __lt__(self, other: 'BaseType') -> bool:
+    def __lt__(self, other: 'BaseType') -> bool:  # type: ignore[override]
         if (not isinstance(other, BaseType)):
             return False
 
@@ -189,7 +189,7 @@ def _value_to_text(value: typing.Any,
 
     return str(value)
 
-def base_list_to_output_format(values: typing.List[BaseType], output_format: str,
+def base_list_to_output_format(values: typing.Sequence[BaseType], output_format: str,
         sort: bool = True,
         skip_headers: bool = False,
         pretty_headers: bool = False,
@@ -202,6 +202,8 @@ def base_list_to_output_format(values: typing.List[BaseType], output_format: str
 
     The given list may be modified by this call.
     """
+
+    values = list(values)
 
     if (sort):
         values.sort()
@@ -227,7 +229,7 @@ def base_list_to_output_format(values: typing.List[BaseType], output_format: str
 
     return output
 
-def base_list_to_json(values: typing.List[BaseType],
+def base_list_to_json(values: typing.Sequence[BaseType],
         indent: int = 4,
         **kwargs: typing.Any) -> str:
     """ Convert a list of base types to a JSON string representation. """
@@ -235,7 +237,7 @@ def base_list_to_json(values: typing.List[BaseType],
     output_values = [value.as_json_dict(**kwargs) for value in values]
     return str(edq.util.json.dumps(output_values, indent = indent, sort_keys = False))
 
-def base_list_to_table(values: typing.List[BaseType],
+def base_list_to_table(values: typing.Sequence[BaseType],
         skip_headers: bool = False,
         delim: str = "\t",
         **kwargs: typing.Any) -> str:
@@ -251,7 +253,7 @@ def base_list_to_table(values: typing.List[BaseType],
 
     return "\n".join([delim.join(row) for row in rows])
 
-def base_list_to_text(values: typing.List[BaseType],
+def base_list_to_text(values: typing.Sequence[BaseType],
         **kwargs: typing.Any) -> str:
     """ Convert a list of base types to a text string representation. """
 

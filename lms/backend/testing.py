@@ -25,7 +25,7 @@ TEST_FILENAME_GLOB_PATTERN: str = '*_backendtest.py'
 TEST_COURSE_ID: str = '1'
 """ The standard test course ID. """
 
-class BackendTest(edq.testing.httpserver.HTTPServerTest):  # type: ignore[misc]
+class BackendTest(edq.testing.httpserver.HTTPServerTest):
     """
     A special test suite that is common across all LMS backends.
 
@@ -215,7 +215,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):  # type: ignore[misc]
         test_info.arguments += [
             '--config-global', CLI_GLOBAL_CONFG_PATH,
             '--server', self.get_server_url(),
-            '--server-type', self.backend_type,
+            '--server-type', str(self.backend_type),
         ]
 
         # Mark this CLI test for skipping based on the backend filter.

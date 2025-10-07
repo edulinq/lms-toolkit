@@ -25,7 +25,7 @@ class APIBackend():
     def courses_assignments_get(self,
             course_id: str,
             queries: typing.List[lms.model.assignments.AssignmentQuery],
-            **kwargs: typing.Any) -> typing.List[lms.model.assignments.Assignment]:
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
         """
         Get the specified assignments associated with the given course.
         """
@@ -62,7 +62,7 @@ class APIBackend():
 
     def courses_assignments_list(self,
             course_id: str,
-            **kwargs: typing.Any) -> typing.List[lms.model.assignments.Assignment]:
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
         """
         Get the assignments associated with the given course.
         """
@@ -72,7 +72,7 @@ class APIBackend():
     def courses_assignments_list_and_resolve(self,
             course_id: str,
             queries: typing.List[lms.model.assignments.AssignmentQuery],
-            **kwargs: typing.Any) -> typing.List[lms.model.assignments.Assignment]:
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
         """
         List the course assignments and then match the given queries.
         """
@@ -91,7 +91,7 @@ class APIBackend():
     def courses_users_get(self,
             course_id: str,
             queries: typing.List[lms.model.users.UserQuery],
-            **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.users.CourseUser]:
         """
         Get the specified users associated with the given course.
         """
@@ -128,7 +128,7 @@ class APIBackend():
 
     def courses_users_list(self,
             course_id: str,
-            **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.users.CourseUser]:
         """
         Get the users associated with the given course.
         """
@@ -138,7 +138,7 @@ class APIBackend():
     def courses_users_list_and_resolve(self,
             course_id: str,
             queries: typing.List[lms.model.users.UserQuery],
-            **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.users.CourseUser]:
         """
         List the course users and then match the given queries.
         """

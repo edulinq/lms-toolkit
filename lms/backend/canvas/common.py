@@ -35,7 +35,7 @@ def fetch_next_canvas_link(response: requests.Response) -> typing.Union[str, Non
     return None
 
 def make_get_request(
-        url: typing.Union[str, None],
+        url: str,
         headers: typing.Dict[str, typing.Any],
         raise_on_404: bool = True,
         ) -> typing.Union[typing.Any, None]:
@@ -52,7 +52,7 @@ def make_get_request(
     return edq.util.json.loads(body_text)
 
 def make_get_request_list(
-        url: typing.Union[str, None],
+        url: str,
         headers: typing.Dict[str, typing.Any],
         raise_on_404: bool = True,
         ) -> typing.List[typing.Dict[str, typing.Any]]:
@@ -60,16 +60,18 @@ def make_get_request_list(
 
     output: typing.List[typing.Dict[str, typing.Any]] = []
 
-    while (url is not None):
+    next_url: typing.Union[str, None] = url
+
+    while (next_url is not None):
         try:
-            response, body_text = edq.util.net.make_get(url, headers = headers)
+            response, body_text = edq.util.net.make_get(next_url, headers = headers)
         except requests.HTTPError as ex:
             if (raise_on_404 or (ex.response is None) or (ex.response.status_code != http.HTTPStatus.NOT_FOUND)):
                 raise ex
 
             return output
 
-        url = fetch_next_canvas_link(response)
+        next_url = fetch_next_canvas_link(response)
         new_results = edq.util.json.loads(body_text)
 
         for new_result in new_results:
