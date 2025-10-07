@@ -10,6 +10,7 @@ import requests
 import edq.util.json
 
 CANVAS_CLEAN_REMOVE_CONTENT_KEYS: typing.List[str] = [
+    'created_at',
     'last_activity_at',
     'lti_context_id',
     'secure_params',
@@ -69,14 +70,9 @@ def _recursive_remove_keys(data: typing.Any, remove_keys: typing.Set[str]) -> No
     if (isinstance(data, (list, tuple))):
         for item in data:
             _recursive_remove_keys(item, remove_keys)
-
-        return
-
-    if (isinstance(data, dict)):
+    elif (isinstance(data, dict)):
         for key in list(data.keys()):
             if (key in remove_keys):
                 del data[key]
             else:
                 _recursive_remove_keys(data[key], remove_keys)
-
-        return
