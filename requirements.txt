@@ -1,2 +1,2 @@
-edq-utils>=0.0.7
+edq-utils>=0.0.8
 requests>=2.31.0
