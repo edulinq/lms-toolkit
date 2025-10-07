@@ -234,7 +234,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
         prefix = ancestors.replace(os.sep, '_')
 
         if (prefix.startswith('_')):
-            prefix = prefix.replace('_', '', count = 1)
+            prefix = prefix.replace('_', '', 1)
 
         if (len(prefix) > 0):
             name =  f"{prefix}_{name}"

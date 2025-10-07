@@ -7,7 +7,7 @@ class ServerUser(lms.model.base.BaseType):
     A user associated with an LMS server.
     """
 
-    CORE_FIELDS: list[str] = ['id', 'name', 'email', 'username']
+    CORE_FIELDS = ['id', 'name', 'email', 'username']
     """ The common fields shared across backends for this type. """
 
     def __init__(self,
@@ -35,7 +35,7 @@ class CourseUser(ServerUser):
     A user associated with a course, e.g., an instructor or student.
     """
 
-    CORE_FIELDS: list[str] = ServerUser.CORE_FIELDS + ['role']
+    CORE_FIELDS = ServerUser.CORE_FIELDS + ['role']
     """ The common fields shared across backends for this type. """
 
     def __init__(self,

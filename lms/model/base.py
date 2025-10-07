@@ -16,7 +16,7 @@ class BaseType(edq.util.json.DictConverter):
     General (but less efficient) implementations of core functions will be provided.
     """
 
-    CORE_FIELDS: list[str] = []
+    CORE_FIELDS: typing.List[str] = []
     """
     The common fields shared across backends for this type that are used for comparison and other operations.
     Child classes should set this to define how comparisons are made.

@@ -4,6 +4,8 @@ import typing
 import lms.model.assignments
 import lms.model.users
 
+T = typing.TypeVar('T')
+
 class APIBackend():
     """
     API backends provide a unified interface to an LMS.
@@ -202,7 +204,7 @@ class APIBackend():
 
         return queries
 
-    def _parse_int_query[T](self, query_type: typing.Type[T], text: typing.Union[str, None],
+    def _parse_int_query(self, query_type: typing.Type[T], text: typing.Union[str, None],
             check_email: bool = True,
             ) -> typing.Union[T, None]:
         """
