@@ -9,7 +9,7 @@ import lms.model.constants
 THIS_DIR: str = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 ROOT_DIR: str = os.path.join(THIS_DIR, '..', '..', '..')
 
-CANVAS_TEST_EXCHANGES_DIR: str = os.path.join(ROOT_DIR, 'testdata', 'canvas')
+CANVAS_TEST_EXCHANGES_DIR: str = os.path.join(ROOT_DIR, 'testdata', 'lms-docker-canvas-testdata', 'testdata', 'http')
 
 USER_TOKENS: typing.Dict[str, str] = {
     'course-admin@test.edulinq.org': 'nHRkQ39czXL2x7xxKrPYmvtYTyWJCCHCVRMZTfTfZtJZZWXHnkN9UhnCy37XuYeK',

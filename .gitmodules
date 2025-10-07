@@ -1,0 +1,3 @@
+[submodule "testdata/lms-docker-canvas-testdata"]
+	path = testdata/lms-docker-canvas-testdata
+	url = https://github.com/edulinq/lms-docker-canvas-testdata.git
