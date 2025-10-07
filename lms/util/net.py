@@ -11,6 +11,8 @@ import edq.util.json
 
 CANVAS_CLEAN_REMOVE_CONTENT_KEYS: typing.List[str] = [
     'last_activity_at',
+    'lti_context_id',
+    'secure_params',
     'total_activity_time',
     'updated_at',
 ]
