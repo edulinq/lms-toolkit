@@ -6,6 +6,7 @@ A suite of tools and Python interface for different
 This project is not affiliated with any LMS developer/provider.
 
 Documentation Table of Contents:
+ - [Development Notes](docs/development.md)
  - [Installation](#installation)
  - [CLI Configuration](#cli-configuration)
  - [Usage Notes](#usage-notes)
