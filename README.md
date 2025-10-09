@@ -1,11 +1,12 @@
 # LMS Tools
 
-A suite of tools and Python interface for different
+A suite of tools and a Python interface for interacting with different
 [Learning Management Systems (LMSs)](https://en.wikipedia.org/wiki/Learning_management_system).
 
 This project is not affiliated with any LMS developer/provider.
 
-Documentation Table of Contents:
+Links:
+ - [API Reference](https://edulinq.github.io/lms-toolkit)
  - [Development Notes](docs/development.md)
  - [Installation](#installation)
  - [CLI Configuration](#cli-configuration)
