@@ -1,5 +1,7 @@
 import typing
 
+import edq.util.net
+
 import lms.backend.canvas.backend
 import lms.model.constants
 import lms.model.backend
@@ -22,6 +24,8 @@ def get_backend(
         server = 'http://' + server
 
     backend_type = guess_backend_type(server, backend_type = backend_type)
+    if (backend_type is None):
+        raise ValueError(f"Unable to guess backend type from server: '{server}'.")
 
     if (backend_type == lms.model.constants.BACKEND_TYPE_CANVAS):
         return lms.backend.canvas.backend.CanvasBackend(server, **kwargs)
@@ -31,17 +35,51 @@ def get_backend(
 def guess_backend_type(
         server: typing.Union[str, None] = None,
         backend_type: typing.Union[str, None] = None,
-        ) -> str:
+        **kwargs: typing.Any) -> typing.Union[str, None]:
     """
     Attempt to guess the backend type from a server.
-    This function will raise if it cannot guess the backend type.
+    This function will return None it cannot guess the backend type.
     """
 
     if (backend_type is not None):
         return backend_type
 
-    if (server is not None):
-        if ('canvas' in server.lower()):
-            return lms.model.constants.BACKEND_TYPE_CANVAS
+    if (server is None):
+        return None
 
-    raise ValueError(f"Unable to guess backend type from server: '{server}'.")
+    # Try looking at the URL string itself.
+    backend_type = _guess_backend_type_from_url(server)
+    if (backend_type is not None):
+        return backend_type
+
+    # Make a request to the server and examine the response.
+
+    options = {
+        'allow_redirects': False,
+    }
+
+    response, _ = edq.util.net.make_get(server, raise_for_status = False, additional_requests_options = options)
+
+    # Canvas sends a special header.
+    header_keys = [key.lower() for key in response.headers.keys()]
+    if ('x-canvas-meta' in header_keys):
+        return lms.model.constants.BACKEND_TYPE_CANVAS
+
+    # Canvas requests that a specific cookie is set.
+    if ('_normandy_session' in response.headers.get('set-cookie', '')):
+        return lms.model.constants.BACKEND_TYPE_CANVAS
+
+    return None
+
+def _guess_backend_type_from_url(server: str) -> typing.Union[str, None]:
+    """
+    Attempt to guess the backend type only from a string server URL.
+    This function will only do lexical analysis on the string (no HTTP requests will be made).
+    """
+
+    server = server.lower().strip()
+
+    if ('canvas' in server):
+        return lms.model.constants.BACKEND_TYPE_CANVAS
+
+    return None

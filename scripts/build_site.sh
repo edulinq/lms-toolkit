@@ -32,9 +32,7 @@ readonly ONLY_AFTER_TAG='v1.0.0'
 function check_git() {
     if [ ! -z "$(git status --porcelain)" ] ; then
         echo "ERROR: Repository is not clean."
-        # TEST
-        # exit 1
-        return 0
+        exit 1
     fi
 
     if [ $(git branch --show-current) != 'main' ] ; then
