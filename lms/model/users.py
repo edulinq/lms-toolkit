@@ -18,7 +18,10 @@ class ServerUser(lms.model.base.BaseType):
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
 
-        self.id: typing.Union[str, None] = id
+        if (id is None):
+            raise ValueError("User must have an id.")
+
+        self.id: str = id
         """ The LMS's identifier for this user. """
 
         self.name: typing.Union[str, None] = name
@@ -82,8 +85,11 @@ class UserQuery():
 
         return ((self.id is None) or (self.name is not None) or (self.email is not None))
 
-    def match(self, target: ServerUser) -> bool:
+    def match(self, target: typing.Union[ServerUser, None]) -> bool:
         """ Check if this query matches a user. """
+
+        if (target is None):
+            return False
 
         for field_name in ['id', 'name', 'email']:
             self_value = getattr(self, field_name, None)

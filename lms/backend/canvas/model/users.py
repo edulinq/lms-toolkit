@@ -39,7 +39,7 @@ class CourseUser(lms.model.users.CourseUser):
                 raise ValueError(f"Canvas user is missing '{field}'.")
 
         # Modify specific arguments before sending them to super.
-        kwargs['id'] = str(kwargs['id'])
+        kwargs['id'] = lms.util.parse.required_string(kwargs['id'], 'id')
         kwargs['username'] = kwargs.get('login_id', None)
 
         if (enrollments is not None):

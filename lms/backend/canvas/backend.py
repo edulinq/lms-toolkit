@@ -1,3 +1,5 @@
+# pylint: disable=abstract-method
+
 import typing
 
 import lms.backend.canvas.courses.assignments.fetch

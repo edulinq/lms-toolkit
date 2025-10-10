@@ -10,7 +10,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         # Empty
         (
             {
-                'queries': [],
+                'assignment_queries': [],
             },
             [
             ],
@@ -21,7 +21,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_id': '2',
-                'queries': [
+                'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(id = '2'),
                     lms.model.assignments.AssignmentQuery(id = '3'),
                 ],
@@ -37,7 +37,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_id': '2',
-                'queries': [
+                'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(id = '2'),
                 ],
             },
@@ -51,7 +51,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_id': '2',
-                'queries': [
+                'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(name = 'A Simple Bash Assignment'),
                 ],
             },
@@ -65,7 +65,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_id': '2',
-                'queries': [
+                'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(name = 'A Simple Bash Assignment', id = '2'),
                 ],
             },
@@ -79,7 +79,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_id': '2',
-                'queries': [
+                'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(id = 999),
                 ],
             },
@@ -92,7 +92,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_id': '2',
-                'queries': [
+                'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(name = 'ZZZ'),
                 ],
             },
@@ -105,7 +105,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_id': '2',
-                'queries': [
+                'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(id = '2', name = 'ZZZ'),
                 ],
             },
@@ -118,7 +118,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_id': '2',
-                'queries': [
+                'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(id = '2'),
                     lms.model.assignments.AssignmentQuery(name = 'A Simple Bash Assignment'),
                 ],

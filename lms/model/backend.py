@@ -2,6 +2,7 @@ import re
 import typing
 
 import lms.model.assignments
+import lms.model.scores
 import lms.model.users
 
 T = typing.TypeVar('T')
@@ -26,26 +27,26 @@ class APIBackend():
 
     def courses_assignments_get(self,
             course_id: str,
-            queries: typing.List[lms.model.assignments.AssignmentQuery],
+            assignment_queries: typing.List[lms.model.assignments.AssignmentQuery],
             **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
         """
         Get the specified assignments associated with the given course.
         """
 
-        if (len(queries) == 0):
+        if (len(assignment_queries) == 0):
             return []
 
         # Check if at least one of the queries requires resolution.
         # If resolution is required, then just list the assignments and match the queries.
-        if (any(query.requires_resolution() for query in queries)):
-            return self.courses_assignments_list_and_resolve(course_id, queries, **kwargs)
+        if (any(query.requires_resolution() for query in assignment_queries)):
+            return self.courses_assignments_resolve_and_list(course_id, assignment_queries, **kwargs)
 
         # If there are multiple queries, then just list the assignments and match the queries.
-        if (len(queries) > 1):
-            return self.courses_assignments_list_and_resolve(course_id, queries, **kwargs)
+        if (len(assignment_queries) > 1):
+            return self.courses_assignments_resolve_and_list(course_id, assignment_queries, **kwargs)
 
         # If there is just one query, then fetch it.
-        result = self.courses_assignments_fetch(course_id, typing.cast(str, queries[0].id), **kwargs)
+        result = self.courses_assignments_fetch(course_id, typing.cast(str, assignment_queries[0].id), **kwargs)
         if (result is None):
             return []
 
@@ -71,9 +72,9 @@ class APIBackend():
 
         raise NotImplementedError('courses_assignments_list')
 
-    def courses_assignments_list_and_resolve(self,
+    def courses_assignments_resolve_and_list(self,
             course_id: str,
-            queries: typing.List[lms.model.assignments.AssignmentQuery],
+            assignment_queries: typing.List[lms.model.assignments.AssignmentQuery],
             **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
         """
         List the course assignments and then match the given queries.
@@ -83,35 +84,91 @@ class APIBackend():
 
         matches = []
         for assignment in assignments:
-            for query in queries:
+            for query in assignment_queries:
                 if (query.match(assignment)):
                     matches.append(assignment)
                     break
 
         return matches
 
+    def courses_assignments_scores_get(self,
+            course_id: str,
+            assignment_query: lms.model.assignments.AssignmentQuery,
+            user_queries: typing.List[lms.model.users.UserQuery],
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+        """
+        List the scores associated with the given assignment query and user queries.
+        """
+
+        scores = self.courses_assignments_scores_resolve_and_list(course_id, assignment_query)
+
+        matches = []
+        for score in scores:
+            for user_query in user_queries:
+                if (user_query.match(score.lms_user)):
+                    matches.append(score)
+
+        return matches
+
+    def courses_assignments_scores_fetch(self,
+            course_id: str,
+            assignment_id: str,
+            user_id: str,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+        """
+        List the score associated with the given assignment and user.
+        """
+
+        raise NotImplementedError('courses_assignments_scores_fetch')
+
+    def courses_assignments_scores_list(self,
+            course_id: str,
+            assignment_id: str,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+        """
+        List the scores associated with the given assignment.
+        """
+
+        raise NotImplementedError('courses_assignments_scores_list')
+
+    def courses_assignments_scores_resolve_and_list(self,
+            course_id: str,
+            assignment_query: lms.model.assignments.AssignmentQuery,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+        """
+        List the scores associated with the given assignment query.
+        """
+
+        assignments = self.courses_assignments_list(course_id, **kwargs)
+
+        for assignment in assignments:
+            if (assignment_query.match(assignment)):
+                return self.courses_assignments_scores_list(course_id, assignment.id, **kwargs)
+
+        return []
+
     def courses_users_get(self,
             course_id: str,
-            queries: typing.List[lms.model.users.UserQuery],
+            user_queries: typing.List[lms.model.users.UserQuery],
             **kwargs: typing.Any) -> typing.Sequence[lms.model.users.CourseUser]:
         """
         Get the specified users associated with the given course.
         """
 
-        if (len(queries) == 0):
+        if (len(user_queries) == 0):
             return []
 
         # Check if at least one of the queries requires resolution.
         # If resolution is required, then just list the users and match the queries.
-        if (any(query.requires_resolution() for query in queries)):
-            return self.courses_users_list_and_resolve(course_id, queries, **kwargs)
+        if (any(query.requires_resolution() for query in user_queries)):
+            return self.courses_users_resolve_and_list(course_id, user_queries, **kwargs)
 
         # If there are multiple queries, then just list the users and match the queries.
-        if (len(queries) > 1):
-            return self.courses_users_list_and_resolve(course_id, queries, **kwargs)
+        if (len(user_queries) > 1):
+            return self.courses_users_resolve_and_list(course_id, user_queries, **kwargs)
 
         # If there is just one query, then fetch it.
-        result = self.courses_users_fetch(course_id, typing.cast(str, queries[0].id), **kwargs)
+        result = self.courses_users_fetch(course_id, typing.cast(str, user_queries[0].id), **kwargs)
         if (result is None):
             return []
 
@@ -137,9 +194,9 @@ class APIBackend():
 
         raise NotImplementedError('courses_users_list')
 
-    def courses_users_list_and_resolve(self,
+    def courses_users_resolve_and_list(self,
             course_id: str,
-            queries: typing.List[lms.model.users.UserQuery],
+            user_queries: typing.List[lms.model.users.UserQuery],
             **kwargs: typing.Any) -> typing.Sequence[lms.model.users.CourseUser]:
         """
         List the course users and then match the given queries.
@@ -149,7 +206,7 @@ class APIBackend():
 
         matches = []
         for user in users:
-            for query in queries:
+            for query in user_queries:
                 if (query.match(user)):
                     matches.append(user)
                     break
