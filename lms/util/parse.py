@@ -34,3 +34,20 @@ def optional_string(raw_value: typing.Any,
         return None
 
     return value
+
+def optional_float(raw_value: typing.Any, label: str = 'field',
+        **kwargs: typing.Any) -> typing.Union[float, None]:
+    """ Parse and clean an optional float value. """
+
+    if (raw_value is None):
+        return None
+
+    if (isinstance(raw_value, (int, float))):
+        return float(raw_value)
+
+    str_value = str(raw_value).strip()
+
+    try:
+        return float(str_value)
+    except ValueError as ex:
+        raise ValueError(f"Unable to parse {label} '{raw_value}' ({type(raw_value)}) as a float.") from ex

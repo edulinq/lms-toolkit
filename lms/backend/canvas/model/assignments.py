@@ -27,7 +27,7 @@ class Assignment(lms.model.assignments.Assignment):
                 raise ValueError(f"Canvas assignment is missing '{field}'.")
 
         # Modify specific arguments before sending them to super.
-        kwargs['id'] = lms.util.parse.required_string(kwargs['id'], 'id')
+        kwargs['id'] = lms.util.parse.required_string(kwargs.get('id', None), 'id')
         kwargs['group_id'] = lms.util.parse.required_string(kwargs.get('assignment_group_id', None), 'id')
         kwargs['due_date'] = lms.backend.canvas.common.parse_timestamp(kwargs.get('due_at', None))
         kwargs['open_date'] = lms.backend.canvas.common.parse_timestamp(kwargs.get('unlock_at', None))

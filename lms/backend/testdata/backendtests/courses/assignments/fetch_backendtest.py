@@ -1,5 +1,4 @@
 import lms.backend.testing
-import lms.model.assignments
 import lms.model.testdata.assignments
 
 def test_courses_assignments_fetch_base(test: lms.backend.testing.BackendTest):

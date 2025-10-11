@@ -22,6 +22,7 @@ def get_parser(description: str,
         include_token: bool = False,
         include_output_format: bool = False,
         include_course: bool = False,
+        include_assignment: bool = False,
         include_net: bool = True,
         ) -> argparse.ArgumentParser:
     """
@@ -35,6 +36,7 @@ def get_parser(description: str,
             'backend_type': 'backend_type',
             'token': 'token',
             'course': 'course',
+            'assignment': 'assignment',
         },
     }
 
@@ -69,6 +71,11 @@ def get_parser(description: str,
         parser.add_argument('--course', dest = 'course',
             action = 'store', type = str, default = None,
             help = 'The course to target for this operation.')
+
+    if (include_assignment):
+        parser.add_argument('--assignment', dest = 'assignment',
+            action = 'store', type = str, default = None,
+            help = 'The assignment to target for this operation.')
 
     if (include_output_format):
         parser.add_argument('--format', dest = 'output_format',

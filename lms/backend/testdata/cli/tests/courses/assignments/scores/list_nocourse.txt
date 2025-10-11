@@ -1,0 +1,8 @@
+{
+    "cli": "lms.cli.courses.assignments.scores.list",
+    "arguments": [
+        '--course', '1',
+    ],
+}
+---
+ERROR: No assignment has been provided.

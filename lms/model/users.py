@@ -1,5 +1,7 @@
 import typing
 
+import edq.util.json
+
 import lms.model.base
 
 class ServerUser(lms.model.base.BaseType):
@@ -33,6 +35,11 @@ class ServerUser(lms.model.base.BaseType):
         self.username: typing.Union[str, None] = username
         """ The username for this user (often overlaps with email). """
 
+    def to_query(self) -> 'UserQuery':
+        """ Get a query representation of this user. """
+
+        return UserQuery(id = self.id, name = self.name, email = self.email)
+
 class CourseUser(ServerUser):
     """
     A user associated with a course, e.g., an instructor or student.
@@ -49,7 +56,7 @@ class CourseUser(ServerUser):
         self.role: typing.Union[str, None] = role
         """ The role of this user within this course (e.g., instructor, student). """
 
-class UserQuery():
+class UserQuery(edq.util.json.DictConverter):
     """
     A class for the different ways one can attempt to reference an LMS user.
     In general, a user can be queried by:
@@ -85,7 +92,7 @@ class UserQuery():
 
         return ((self.id is None) or (self.name is not None) or (self.email is not None))
 
-    def match(self, target: typing.Union[ServerUser, None]) -> bool:
+    def match(self, target: typing.Union[ServerUser, 'UserQuery', None]) -> bool:
         """ Check if this query matches a user. """
 
         if (target is None):
@@ -110,7 +117,7 @@ class UserQuery():
 
         if (self.id is not None):
             if (text is not None):
-                text = f"{text} ({id})"
+                text = f"{text} ({self.id})"
             else:
                 text = self.id
 
@@ -118,3 +125,8 @@ class UserQuery():
             return '<unknown>'
 
         return text
+
+    def _to_text(self) -> str:
+        """ Represent this query as a string. """
+
+        return str(self)

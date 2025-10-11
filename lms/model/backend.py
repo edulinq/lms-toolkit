@@ -1,3 +1,4 @@
+import logging
 import re
 import typing
 
@@ -22,6 +23,19 @@ class APIBackend():
             **kwargs: typing.Any) -> None:
         self.server: str = server
         """ The server this backend will connect to. """
+
+    # Core Methods
+
+    def not_found(self, label: str, identifiers: typing.Dict[str, typing.Any]) -> None:
+        """
+        Called when the backend was unable to find some object.
+        This will only be called when a requested object is not found,
+        e.g., a user requested by ID is not found.
+        This is not called when a list naturally returns zero results,
+        or when a query does not match any items.
+        """
+
+        logging.warning("Object not found: '%s'. Identifiers: %s.", label, identifiers)
 
     # API Methods
 
@@ -100,12 +114,15 @@ class APIBackend():
         List the scores associated with the given assignment query and user queries.
         """
 
+        if (len(user_queries) == 0):
+            return []
+
         scores = self.courses_assignments_scores_resolve_and_list(course_id, assignment_query)
 
         matches = []
         for score in scores:
             for user_query in user_queries:
-                if (user_query.match(score.lms_user)):
+                if (user_query.match(score.user_query)):
                     matches.append(score)
 
         return matches
@@ -114,7 +131,7 @@ class APIBackend():
             course_id: str,
             assignment_id: str,
             user_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+            **kwargs: typing.Any) -> typing.Union[lms.model.scores.AssignmentScore, None]:
         """
         List the score associated with the given assignment and user.
         """
@@ -137,15 +154,31 @@ class APIBackend():
             **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
         """
         List the scores associated with the given assignment query.
+        In addition to resolving the assignment query,
+        users will also be resolved into their full version
+        (instead of the reduced version usually returned with scores).
         """
 
-        assignments = self.courses_assignments_list(course_id, **kwargs)
+        matched_assignments = self.courses_assignments_get(course_id, [assignment_query], **kwargs)
+        if (len(matched_assignments) == 0):
+            return []
 
-        for assignment in assignments:
-            if (assignment_query.match(assignment)):
-                return self.courses_assignments_scores_list(course_id, assignment.id, **kwargs)
+        target_assignment = matched_assignments[0]
 
-        return []
+        scores = self.courses_assignments_scores_list(course_id, target_assignment.id, **kwargs)
+        if (len(scores) == 0):
+            return []
+
+        users = self.courses_users_list(course_id, **kwargs)
+        users_map = {user.id: user for user in users}
+
+        for score in scores:
+            score.assignment_query = target_assignment.to_query()
+
+            if ((score.user_query is not None) and (score.user_query.id in users_map)):
+                score.user_query = users_map[score.user_query.id].to_query()
+
+        return scores
 
     def courses_users_get(self,
             course_id: str,

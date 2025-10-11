@@ -14,4 +14,12 @@ def request(backend: typing.Any,
     headers = backend.get_standard_headers()
 
     raw_objects = lms.backend.canvas.common.make_get_request_list(url, headers)
+    if (raw_objects is None):
+        identifiers = {
+            'course_id': course_id,
+        }
+        backend.not_found('course', identifiers)
+
+        return []
+
     return [lms.backend.canvas.model.assignments.Assignment(**raw_object) for raw_object in raw_objects]

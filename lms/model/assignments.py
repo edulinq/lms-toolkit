@@ -1,5 +1,6 @@
 import typing
 
+import edq.util.json
 import edq.util.time
 
 import lms.model.base
@@ -58,7 +59,12 @@ class Assignment(lms.model.base.BaseType):
         self.group_id: typing.Union[str, None] = group_id
         """ The LMS's identifier for the group this assignment appears in. """
 
-class AssignmentQuery():
+    def to_query(self) -> 'AssignmentQuery':
+        """ Get a query representation of this user. """
+
+        return AssignmentQuery(id = self.id, name = self.name)
+
+class AssignmentQuery(edq.util.json.DictConverter):
     """
     A class for the different ways one can attempt to reference an LMS assignment.
     In general, an assignment can be queried by:
@@ -88,7 +94,7 @@ class AssignmentQuery():
 
         return ((self.id is None) or (self.name is not None))
 
-    def match(self, target: typing.Union[Assignment, None]) -> bool:
+    def match(self, target: typing.Union[Assignment, 'AssignmentQuery', None]) -> bool:
         """ Check if this query matches an assignment. """
 
         if (target is None):
@@ -111,7 +117,7 @@ class AssignmentQuery():
 
         if (self.id is not None):
             if (text is not None):
-                text = f"{text} ({id})"
+                text = f"{text} ({self.id})"
             else:
                 text = self.id
 
@@ -119,3 +125,8 @@ class AssignmentQuery():
             return '<unknown>'
 
         return text
+
+    def _to_text(self) -> str:
+        """ Represent this query as a string. """
+
+        return str(self)

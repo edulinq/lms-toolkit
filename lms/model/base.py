@@ -184,6 +184,9 @@ def _value_to_text(value: typing.Any,
     if (value is None):
         return empty_value
 
+    if (hasattr(value, '_to_text')):
+        return str(value._to_text())
+
     if (isinstance(value, (edq.util.json.DictConverter, dict, list, tuple))):
         return str(edq.util.json.dumps(value, indent = indent))
 

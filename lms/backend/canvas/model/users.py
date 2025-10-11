@@ -25,7 +25,7 @@ class CourseUser(lms.model.users.CourseUser):
 
     Common fields will be held in lms.model.users.CourseUser.
     Fields that are not common, but used by this backend will be explicitly listed.
-    Other fields coming from Canvas will be held in lms.model.users.CourseUser.extra_fields.
+    Other fields coming from Canvas will be held in lms.model.base.BaseType.extra_fields.
 
     See: https://developerdocs.instructure.com/services/canvas/resources/users
     """
@@ -39,7 +39,7 @@ class CourseUser(lms.model.users.CourseUser):
                 raise ValueError(f"Canvas user is missing '{field}'.")
 
         # Modify specific arguments before sending them to super.
-        kwargs['id'] = lms.util.parse.required_string(kwargs['id'], 'id')
+        kwargs['id'] = lms.util.parse.required_string(kwargs.get('id', None), 'id')
         kwargs['username'] = kwargs.get('login_id', None)
 
         if (enrollments is not None):

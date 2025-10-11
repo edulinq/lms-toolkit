@@ -14,8 +14,14 @@ def request(backend: typing.Any,
     url = backend.server + BASE_ENDPOINT.format(course_id = course_id, assignment_id = assignment_id)
     headers = backend.get_standard_headers()
 
-    raw_object = lms.backend.canvas.common.make_get_request(url, headers, raise_on_404 = False)
+    raw_object = lms.backend.canvas.common.make_get_request(url, headers)
     if (raw_object is None):
+        identifiers = {
+            'course_id': course_id,
+            'assignment_id': assignment_id,
+        }
+        backend.not_found('assignment', identifiers)
+
         return None
 
     return lms.backend.canvas.model.assignments.Assignment(**raw_object)

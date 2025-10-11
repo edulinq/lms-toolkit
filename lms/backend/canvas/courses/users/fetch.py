@@ -18,7 +18,7 @@ def request(backend: typing.Any,
     if (include_role):
         url += '&include[]=enrollments'
 
-    raw_object = lms.backend.canvas.common.make_get_request(url, headers, raise_on_404 = False)
+    raw_object = lms.backend.canvas.common.make_get_request(url, headers)
     if (raw_object is None):
         return None
 

@@ -1,5 +1,6 @@
 import datetime
 import http
+import re
 import typing
 
 import edq.util.json
@@ -37,7 +38,7 @@ def fetch_next_canvas_link(response: requests.Response) -> typing.Union[str, Non
 def make_get_request(
         url: str,
         headers: typing.Dict[str, typing.Any],
-        raise_on_404: bool = True,
+        raise_on_404: bool = False,
         ) -> typing.Union[typing.Any, None]:
     """ Make a single Canvas get request and return the decoded JSON body. """
 
@@ -54,8 +55,8 @@ def make_get_request(
 def make_get_request_list(
         url: str,
         headers: typing.Dict[str, typing.Any],
-        raise_on_404: bool = True,
-        ) -> typing.List[typing.Dict[str, typing.Any]]:
+        raise_on_404: bool = False,
+        ) -> typing.Union[typing.List[typing.Dict[str, typing.Any]], None]:
     """ Repeatedly call make_get_request() (using a JSON body and next link) until there are no more results. """
 
     output: typing.List[typing.Dict[str, typing.Any]] = []
@@ -69,7 +70,7 @@ def make_get_request_list(
             if (raise_on_404 or (ex.response is None) or (ex.response.status_code != http.HTTPStatus.NOT_FOUND)):
                 raise ex
 
-            return output
+            return None
 
         next_url = fetch_next_canvas_link(response)
         new_results = edq.util.json.loads(body_text)
@@ -84,6 +85,10 @@ def parse_timestamp(value: typing.Union[str, None]) -> typing.Union[edq.util.tim
 
     if (value is None):
         return None
+
+    # Parse out some cases that Python <= 3.10 cannot deal with.
+    value = re.sub(r'Z$', '+00:00', value)
+    value = re.sub(r'(\d\d:\d\d)(\.\d+)', r'\1', value)
 
     pytime = datetime.datetime.fromisoformat(value)
     return edq.util.time.Timestamp.from_pytime(pytime)

@@ -2,6 +2,7 @@ import glob
 import os
 import typing
 
+import edq.core.log
 import edq.testing.cli
 import edq.testing.httpserver
 import edq.util.pyimport
@@ -121,6 +122,8 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
         return str(super().get_server_url())
 
     def setUp(self) -> None:
+        edq.core.log.init('ERROR')
+
         self.clear_user()
 
     def set_user(self, email: str) -> None:
