@@ -15,7 +15,7 @@ import lms.util.net
 
 CONFIG_FILENAME: str = 'edq-lms.json'
 
-_set_exchanges_clean_func: bool = True
+_set_exchanges_clean_func: bool = True  # pylint: disable=invalid-name
 
 def get_parser(description: str,
         include_server: bool = True,
