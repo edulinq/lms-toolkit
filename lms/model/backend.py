@@ -47,24 +47,7 @@ class APIBackend():
         Get the specified assignments associated with the given course.
         """
 
-        if (len(assignment_queries) == 0):
-            return []
-
-        # Check if at least one of the queries requires resolution.
-        # If resolution is required, then just list the assignments and match the queries.
-        if (any(query.requires_resolution() for query in assignment_queries)):
-            return self.courses_assignments_resolve_and_list(course_id, assignment_queries, **kwargs)
-
-        # If there are multiple queries, then just list the assignments and match the queries.
-        if (len(assignment_queries) > 1):
-            return self.courses_assignments_resolve_and_list(course_id, assignment_queries, **kwargs)
-
-        # If there is just one query, then fetch it.
-        result = self.courses_assignments_fetch(course_id, typing.cast(str, assignment_queries[0].id), **kwargs)
-        if (result is None):
-            return []
-
-        return [result]
+        return self.courses_assignments_resolve_and_list(course_id, assignment_queries, **kwargs)
 
     def courses_assignments_fetch(self,
             course_id: str,
@@ -73,15 +56,22 @@ class APIBackend():
         """
         Fetch a single assignment associated with the given course.
         Return None if no matching assignment is found.
+
+        By default, this will just do a list and choose the relevant record.
+        Specific backends may override this if there are performance concerns.
         """
 
-        raise NotImplementedError('courses_assignments_fetch')
+        assignments = self.courses_assignments_resolve_and_list(course_id, [lms.model.assignments.AssignmentQuery(id = assignment_id)])
+        if (len(assignments) == 0):
+            return None
+
+        return assignments[0]
 
     def courses_assignments_list(self,
             course_id: str,
             **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
         """
-        Get the assignments associated with the given course.
+        List the assignments associated with the given course.
         """
 
         raise NotImplementedError('courses_assignments_list')
@@ -93,6 +83,9 @@ class APIBackend():
         """
         List the course assignments and then match the given queries.
         """
+
+        if (len(assignment_queries) == 0):
+            return []
 
         assignments = self.courses_assignments_list(course_id, **kwargs)
 
@@ -111,7 +104,7 @@ class APIBackend():
             user_queries: typing.List[lms.model.users.UserQuery],
             **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
         """
-        List the scores associated with the given assignment query and user queries.
+        Get the scores associated with the given assignment query and user queries.
         """
 
         if (len(user_queries) == 0):
@@ -133,10 +126,18 @@ class APIBackend():
             user_id: str,
             **kwargs: typing.Any) -> typing.Union[lms.model.scores.AssignmentScore, None]:
         """
-        List the score associated with the given assignment and user.
+        Fetch the score associated with the given assignment and user.
+
+        By default, this will just do a list and choose the relevant record.
+        Specific backends may override this if there are performance concerns.
         """
 
-        raise NotImplementedError('courses_assignments_scores_fetch')
+        scores = self.courses_assignments_scores_resolve_and_list(course_id, lms.model.assignments.AssignmentQuery(id = assignment_id))
+        for score in scores:
+            if ((score.user_query is not None) and (score.user_query.id == user_id)):
+                return score
+
+        return None
 
     def courses_assignments_scores_list(self,
             course_id: str,
@@ -159,15 +160,19 @@ class APIBackend():
         (instead of the reduced version usually returned with scores).
         """
 
+        # Resolve the assignment query.
         matched_assignments = self.courses_assignments_get(course_id, [assignment_query], **kwargs)
         if (len(matched_assignments) == 0):
             return []
 
         target_assignment = matched_assignments[0]
 
+        # List the scores.
         scores = self.courses_assignments_scores_list(course_id, target_assignment.id, **kwargs)
         if (len(scores) == 0):
             return []
+
+        # Resolve the scores' queries.
 
         users = self.courses_users_list(course_id, **kwargs)
         users_map = {user.id: user for user in users}
@@ -188,24 +193,7 @@ class APIBackend():
         Get the specified users associated with the given course.
         """
 
-        if (len(user_queries) == 0):
-            return []
-
-        # Check if at least one of the queries requires resolution.
-        # If resolution is required, then just list the users and match the queries.
-        if (any(query.requires_resolution() for query in user_queries)):
-            return self.courses_users_resolve_and_list(course_id, user_queries, **kwargs)
-
-        # If there are multiple queries, then just list the users and match the queries.
-        if (len(user_queries) > 1):
-            return self.courses_users_resolve_and_list(course_id, user_queries, **kwargs)
-
-        # If there is just one query, then fetch it.
-        result = self.courses_users_fetch(course_id, typing.cast(str, user_queries[0].id), **kwargs)
-        if (result is None):
-            return []
-
-        return [result]
+        return self.courses_users_resolve_and_list(course_id, user_queries, **kwargs)
 
     def courses_users_fetch(self,
             course_id: str,
@@ -214,15 +202,23 @@ class APIBackend():
         """
         Fetch a single user associated with the given course.
         Return None if no matching user is found.
+
+        By default, this will just do a list and choose the relevant record.
+        Specific backends may override this if there are performance concerns.
         """
 
-        raise NotImplementedError('courses_users_fetch')
+        users = self.courses_users_list(course_id)
+        for user in users:
+            if (user.id == user_id):
+                return user
+
+        return None
 
     def courses_users_list(self,
             course_id: str,
             **kwargs: typing.Any) -> typing.Sequence[lms.model.users.CourseUser]:
         """
-        Get the users associated with the given course.
+        List the users associated with the given course.
         """
 
         raise NotImplementedError('courses_users_list')
@@ -234,6 +230,9 @@ class APIBackend():
         """
         List the course users and then match the given queries.
         """
+
+        if (len(user_queries) == 0):
+            return []
 
         users = self.courses_users_list(course_id, **kwargs)
 
