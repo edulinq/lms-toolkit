@@ -1,0 +1,8 @@
+{
+    "cli": "lms.cli.courses.users.scores.get",
+    "arguments": [
+        '--course', '1',
+    ],
+}
+---
+ERROR: No user has been provided.

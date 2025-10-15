@@ -5,6 +5,7 @@ import typing
 import lms.backend.canvas.courses.assignments.list
 import lms.backend.canvas.courses.assignments.scores.list
 import lms.backend.canvas.courses.users.list
+import lms.backend.canvas.courses.users.scores.list
 import lms.model.assignments
 import lms.model.backend
 import lms.model.scores
@@ -51,3 +52,11 @@ class CanvasBackend(lms.model.backend.APIBackend):
             **kwargs: typing.Any) -> typing.Sequence[lms.model.users.CourseUser]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         return lms.backend.canvas.courses.users.list.request(self, parsed_course_id)
+
+    def courses_users_scores_list(self,
+            course_id: str,
+            user_id: str,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+        parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
+        parsed_user_id = lms.util.parse.required_int(user_id, 'user_id')
+        return lms.backend.canvas.courses.users.scores.list.request(self, parsed_course_id, parsed_user_id)

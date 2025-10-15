@@ -245,6 +245,89 @@ class APIBackend():
 
         return matches
 
+    def courses_users_scores_get(self,
+            course_id: str,
+            user_query: lms.model.users.UserQuery,
+            assignment_queries: typing.List[lms.model.assignments.AssignmentQuery],
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+        """
+        Get the scores associated with the given user query and assignment queries.
+        """
+
+        if (len(assignment_queries) == 0):
+            return []
+
+        scores = self.courses_users_scores_resolve_and_list(course_id, user_query)
+
+        matches = []
+        for score in scores:
+            for assignment_query in assignment_queries:
+                if (assignment_query.match(score.assignment_query)):
+                    matches.append(score)
+
+        return matches
+
+    def courses_users_scores_fetch(self,
+            course_id: str,
+            user_id: str,
+            assignment_id: str,
+            **kwargs: typing.Any) -> typing.Union[lms.model.scores.AssignmentScore, None]:
+        """
+        Fetch the score associated with the given user and assignment.
+
+        By default, this will just do a list and choose the relevant record.
+        Specific backends may override this if there are performance concerns.
+        """
+
+        # The default implementation is the same as courses_assignments_scores_fetch().
+        return self.courses_assignments_scores_fetch(course_id, assignment_id, user_id)
+
+    def courses_users_scores_list(self,
+            course_id: str,
+            user_id: str,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+        """
+        List the scores associated with the given user.
+        """
+
+        raise NotImplementedError('courses_users_scores_list')
+
+    def courses_users_scores_resolve_and_list(self,
+            course_id: str,
+            user_query: lms.model.users.UserQuery,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+        """
+        List the scores associated with the given user query.
+        In addition to resolving the user query,
+        assignments will also be resolved into their full version
+        (instead of the reduced version usually returned with scores).
+        """
+
+        # Resolve the user query.
+        matched_users = self.courses_users_get(course_id, [user_query], **kwargs)
+        if (len(matched_users) == 0):
+            return []
+
+        target_user = matched_users[0]
+
+        # List the scores.
+        scores = self.courses_users_scores_list(course_id, target_user.id, **kwargs)
+        if (len(scores) == 0):
+            return []
+
+        # Resolve the scores' queries.
+
+        assignments = self.courses_assignments_list(course_id, **kwargs)
+        assignments_map = {assignment.id: assignment for assignment in assignments}
+
+        for score in scores:
+            score.user_query = target_user.to_query()
+
+            if ((score.assignment_query is not None) and (score.assignment_query.id in assignments_map)):
+                score.assignment_query = assignments_map[score.assignment_query.id].to_query()
+
+        return scores
+
     # Utility Methods
 
     def parse_assignment_query(self, text: typing.Union[str, None]) -> typing.Union[lms.model.assignments.AssignmentQuery, None]:
