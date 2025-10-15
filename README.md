@@ -11,13 +11,15 @@ Links:
  - [Installation](#installation)
  - [CLI Configuration](#cli-configuration)
  - [Usage Notes](#usage-notes)
-    - [Name Resolution and Labels](#name-resolution-and-labels)
+    - [Object Queries](#object-queries)
     - [Output Formats](#output-formats)
+    - [Retrieval Operations](#retrieval-operations)
  - [CLI Tools](#cli-tools)
       - [List Course Users](#list-course-users)
       - [Get Course Users](#get-course-users)
       - [List Assignments](#list-assignments)
       - [Get Assignments](#get-assignments)
+- [LMS Coverage](#lms-coverage)
 
 ## Installation
 
@@ -48,17 +50,21 @@ git submodule update --init --recursive
 
 ## Usage Notes
 
-### Name Resolution and Labels
+### Object Queries
 
-The LMS Toolkit is able to resolve most objects that have a name,
-so you can refer to that object by name instead of by ID.
-Fields with this resolution will be referred to as "queries".
-The exact attributes that can be used as a query depend on the underlying object,
-for example users can use their name or email in a user query.
+LMS's typically require that you refer to objects using their specified identifier.
+Because this may be difficult,
+the LMS Toolkit provides a way for users to instead refer to object by other identifying fields.
+Fields with this behavior are referred to as "queries".
+Unless specified, all inputs into the CLI can be assumed to be queries.
 
-A "label" is a formatted field that the LMS Toolkit will use in certain cases that includes both the name and id in a single field:
-"name (id)".
-
+A query can be the LMS identifier, another identifying field, or a combination of the two (referred to as a "label").
+The allowed identifying fields varies depending on the object you are referring to,
+but is generally straightforward.
+For example, a user can also be identified by their email or full name,
+while an assignment can be identified by its full name.
+Labels combine the identifying field with the LMS id,
+and are most commonly used by the LMS Toolkit when outputting information.
 For example, a user may be identified by any of the following:
 
 | Query Type    | Query                          |
@@ -75,6 +81,18 @@ Many commands can output data in three different formats:
  - Text (`--format text`) -- A human-readable format (usually the default).
  - Table (`--format table`) -- A tab-separated table.
  - JSON (`--format json`) -- A [JSON](https://en.wikipedia.org/wiki/JSON) object/list.
+
+### Retrieval Operations
+
+When retrieving data from the LMS,
+this project tends to use three different types of operations:
+ - **list** -- List out all the available entries, e.g., list all the users in a course.
+ - **fetch** -- Fetch one specific entry by identifier (not by query), e.g., fetch a specific user by id.
+ - **get** -- Get a collection of entries by query, e.g., get several users by their email.
+
+Fetch operations have the potential to be the fastest,
+but are also the hardest to use (since you will need to know the LMS identifier for an object).
+Fetch operations may not be exposed in the CLI.
 
 ## CLI Tools
 
@@ -115,3 +133,24 @@ python3 -m lms.cli.courses.assignments.fetch 'Homework 1'
 ```
 
 Any number of assignment queries may be specified.
+
+## LMS Coverage
+
+The LMS Toolkit is constantly expanding its support with hopes for supporting all major LMSs.
+
+Legend:
+ - `+` -- Supported
+ - `-` -- Not Yet Supported
+ - `x` -- Support Impossible (See Notes)
+
+| Feature                                 | Canvas | Moodle |
+|-----------------------------------------|--------|--------|
+| lms.cli.courses.assignments.get         | `+`    | `-`    |
+| lms.cli.courses.assignments.list        | `+`    | `-`    |
+| lms.cli.courses.assignments.scores.get  | `+`    | `-`    |
+| lms.cli.courses.assignments.scores.list | `+`    | `-`    |
+| lms.cli.courses.users.get               | `+`    | `-`    |
+| lms.cli.courses.users.list              | `+`    | `-`    |
+| lms.cli.courses.users.scores.get        | `+`    | `-`    |
+| lms.cli.courses.users.scores.list       | `+`    | `-`    |
+| lms.cli.server.identify                 | `+`    | `-`    |
