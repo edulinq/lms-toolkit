@@ -185,6 +185,50 @@ class APIBackend():
 
         return scores
 
+    def courses_gradebook_get(self,
+            course_id: str,
+            assignment_queries: typing.List[lms.model.assignments.AssignmentQuery],
+            user_queries: typing.List[lms.model.users.UserQuery],
+            **kwargs: typing.Any) -> lms.model.scores.Gradebook:
+        """
+        Get a gradebook with the specified users and assignments.
+        Specifying no users/assignments is the same as requesting all of them.
+        """
+
+        resolved_assignment_queries = self.resolve_assignment_queries(course_id, assignment_queries, empty_all = True, **kwargs)
+        assignment_ids = [query.get_id() for query in resolved_assignment_queries]
+
+        resolved_user_queries = self.resolve_user_queries(course_id, user_queries, empty_all = True, only_students = True, **kwargs)
+        user_ids = [query.get_id() for query in resolved_user_queries]
+
+        gradebook = self.courses_gradebook_fetch(course_id, assignment_ids, user_ids, **kwargs)
+
+        # Resolve the gradebook's queries (so it can show names/emails instead of just IDs).
+        gradebook.update_queries(resolved_assignment_queries, resolved_user_queries)
+
+        return gradebook
+
+    def courses_gradebook_fetch(self,
+            course_id: str,
+            assignment_ids: typing.List[str],
+            user_ids: typing.List[str],
+            **kwargs: typing.Any) -> lms.model.scores.Gradebook:
+        """
+        Get a gradebook with the specified users and assignments.
+        If either the assignments or users is empty, an empty gradebook will be returned.
+        """
+
+        raise NotImplementedError('courses_gradebook_fetch')
+
+    def courses_gradebook_list(self,
+            course_id: str,
+            **kwargs: typing.Any) -> lms.model.scores.Gradebook:
+        """
+        List the full gradebook associated with this course.
+        """
+
+        return self.courses_gradebook_get(course_id, [], [], **kwargs)
+
     def courses_users_get(self,
             course_id: str,
             user_queries: typing.List[lms.model.users.UserQuery],
@@ -425,3 +469,61 @@ class APIBackend():
         }
 
         return query_type(**data)
+
+    def resolve_assignment_queries(self,
+            course_id: str,
+            assignment_queries: typing.List[lms.model.assignments.AssignmentQuery],
+            empty_all: bool = False,
+            **kwargs: typing.Any) -> typing.List[lms.model.assignments.ResolvedAssignmentQuery]:
+        """
+        Resolve a list of assignment queries into a list of resolved assignment queries.
+        The returned list of queries may be shorter than the list of queries (if assignment are not matched).
+        The queries will be deduplicated and sorted.
+
+        If |empty_all| is true and no queries are specified, then all assignments will be returned.
+        """
+
+        assignments = self.courses_assignments_list(course_id, **kwargs)
+
+        if (empty_all and (len(assignment_queries) == 0)):
+            return list(sorted({lms.model.assignments.ResolvedAssignmentQuery(assignment) for assignment in assignments}))
+
+        matched_queries = []
+        for query in assignment_queries:
+            for assignment in assignments:
+                if (query.match(assignment)):
+                    matched_queries.append(lms.model.assignments.ResolvedAssignmentQuery(assignment))
+                    break
+
+        return list(sorted(set(matched_queries)))
+
+    def resolve_user_queries(self,
+            course_id: str,
+            user_queries: typing.List[lms.model.users.UserQuery],
+            empty_all: bool = False,
+            only_students: bool = False,
+            **kwargs: typing.Any) -> typing.List[lms.model.users.ResolvedUserQuery]:
+        """
+        Resolve a list of user queries into a list of resolved user queries.
+        The returned list of queries may be shorter than the list of queries (if user are not matched).
+        The queries will be deduplicated and sorted.
+
+        If |empty_all| is true and no queries are specified, then all users will be returned.
+        """
+
+        users = self.courses_users_list(course_id, **kwargs)
+
+        if (only_students):
+            users = list(filter(lambda user: user.is_student(), users))
+
+        if (empty_all and (len(user_queries) == 0)):
+            return list(sorted({lms.model.users.ResolvedUserQuery(user) for user in users}))
+
+        matched_queries = []
+        for query in user_queries:
+            for user in users:
+                if (query.match(user)):
+                    matched_queries.append(lms.model.users.ResolvedUserQuery(user))
+                    break
+
+        return list(sorted(set(matched_queries)))

@@ -1,0 +1,17 @@
+{
+    "cli": "lms.cli.courses.gradebook.list",
+    "arguments": [
+        '--course', '999',
+        '--format', 'json'
+    ],
+}
+---
+{
+    "assignments": [],
+    "users": [],
+    "scores_assignment_user": []
+}
+
++++
+<LOG_PREFIX> -- Object not found: 'course'. Identifiers: {'course_id': 999}.
+<LOG_PREFIX> -- Object not found: 'course'. Identifiers: {'course_id': 999}.

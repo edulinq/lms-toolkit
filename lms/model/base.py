@@ -94,7 +94,7 @@ class BaseType(edq.util.json.DictConverter):
             **kwargs: typing.Any) -> typing.List[str]:
         """
         Get a list of headers to label the values represented by this object meant for display.
-        This method is a companion to as_table_row(),
+        This method is a companion to as_table_rows(),
         given the same options these two methods will produce rows with the same length and ordering.
         """
 
@@ -109,15 +109,18 @@ class BaseType(edq.util.json.DictConverter):
 
         return headers
 
-    def as_table_row(self,
-            **kwargs: typing.Any) -> typing.List[str]:
+    def as_table_rows(self,
+            **kwargs: typing.Any) -> typing.List[typing.List[str]]:
         """
         Get a list of the values by this object meant for display.
         This method is a companion to get_headers(),
         given the same options these two methods will produce rows with the same length and ordering.
+
+        Note that the default implementation for this method always return a single row,
+        but children may override and return multiple rows per object.
         """
 
-        return list(self._get_fields(**kwargs).values())
+        return [list(self._get_fields(**kwargs).values())]
 
     def as_json_dict(self,
             **kwargs: typing.Any) -> typing.Dict[str, typing.Any]:
@@ -135,7 +138,7 @@ class BaseType(edq.util.json.DictConverter):
             **kwargs: typing.Any) -> typing.Dict[str, str]:
         """
         Get a dictionary representing the "target" fields of this object meant for display.
-        Keys (field names) will not be modified, but values will be sent to _value_to_text().
+        Keys (field names) will not be modified, but values will be sent to self._value_to_text().
         Keys are placed in the dictionary in a consistent ordering.
         """
 
@@ -153,7 +156,7 @@ class BaseType(edq.util.json.DictConverter):
 
         fields = {}
         for field_name in field_names:
-            fields[field_name] = _value_to_text(self._get_field_value(field_name), **kwargs)
+            fields[field_name] = self._value_to_text(self._get_field_value(field_name), **kwargs)
 
         return fields
 
@@ -172,25 +175,26 @@ class BaseType(edq.util.json.DictConverter):
 
         return default
 
-def _value_to_text(value: typing.Any,
-        empty_value: str = '',
-        indent: typing.Union[int, None] = None,
-        **kwargs: typing.Any) -> str:
-    """
-    Convert some arbitrary value (usually found within a BaseType) to a string.
-    None values will be returned as `empty_value`.
-    """
+    def _value_to_text(self,
+            value: typing.Any,
+            empty_value: str = '',
+            indent: typing.Union[int, None] = None,
+            **kwargs: typing.Any) -> str:
+        """
+        Convert some arbitrary value (usually found within a BaseType) to a string.
+        None values will be returned as `empty_value`.
+        """
 
-    if (value is None):
-        return empty_value
+        if (value is None):
+            return empty_value
 
-    if (hasattr(value, '_to_text')):
-        return str(value._to_text())
+        if (hasattr(value, '_to_text')):
+            return str(value._to_text())
 
-    if (isinstance(value, (edq.util.json.DictConverter, dict, list, tuple))):
-        return str(edq.util.json.dumps(value, indent = indent))
+        if (isinstance(value, (edq.util.json.DictConverter, dict, list, tuple))):
+            return str(edq.util.json.dumps(value, indent = indent))
 
-    return str(value)
+        return str(value)
 
 def base_list_to_output_format(values: typing.Sequence[BaseType], output_format: str,
         sort: bool = True,
@@ -220,11 +224,13 @@ def base_list_to_output_format(values: typing.Sequence[BaseType], output_format:
     elif (output_format == lms.model.constants.OUTPUT_FORMAT_TABLE):
         output = base_list_to_table(values,
                 skip_headers = skip_headers, pretty_headers = pretty_headers,
+                empty_value = empty_value,
                 include_extra_fields = include_extra_fields,
                 **kwargs)
     elif (output_format == lms.model.constants.OUTPUT_FORMAT_TEXT):
         output = base_list_to_text(values,
                 skip_headers = skip_headers, pretty_headers = pretty_headers,
+                empty_value = empty_value,
                 include_extra_fields = include_extra_fields,
                 **kwargs)
     else:
@@ -234,10 +240,14 @@ def base_list_to_output_format(values: typing.Sequence[BaseType], output_format:
 
 def base_list_to_json(values: typing.Sequence[BaseType],
         indent: int = 4,
+        extract_single_list: bool = False,
         **kwargs: typing.Any) -> str:
     """ Convert a list of base types to a JSON string representation. """
 
     output_values = [value.as_json_dict(**kwargs) for value in values]
+    if (extract_single_list and (len(output_values) == 1)):
+        output_values = output_values[0]  # type: ignore[assignment]
+
     return str(edq.util.json.dumps(output_values, indent = indent, sort_keys = False))
 
 def base_list_to_table(values: typing.Sequence[BaseType],
@@ -252,7 +262,7 @@ def base_list_to_table(values: typing.Sequence[BaseType],
         rows.append(values[0].get_headers(**kwargs))
 
     for value in values:
-        rows.append(value.as_table_row(**kwargs))
+        rows += value.as_table_rows(**kwargs)
 
     return "\n".join([delim.join(row) for row in rows])
 

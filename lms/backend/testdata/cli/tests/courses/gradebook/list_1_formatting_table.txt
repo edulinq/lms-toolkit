@@ -1,0 +1,10 @@
+{
+    "cli": "lms.cli.courses.gradebook.list",
+    "arguments": [
+        '--course', '1',
+        '--format', 'table'
+    ],
+}
+---
+User	Homework 0 (1)
+course-student@test.edulinq.org (6)	2.0

@@ -8,6 +8,7 @@ import edq.testing.httpserver
 import edq.util.pyimport
 
 import lms.model.backend
+import lms.model.base
 import lms.backend.backend
 
 THIS_DIR: str = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
@@ -202,7 +203,9 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
                     expected_value = expected[i]
                     actual_value = actual[i]
 
-                    if (isinstance(expected_value, dict)):
+                    if (isinstance(expected_value, lms.model.base.BaseType)):
+                        self.assertJSONEqual(expected_value, actual_value)
+                    elif (isinstance(expected_value, dict)):
                         self.assertJSONDictEqual(expected_value, actual_value)
                     elif (isinstance(expected_value, list)):
                         self.assertJSONListEqual(expected_value, actual_value)

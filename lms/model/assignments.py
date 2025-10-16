@@ -17,7 +17,7 @@ class Assignment(lms.model.base.BaseType):
     ]
 
     def __init__(self,
-            id: typing.Union[str, None] = None,
+            id: typing.Union[str, int, None] = None,
             name: typing.Union[str, None] = None,
             description: typing.Union[str, None] = None,
             open_date: typing.Union[edq.util.time.Timestamp, None] = None,
@@ -32,7 +32,7 @@ class Assignment(lms.model.base.BaseType):
         if (id is None):
             raise ValueError("Assignment must have an id.")
 
-        self.id: str = id
+        self.id: str = str(id)
         """ The LMS's identifier for this assignment. """
 
         self.name: typing.Union[str, None] = name
@@ -74,9 +74,12 @@ class AssignmentQuery(edq.util.json.DictConverter):
     """
 
     def __init__(self,
-            id: typing.Union[str, None] = None,
+            id: typing.Union[str, int, None] = None,
             name: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
+        if (id is not None):
+            id = str(id)
+
         self.id: typing.Union[str, None] = id
         """ The LMS's identifier for this query. """
 
@@ -112,6 +115,21 @@ class AssignmentQuery(edq.util.json.DictConverter):
 
         return True
 
+    def __eq__(self, other: object) -> bool:
+        if (not isinstance(other, AssignmentQuery)):
+            return False
+
+        return ((self.id, self.name) == (other.id, other.name))
+
+    def __lt__(self, other: object) -> bool:
+        if (not isinstance(other, AssignmentQuery)):
+            return False
+
+        return ((self.id, self.name) < (other.id, other.name))
+
+    def __hash__(self) -> int:
+        return hash((self.id, self.name))
+
     def __str__(self) -> str:
         text = self.name
 
@@ -130,3 +148,24 @@ class AssignmentQuery(edq.util.json.DictConverter):
         """ Represent this query as a string. """
 
         return str(self)
+
+class ResolvedAssignmentQuery(AssignmentQuery):
+    """
+    A AssignmentQuery that has been resolved (verified) from a real assignment instance.
+    """
+
+    def __init__(self,
+            assignment: Assignment,
+            **kwargs: typing.Any) -> None:
+        super().__init__(id = assignment.id, name = assignment.name, **kwargs)
+
+        if (self.id is None):
+            raise ValueError("A resolved query cannot be created without an ID.")
+
+    def get_id(self) -> str:
+        """ Get the ID (which must exists) for this query. """
+
+        if (self.id is None):
+            raise ValueError("A resolved query cannot be created without an ID.")
+
+        return self.id
