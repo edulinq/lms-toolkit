@@ -7,16 +7,17 @@ CORE_FIELDS: typing.List[str] = [
     'email',
 ]
 
-ENROLLMENT_TYPES: typing.List[str] = [
-    'ObserverEnrollment',
-    'StudentEnrollment',
-    'TaEnrollment',
-    'DesignerEnrollment',
-    'TeacherEnrollment',
-]
+ENROLLMENT_TYPE_TO_ROLE: typing.Dict[str, lms.model.users.CourseRole] = {
+    'ObserverEnrollment': lms.model.users.CourseRole.OTHER,
+    'StudentEnrollment': lms.model.users.CourseRole.STUDENT,
+    'TaEnrollment': lms.model.users.CourseRole.GRADER,
+    'DesignerEnrollment': lms.model.users.CourseRole.ADMIN,
+    'TeacherEnrollment': lms.model.users.CourseRole.OWNER,
+}
 """
-Canvas enrollment types ordered by priority/power.
-The higher the index, the more power.
+Canvas enrollment types mapped to roles.
+This map is ordered by priority/power.
+The later in the dict, the more power.
 """
 
 class CourseUser(lms.model.users.CourseUser):
@@ -43,7 +44,8 @@ class CourseUser(lms.model.users.CourseUser):
         kwargs['username'] = kwargs.get('login_id', None)
 
         if (enrollments is not None):
-            kwargs['role'] = self._parse_role_from_enrollments(enrollments)
+            kwargs['raw_role'] = self._parse_role_from_enrollments(enrollments)
+            kwargs['role'] = ENROLLMENT_TYPE_TO_ROLE.get(kwargs['raw_role'], None)
 
         super().__init__(**kwargs)
 
@@ -77,6 +79,8 @@ class CourseUser(lms.model.users.CourseUser):
         best_role = None
         best_index = -1
 
+        enrollment_types = list(ENROLLMENT_TYPE_TO_ROLE.keys())
+
         for enrollment in enrollments:
             if (not isinstance(enrollment, dict)):
                 continue
@@ -87,8 +91,8 @@ class CourseUser(lms.model.users.CourseUser):
             role = enrollment.get('role', None)
 
             role_index = -1
-            if (role in ENROLLMENT_TYPES):
-                role_index = ENROLLMENT_TYPES.index(role)
+            if (role in enrollment_types):
+                role_index = enrollment_types.index(role)
 
             if ((best_role is None) or (role_index > best_index)):
                 best_role = role

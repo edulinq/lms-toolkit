@@ -12,34 +12,34 @@
         "name": "course-admin",
         "email": "course-admin@test.edulinq.org",
         "username": "course-admin@test.edulinq.org",
-        "role": "TaEnrollment"
+        "role": "grader"
     },
     {
         "id": "3",
         "name": "course-grader",
         "email": "course-grader@test.edulinq.org",
         "username": "course-grader@test.edulinq.org",
-        "role": "TaEnrollment"
+        "role": "grader"
     },
     {
         "id": "4",
         "name": "course-other",
         "email": "course-other@test.edulinq.org",
         "username": "course-other@test.edulinq.org",
-        "role": "ObserverEnrollment"
+        "role": "other"
     },
     {
         "id": "5",
         "name": "course-owner",
         "email": "course-owner@test.edulinq.org",
         "username": "course-owner@test.edulinq.org",
-        "role": "TeacherEnrollment"
+        "role": "owner"
     },
     {
         "id": "6",
         "name": "course-student",
         "email": "course-student@test.edulinq.org",
         "username": "course-student@test.edulinq.org",
-        "role": "StudentEnrollment"
+        "role": "student"
     }
 ]

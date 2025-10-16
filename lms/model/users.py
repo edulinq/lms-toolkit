@@ -1,8 +1,24 @@
+import enum
 import typing
 
 import edq.util.json
 
 import lms.model.base
+
+class CourseRole(enum.Enum):
+    """
+    Different roles a user can have in a course.
+    LMSs represent this information very differently, so this is only a general collection of roles.
+    """
+
+    OTHER = 'other'
+    STUDENT = 'student'
+    GRADER = 'grader'
+    ADMIN = 'admin'
+    OWNER = 'owner'
+
+    def __str__(self) -> str:
+        return str(self.value)
 
 class ServerUser(lms.model.base.BaseType):
     """
@@ -13,7 +29,7 @@ class ServerUser(lms.model.base.BaseType):
     """ The common fields shared across backends for this type. """
 
     def __init__(self,
-            id: typing.Union[str, None] = None,
+            id: typing.Union[str, int, None] = None,
             email: typing.Union[str, None] = None,
             username: typing.Union[str, None] = None,
             name: typing.Union[str, None] = None,
@@ -23,7 +39,7 @@ class ServerUser(lms.model.base.BaseType):
         if (id is None):
             raise ValueError("User must have an id.")
 
-        self.id: str = id
+        self.id: str = str(id)
         """ The LMS's identifier for this user. """
 
         self.name: typing.Union[str, None] = name
@@ -49,12 +65,27 @@ class CourseUser(ServerUser):
     """ The common fields shared across backends for this type. """
 
     def __init__(self,
-            role: typing.Union[str, None] = None,
+            role: typing.Union[CourseRole, None] = None,
+            raw_role: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
 
-        self.role: typing.Union[str, None] = role
-        """ The role of this user within this course (e.g., instructor, student). """
+        self.role: typing.Union[CourseRole, None] = role
+        """ The role of this user within this course (e.g., owner, student). """
+
+        self.raw_role: typing.Union[str, None] = raw_role
+        """
+        The raw role string from the LMS.
+        This may not translate nicely into one of our known roles.
+        """
+
+    def is_student(self) -> bool:
+        """
+        Check if this course user is a student (and therefore be included in graded components like gradebooks).
+        Backends should implement this method.
+        """
+
+        return (self.role == CourseRole.STUDENT)
 
 class UserQuery(edq.util.json.DictConverter):
     """
@@ -68,10 +99,13 @@ class UserQuery(edq.util.json.DictConverter):
     """
 
     def __init__(self,
-            id: typing.Union[str, None] = None,
+            id: typing.Union[str, int, None] = None,
             name: typing.Union[str, None] = None,
             email: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
+        if (id is not None):
+            id = str(id)
+
         self.id: typing.Union[str, None] = id
         """ The LMS's identifier for this query. """
 
@@ -110,6 +144,21 @@ class UserQuery(edq.util.json.DictConverter):
 
         return True
 
+    def __eq__(self, other: object) -> bool:
+        if (not isinstance(other, UserQuery)):
+            return False
+
+        return ((self.id, self.name, self.email) == (other.id, other.name, other.email))
+
+    def __lt__(self, other: object) -> bool:
+        if (not isinstance(other, UserQuery)):
+            return False
+
+        return ((self.id, self.name, self.email) < (other.id, other.name, other.email))
+
+    def __hash__(self) -> int:
+        return hash((self.id, self.name, self.email))
+
     def __str__(self) -> str:
         text = self.email
         if (text is None):
@@ -130,3 +179,24 @@ class UserQuery(edq.util.json.DictConverter):
         """ Represent this query as a string. """
 
         return str(self)
+
+class ResolvedUserQuery(UserQuery):
+    """
+    A UserQuery that has been resolved (verified) from a real user instance.
+    """
+
+    def __init__(self,
+            user: ServerUser,
+            **kwargs: typing.Any) -> None:
+        super().__init__(id = user.id, name = user.name, email = user.email, **kwargs)
+
+        if (self.id is None):
+            raise ValueError("A resolved query cannot be created without an ID.")
+
+    def get_id(self) -> str:
+        """ Get the ID (which must exists) for this query. """
+
+        if (self.id is None):
+            raise ValueError("A resolved query cannot be created without an ID.")
+
+        return self.id
