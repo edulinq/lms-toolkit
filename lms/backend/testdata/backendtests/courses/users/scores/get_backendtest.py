@@ -32,7 +32,7 @@ def test_courses_users_scores_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                scores['1']['1']['course-student@test.edulinq.org'],
+                scores['Course 101']['Homework 0']['course-student'],
             ],
             None,
         ),
@@ -47,7 +47,7 @@ def test_courses_users_scores_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                scores['1']['1']['course-student@test.edulinq.org'],
+                scores['Course 101']['Homework 0']['course-student'],
             ],
             None,
         ),

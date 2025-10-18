@@ -14,14 +14,14 @@ def test_courses_gradebook_list_base(test: lms.backend.testing.BackendTest):
             {
                 'course_id': '1',
             },
-            lms.model.testdata.scores.COURSE_GRADEBOOKS_RESOLVED['1'],
+            lms.model.testdata.scores.COURSE_GRADEBOOKS_RESOLVED['Course 101'],
             None,
         ),
         (
             {
                 'course_id': '2',
             },
-            lms.model.testdata.scores.COURSE_GRADEBOOKS_RESOLVED['2'],
+            lms.model.testdata.scores.COURSE_GRADEBOOKS_RESOLVED['Course Using Different Languages'],
             None,
         ),
 

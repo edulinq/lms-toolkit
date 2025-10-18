@@ -14,7 +14,7 @@ def test_courses_assignments_scores_list_base(test: lms.backend.testing.BackendT
                 'assignment_id': '1',
             },
             [
-                scores['1']['1']['course-student@test.edulinq.org'],
+                scores['Course 101']['Homework 0']['course-student'],
             ],
             None,
         ),
@@ -45,7 +45,7 @@ def test_courses_assignments_scores_resolve_and_list_base(test: lms.backend.test
                 'assignment_query': lms.model.assignments.AssignmentQuery(id = '1'),
             },
             [
-                scores['1']['1']['course-student@test.edulinq.org'],
+                scores['Course 101']['Homework 0']['course-student'],
             ],
             None,
         ),

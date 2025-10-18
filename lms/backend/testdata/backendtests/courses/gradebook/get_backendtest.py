@@ -15,10 +15,10 @@ def test_courses_gradebook_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_id': '1',
-                'assignment_queries': lms.model.testdata.scores.COURSE_GRADEBOOKS_RESOLVED['1'].assignments,
-                'user_queries': lms.model.testdata.scores.COURSE_GRADEBOOKS_RESOLVED['1'].users,
+                'assignment_queries': lms.model.testdata.scores.COURSE_GRADEBOOKS_RESOLVED['Course 101'].assignments,
+                'user_queries': lms.model.testdata.scores.COURSE_GRADEBOOKS_RESOLVED['Course 101'].users,
             },
-            lms.model.testdata.scores.COURSE_GRADEBOOKS_RESOLVED['1'],
+            lms.model.testdata.scores.COURSE_GRADEBOOKS_RESOLVED['Course 101'],
             None,
         ),
 
@@ -29,7 +29,7 @@ def test_courses_gradebook_get_base(test: lms.backend.testing.BackendTest):
                 'assignment_queries': [],
                 'user_queries': [],
             },
-            lms.model.testdata.scores.COURSE_GRADEBOOKS_RESOLVED['1'],
+            lms.model.testdata.scores.COURSE_GRADEBOOKS_RESOLVED['Course 101'],
             None,
         ),
 

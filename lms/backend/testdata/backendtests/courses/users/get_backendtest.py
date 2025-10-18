@@ -26,8 +26,8 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                lms.model.testdata.users.COURSE_USERS['1']['course-admin@test.edulinq.org'],
-                lms.model.testdata.users.COURSE_USERS['1']['course-grader@test.edulinq.org'],
+                lms.model.testdata.users.COURSE_USERS['Course 101']['course-admin'],
+                lms.model.testdata.users.COURSE_USERS['Course 101']['course-grader'],
             ],
             None,
         ),
@@ -40,7 +40,7 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                lms.model.testdata.users.COURSE_USERS['1']['course-admin@test.edulinq.org'],
+                lms.model.testdata.users.COURSE_USERS['Course 101']['course-admin'],
             ],
             None,
         ),
@@ -53,7 +53,7 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                lms.model.testdata.users.COURSE_USERS['1']['course-admin@test.edulinq.org'],
+                lms.model.testdata.users.COURSE_USERS['Course 101']['course-admin'],
             ],
             None,
         ),
@@ -66,7 +66,7 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                lms.model.testdata.users.COURSE_USERS['1']['course-admin@test.edulinq.org'],
+                lms.model.testdata.users.COURSE_USERS['Course 101']['course-admin'],
             ],
             None,
         ),
@@ -79,7 +79,7 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                lms.model.testdata.users.COURSE_USERS['1']['course-admin@test.edulinq.org'],
+                lms.model.testdata.users.COURSE_USERS['Course 101']['course-admin'],
             ],
             None,
         ),
@@ -92,7 +92,7 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                lms.model.testdata.users.COURSE_USERS['1']['course-admin@test.edulinq.org'],
+                lms.model.testdata.users.COURSE_USERS['Course 101']['course-admin'],
             ],
             None,
         ),
@@ -154,7 +154,7 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                lms.model.testdata.users.COURSE_USERS['1']['course-admin@test.edulinq.org'],
+                lms.model.testdata.users.COURSE_USERS['Course 101']['course-admin'],
             ],
             None,
         ),

@@ -14,7 +14,7 @@ def test_courses_users_scores_list_base(test: lms.backend.testing.BackendTest):
                 'user_id': '6',
             },
             [
-                scores['1']['1']['course-student@test.edulinq.org'],
+                scores['Course 101']['Homework 0']['course-student'],
             ],
             None,
         ),
@@ -45,7 +45,7 @@ def test_courses_users_scores_resolve_and_list_base(test: lms.backend.testing.Ba
                 'user_query': lms.model.users.UserQuery(id = '6'),
             },
             [
-                scores['1']['1']['course-student@test.edulinq.org'],
+                scores['Course 101']['Homework 0']['course-student'],
             ],
             None,
         ),

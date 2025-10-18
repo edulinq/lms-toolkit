@@ -1,9 +1,9 @@
 import lms.model.assignments
 
-# {course_id: {name: assignment, ...}, ...}
+# {course_name: {name: assignment, ...}, ...}
 COURSE_ASSIGNMENTS = {
-    '1': {
-        '1': lms.model.assignments.Assignment(
+    'Course 101': {
+        'Homework 0': lms.model.assignments.Assignment(
             id = '1',
             name = 'Homework 0',
             points_possible = 2.0,
@@ -11,22 +11,22 @@ COURSE_ASSIGNMENTS = {
             group_id = '1',
         ),
     },
-    '2': {
-        '2': lms.model.assignments.Assignment(
+    'Course Using Different Languages': {
+        'A Simple Bash Assignment': lms.model.assignments.Assignment(
             id = '2',
             name = 'A Simple Bash Assignment',
             points_possible = 10.0,
             position = 1,
             group_id = '2'
         ),
-        '3': lms.model.assignments.Assignment(
+        'A Simple C++ Assignment': lms.model.assignments.Assignment(
             id = '3',
             name = 'A Simple C++ Assignment',
             points_possible = 10.0,
             position = 2,
             group_id = '2'
         ),
-        '4': lms.model.assignments.Assignment(
+        'A Simple Java Assignment': lms.model.assignments.Assignment(
             id = '4',
             name = 'A Simple Java Assignment',
             points_possible = 10.0,

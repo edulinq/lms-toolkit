@@ -12,7 +12,7 @@ def test_courses_users_fetch_base(test: lms.backend.testing.BackendTest):
             {
                 'user_id': '6',
             },
-            lms.model.testdata.users.COURSE_USERS['1']['course-student@test.edulinq.org'],
+            lms.model.testdata.users.COURSE_USERS['Course 101']['course-student'],
             None,
         ),
 

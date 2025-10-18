@@ -15,7 +15,7 @@ def test_courses_assignments_scores_fetch_base(test: lms.backend.testing.Backend
                 'assignment_id': '1',
                 'user_id': '6',
             },
-            scores['1']['1']['course-student@test.edulinq.org'],
+            scores['Course 101']['Homework 0']['course-student'],
             None,
         ),
 

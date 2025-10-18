@@ -16,7 +16,7 @@ def test_courses_gradebook_fetch_base(test: lms.backend.testing.BackendTest):
                 'assignment_ids': ['1'],
                 'user_ids': ['6'],
             },
-            lms.model.testdata.scores.COURSE_GRADEBOOKS['1'],
+            lms.model.testdata.scores.COURSE_GRADEBOOKS['Course 101'],
             None,
         ),
 

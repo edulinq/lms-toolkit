@@ -11,7 +11,7 @@ def test_courses_assignments_fetch_base(test: lms.backend.testing.BackendTest):
             {
                 'assignment_id': '1',
             },
-            lms.model.testdata.assignments.COURSE_ASSIGNMENTS['1']['1'],
+            lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course 101']['Homework 0'],
             None,
         ),
 

@@ -27,8 +27,8 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['2']['2'],
-                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['2']['3'],
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course Using Different Languages']['A Simple Bash Assignment'],
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course Using Different Languages']['A Simple C++ Assignment'],
             ],
             None,
         ),
@@ -42,7 +42,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['2']['2'],
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course Using Different Languages']['A Simple Bash Assignment'],
             ],
             None,
         ),
@@ -56,7 +56,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['2']['2'],
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course Using Different Languages']['A Simple Bash Assignment'],
             ],
             None,
         ),
@@ -70,7 +70,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['2']['2'],
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course Using Different Languages']['A Simple Bash Assignment'],
             ],
             None,
         ),
@@ -124,7 +124,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['2']['2'],
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course Using Different Languages']['A Simple Bash Assignment'],
             ],
             None,
         ),

@@ -9,11 +9,11 @@ def test_courses_users_list_base(test: lms.backend.testing.BackendTest):
         (
             {},
             [
-                lms.model.testdata.users.COURSE_USERS['1']['course-admin@test.edulinq.org'],
-                lms.model.testdata.users.COURSE_USERS['1']['course-grader@test.edulinq.org'],
-                lms.model.testdata.users.COURSE_USERS['1']['course-other@test.edulinq.org'],
-                lms.model.testdata.users.COURSE_USERS['1']['course-owner@test.edulinq.org'],
-                lms.model.testdata.users.COURSE_USERS['1']['course-student@test.edulinq.org'],
+                lms.model.testdata.users.COURSE_USERS['Course 101']['course-admin'],
+                lms.model.testdata.users.COURSE_USERS['Course 101']['course-grader'],
+                lms.model.testdata.users.COURSE_USERS['Course 101']['course-other'],
+                lms.model.testdata.users.COURSE_USERS['Course 101']['course-owner'],
+                lms.model.testdata.users.COURSE_USERS['Course 101']['course-student'],
             ],
             None,
         ),
