@@ -25,13 +25,12 @@ class ServerUser(lms.model.base.BaseType):
     A user associated with an LMS server.
     """
 
-    CORE_FIELDS = ['id', 'name', 'email', 'username']
+    CORE_FIELDS = ['id', 'name', 'email']
     """ The common fields shared across backends for this type. """
 
     def __init__(self,
             id: typing.Union[str, int, None] = None,
             email: typing.Union[str, None] = None,
-            username: typing.Union[str, None] = None,
             name: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
@@ -47,9 +46,6 @@ class ServerUser(lms.model.base.BaseType):
 
         self.email: typing.Union[str, None] = email
         """ The email address of this user. """
-
-        self.username: typing.Union[str, None] = username
-        """ The username for this user (often overlaps with email). """
 
     def to_query(self) -> 'UserQuery':
         """ Get a query representation of this user. """

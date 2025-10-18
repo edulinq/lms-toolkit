@@ -41,7 +41,6 @@ class CourseUser(lms.model.users.CourseUser):
 
         # Modify specific arguments before sending them to super.
         kwargs['id'] = lms.util.parse.required_string(kwargs.get('id', None), 'id')
-        kwargs['username'] = kwargs.get('login_id', None)
 
         if (enrollments is not None):
             kwargs['raw_role'] = self._parse_role_from_enrollments(enrollments)

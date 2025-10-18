@@ -7,9 +7,9 @@
     ],
 }
 ---
-Id	Name	Email	Username	Role
-2	course-admin	course-admin@test.edulinq.org	course-admin@test.edulinq.org	grader
-3	course-grader	course-grader@test.edulinq.org	course-grader@test.edulinq.org	grader
-4	course-other	course-other@test.edulinq.org	course-other@test.edulinq.org	other
-5	course-owner	course-owner@test.edulinq.org	course-owner@test.edulinq.org	owner
-6	course-student	course-student@test.edulinq.org	course-student@test.edulinq.org	student
+Id	Name	Email	Role
+2	course-admin	course-admin@test.edulinq.org	grader
+3	course-grader	course-grader@test.edulinq.org	grader
+4	course-other	course-other@test.edulinq.org	other
+5	course-owner	course-owner@test.edulinq.org	owner
+6	course-student	course-student@test.edulinq.org	student
