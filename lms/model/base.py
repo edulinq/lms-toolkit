@@ -3,6 +3,7 @@ import typing
 import edq.util.json
 
 import lms.model.constants
+import lms.util.string
 
 class BaseType(edq.util.json.DictConverter):
     """
@@ -22,6 +23,12 @@ class BaseType(edq.util.json.DictConverter):
     Child classes should set this to define how comparisons are made.
     """
 
+    INT_COMPARISON_FIELDS: typing.Set[str] = {'id'}
+    """
+    Fields that should be compared like ints (even if they are strings).
+    By default, this set will include 'id'.
+    """
+
     def __init__(self,
             **kwargs: typing.Any) -> None:
         self.extra_fields: typing.Dict[str, typing.Any] = kwargs.copy()
@@ -36,7 +43,14 @@ class BaseType(edq.util.json.DictConverter):
             if (not hasattr(other, field_name)):
                 return False
 
-            if (getattr(self, field_name) != getattr(other, field_name)):
+            value_self = getattr(self, field_name)
+            value_other = getattr(other, field_name)
+
+            if (field_name in self.INT_COMPARISON_FIELDS):
+                comparison = lms.util.string.compare_maybe_ints(value_self, value_other)
+                if (comparison != 0):
+                    return False
+            elif (value_self != value_other):
                 return False
 
         return True
@@ -54,13 +68,20 @@ class BaseType(edq.util.json.DictConverter):
             if (not hasattr(other, field_name)):
                 return False
 
-            self_value = getattr(self, field_name)
-            other_value = getattr(other, field_name)
+            value_self = getattr(self, field_name)
+            value_other = getattr(other, field_name)
 
-            if (self_value == other_value):
+            if (field_name in self.INT_COMPARISON_FIELDS):
+                comparison = lms.util.string.compare_maybe_ints(value_self, value_other)
+                if (comparison == 0):
+                    continue
+
+                return (comparison < 0)
+
+            if (value_self == value_other):
                 continue
 
-            return bool(self_value < other_value)
+            return bool(value_self < value_other)
 
         return False
 

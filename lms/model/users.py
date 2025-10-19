@@ -4,6 +4,7 @@ import typing
 import edq.util.json
 
 import lms.model.base
+import lms.util.string
 
 class CourseRole(enum.Enum):
     """
@@ -144,13 +145,23 @@ class UserQuery(edq.util.json.DictConverter):
         if (not isinstance(other, UserQuery)):
             return False
 
-        return ((self.id, self.name, self.email) == (other.id, other.name, other.email))
+        # Check the ID specially.
+        comparison = lms.util.string.compare_maybe_ints(self.id, other.id)
+        if (comparison != 0):
+            return False
+
+        return ((self.name, self.email) == (other.name, other.email))
 
     def __lt__(self, other: object) -> bool:
         if (not isinstance(other, UserQuery)):
             return False
 
-        return ((self.id, self.name, self.email) < (other.id, other.name, other.email))
+        # Check the ID specially.
+        comparison = lms.util.string.compare_maybe_ints(self.id, other.id)
+        if (comparison != 0):
+            return (comparison < 0)
+
+        return ((self.name, self.email) < (other.name, other.email))
 
     def __hash__(self) -> int:
         return hash((self.id, self.name, self.email))

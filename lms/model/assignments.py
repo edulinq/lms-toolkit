@@ -4,6 +4,7 @@ import edq.util.json
 import edq.util.time
 
 import lms.model.base
+import lms.util.string
 
 class Assignment(lms.model.base.BaseType):
     """
@@ -119,13 +120,32 @@ class AssignmentQuery(edq.util.json.DictConverter):
         if (not isinstance(other, AssignmentQuery)):
             return False
 
-        return ((self.id, self.name) == (other.id, other.name))
+        # Check the ID specially.
+        comparison = lms.util.string.compare_maybe_ints(self.id, other.id)
+        if (comparison != 0):
+            return False
+
+        return (self.name == other.name)
 
     def __lt__(self, other: object) -> bool:
         if (not isinstance(other, AssignmentQuery)):
             return False
 
-        return ((self.id, self.name) < (other.id, other.name))
+        # Check the ID specially.
+        comparison = lms.util.string.compare_maybe_ints(self.id, other.id)
+        if (comparison != 0):
+            return (comparison < 0)
+
+        if ((self.name is None) and (other.name is None)):
+            return False
+
+        if (self.name is None):
+            return True
+
+        if (other.name is None):
+            return False
+
+        return (self.name < other.name)
 
     def __hash__(self) -> int:
         return hash((self.id, self.name))

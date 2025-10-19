@@ -160,14 +160,14 @@ class Gradebook(lms.model.base.BaseType):
             empty_value: str = '',
             **kwargs: typing.Any) -> typing.List[str]:
         rows: typing.List[str] = []
-        for user in self.users:
+        for user in sorted(self.users):
             # Add in a user separator.
             if (len(rows) > 0):
                 rows.append('')
 
             rows.append(f"User{separator}{user}")
 
-            for assignment in self.assignments:
+            for assignment in sorted(self.assignments):
                 score = self.get(assignment, user)
 
                 text = empty_value
@@ -181,15 +181,15 @@ class Gradebook(lms.model.base.BaseType):
     def get_headers(self,
             pretty_headers: bool = False,
             **kwargs: typing.Any) -> typing.List[str]:
-        return ['User'] + [str(query) for query in self.assignments]
+        return ['User'] + [str(query) for query in sorted(self.assignments)]
 
     def as_table_rows(self,
             empty_value: str = '',
             **kwargs: typing.Any) -> typing.List[typing.List[str]]:
         rows = []
-        for user in self.users:
+        for user in sorted(self.users):
             row = [str(user)]
-            for assignment in self.assignments:
+            for assignment in sorted(self.assignments):
                 score = self.get(assignment, user)
 
                 text = empty_value
@@ -213,9 +213,9 @@ class Gradebook(lms.model.base.BaseType):
         """
 
         scores = []
-        for assignment in self.assignments:
+        for assignment in sorted(self.assignments):
             row = []
-            for user in self.users:
+            for user in sorted(self.users):
                 score: typing.Any = self.get(assignment, user)
                 if (score is not None):
                     score = score.as_json_dict(include_extra_fields = include_extra_fields, **kwargs)
