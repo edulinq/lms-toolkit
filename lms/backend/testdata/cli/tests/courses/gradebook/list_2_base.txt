@@ -1,0 +1,11 @@
+{
+    "cli": "lms.cli.courses.gradebook.list",
+    "arguments": [
+        '--course', '2'
+    ],
+}
+---
+User: course-student@test.edulinq.org (6)
+A Simple Bash Assignment (2): 
+A Simple C++ Assignment (3): 
+A Simple Java Assignment (4): 

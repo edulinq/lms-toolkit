@@ -5,8 +5,6 @@ import lms.model.testdata.scores
 def test_courses_gradebook_list_base(test: lms.backend.testing.BackendTest):
     """ Test the base functionality of listing a course's gradebook. """
 
-    scores = lms.model.testdata.scores.COURSE_ASSIGNMENT_SCORES
-
     # [(kwargs (and overrides), expected, error substring), ...]
     test_cases = [
         # Base
@@ -14,14 +12,21 @@ def test_courses_gradebook_list_base(test: lms.backend.testing.BackendTest):
             {
                 'course_id': '1',
             },
-            lms.model.testdata.scores.COURSE_GRADEBOOKS_RESOLVED['Course 101'],
+            lms.model.testdata.scores.COURSE_GRADEBOOKS['Course 101'],
             None,
         ),
         (
             {
                 'course_id': '2',
             },
-            lms.model.testdata.scores.COURSE_GRADEBOOKS_RESOLVED['Course Using Different Languages'],
+            lms.model.testdata.scores.COURSE_GRADEBOOKS['Course Using Different Languages'],
+            None,
+        ),
+        (
+            {
+                'course_id': '3',
+            },
+            lms.model.testdata.scores.COURSE_GRADEBOOKS['Extra Course'],
             None,
         ),
 

@@ -1,0 +1,26 @@
+{
+    "cli": "lms.cli.courses.gradebook.list",
+    "arguments": [
+        '--course', '3'
+    ],
+}
+---
+User: extra-course-student-1@test.edulinq.org (7)
+Assignment 1 (5): 10.0
+Assignment 2 (6): 20.0
+Assignment 3 (7): 30.0
+
+User: extra-course-student-2@test.edulinq.org (8)
+Assignment 1 (5): 7.5
+Assignment 2 (6): 15.0
+Assignment 3 (7): 22.5
+
+User: extra-course-student-3@test.edulinq.org (9)
+Assignment 1 (5): 5.0
+Assignment 2 (6): 10.0
+Assignment 3 (7): 15.0
+
+User: extra-course-student-4@test.edulinq.org (10)
+Assignment 1 (5): 0.0
+Assignment 2 (6): 0.0
+Assignment 3 (7): 

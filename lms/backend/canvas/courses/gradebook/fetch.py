@@ -17,6 +17,7 @@ def request(backend: typing.Any,
     headers = backend.get_standard_headers()
 
     data = {
+        'per_page': 95,
         'assignment_ids[]': [str(assignment_id) for assignment_id in assignment_ids],
         'student_ids[]': [str(user_id) for user_id in user_ids],
     }

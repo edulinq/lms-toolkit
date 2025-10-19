@@ -5,8 +5,6 @@ import lms.model.testdata.scores
 def test_courses_gradebook_fetch_base(test: lms.backend.testing.BackendTest):
     """ Test the base functionality of fetching a course's gradebook. """
 
-    scores = lms.model.testdata.scores.COURSE_ASSIGNMENT_SCORES_RESOLVED
-
     # [(kwargs (and overrides), expected, error substring), ...]
     test_cases = [
         # Base
@@ -16,7 +14,7 @@ def test_courses_gradebook_fetch_base(test: lms.backend.testing.BackendTest):
                 'assignment_ids': ['1'],
                 'user_ids': ['6'],
             },
-            lms.model.testdata.scores.COURSE_GRADEBOOKS['Course 101'],
+            lms.model.testdata.scores.COURSE_GRADEBOOKS_UNRESOLVED['Course 101'],
             None,
         ),
 

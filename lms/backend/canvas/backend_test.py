@@ -28,7 +28,7 @@ These tokens were taken from the Canvas test data repo:
 https://github.com/edulinq/lms-docker-canvas-testdata
 """
 
-DEFAULT_TOKEN: str = USER_TOKENS['course-admin@test.edulinq.org']
+DEFAULT_TOKEN: str = USER_TOKENS['course-owner@test.edulinq.org']
 """ The default token for these tests. """
 
 class CanvasBackendTest(lms.backend.testing.BackendTest):

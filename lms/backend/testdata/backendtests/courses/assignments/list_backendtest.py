@@ -13,7 +13,6 @@ def test_courses_assignments_list_base(test: lms.backend.testing.BackendTest):
             ],
             None,
         ),
-
         (
             {
                 'course_id': '2',
@@ -22,6 +21,17 @@ def test_courses_assignments_list_base(test: lms.backend.testing.BackendTest):
                 lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course Using Different Languages']['A Simple Bash Assignment'],
                 lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course Using Different Languages']['A Simple C++ Assignment'],
                 lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course Using Different Languages']['A Simple Java Assignment'],
+            ],
+            None,
+        ),
+        (
+            {
+                'course_id': '3',
+            },
+            [
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 1'],
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 2'],
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 3'],
             ],
             None,
         ),
