@@ -5,7 +5,7 @@ List the gradebook for a course.
 import argparse
 import sys
 
-import lms.backend.backend
+import lms.backend.instance
 import lms.cli.common
 import lms.cli.parser
 
@@ -18,7 +18,7 @@ def run_cli(args: argparse.Namespace) -> int:
     if (course is None):
         return 1
 
-    backend = lms.backend.backend.get_backend(**config)
+    backend = lms.backend.instance.get_backend(**config)
 
     gradebook = backend.courses_gradebook_list(course)
 

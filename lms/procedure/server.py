@@ -14,7 +14,7 @@ import edq.util.dirent
 import edq.util.net
 import edq.util.reflection
 
-import lms.backend.backend
+import lms.backend.instance
 import lms.cli.parser
 import lms.model.constants
 import lms.util.net
@@ -135,7 +135,7 @@ class ServerRunner():
             raise ValueError(f"Server was unable to start successfully ('{hint}').")
 
         # Resolve the backend type.
-        self.backend_type = lms.backend.backend.guess_backend_type(self.server, backend_type = self.backend_type)
+        self.backend_type = lms.backend.instance.guess_backend_type(self.server, backend_type = self.backend_type)
         if (self.backend_type is None):
             raise ValueError(f"Unable to determine backend type for server '{self.server}'.")
 

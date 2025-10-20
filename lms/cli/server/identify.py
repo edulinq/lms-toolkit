@@ -6,7 +6,7 @@ import argparse
 import sys
 
 import lms
-import lms.backend.backend
+import lms.backend.instance
 import lms.cli.parser
 
 def run_cli(args: argparse.Namespace) -> int:
@@ -14,7 +14,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
     config = args._config
 
-    backend_type = lms.backend.backend.guess_backend_type(**config)
+    backend_type = lms.backend.instance.guess_backend_type(**config)
     if (backend_type is None):
         print(f"ERROR: Unable to determine backend type from server '{config.get('server', '')}'.")
         return 1

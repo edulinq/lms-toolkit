@@ -5,7 +5,7 @@ Get specific entries in a course's gradebook.
 import argparse
 import sys
 
-import lms.backend.backend
+import lms.backend.instance
 import lms.cli.common
 import lms.cli.parser
 
@@ -18,7 +18,7 @@ def run_cli(args: argparse.Namespace) -> int:
     if (course is None):
         return 1
 
-    backend = lms.backend.backend.get_backend(**config)
+    backend = lms.backend.instance.get_backend(**config)
 
     assignment_queries = backend.parse_assignment_queries(args.assignments)
     user_queries = backend.parse_user_queries(args.users)

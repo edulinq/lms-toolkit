@@ -5,7 +5,7 @@ List the assignments of a course.
 import argparse
 import sys
 
-import lms.backend.backend
+import lms.backend.instance
 import lms.cli.common
 import lms.cli.parser
 import lms.model.base
@@ -19,7 +19,7 @@ def run_cli(args: argparse.Namespace) -> int:
     if (course is None):
         return 1
 
-    backend = lms.backend.backend.get_backend(**config)
+    backend = lms.backend.instance.get_backend(**config)
     assignments = backend.courses_assignments_list(course)
 
     output = lms.model.base.base_list_to_output_format(assignments, args.output_format,

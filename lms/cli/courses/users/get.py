@@ -5,7 +5,7 @@ Get specific users of a course.
 import argparse
 import sys
 
-import lms.backend.backend
+import lms.backend.instance
 import lms.cli.common
 import lms.cli.parser
 import lms.model.base
@@ -19,7 +19,7 @@ def run_cli(args: argparse.Namespace) -> int:
     if (course is None):
         return 1
 
-    backend = lms.backend.backend.get_backend(**config)
+    backend = lms.backend.instance.get_backend(**config)
     queries = backend.parse_user_queries(args.users)
     users = backend.courses_users_get(course, queries)
 

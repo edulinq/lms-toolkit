@@ -10,7 +10,7 @@ import edq.util.pyimport
 
 import lms.model.backend
 import lms.model.base
-import lms.backend.backend
+import lms.backend.instance
 
 THIS_DIR: str = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 TESTDATA_DIR: str = os.path.join(THIS_DIR, 'testdata')
@@ -106,7 +106,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
 
     @classmethod
     def post_start_server(cls, server: edq.testing.httpserver.HTTPTestServer) -> None:
-        cls.backend = lms.backend.backend.get_backend(cls.get_server_url(), backend_type = cls.backend_type, **cls.backend_args)
+        cls.backend = lms.backend.instance.get_backend(cls.get_server_url(), backend_type = cls.backend_type, **cls.backend_args)
 
     @classmethod
     def get_base_args(cls) -> typing.Dict[str, typing.Any]:

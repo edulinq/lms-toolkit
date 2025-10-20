@@ -5,7 +5,7 @@ List the scores for a user.
 import argparse
 import sys
 
-import lms.backend.backend
+import lms.backend.instance
 import lms.cli.common
 import lms.cli.parser
 import lms.model.base
@@ -23,7 +23,7 @@ def run_cli(args: argparse.Namespace) -> int:
     if (user is None):
         return 2
 
-    backend = lms.backend.backend.get_backend(**config)
+    backend = lms.backend.instance.get_backend(**config)
 
     user_query = backend.parse_user_query(user)
     if (user_query is None):
