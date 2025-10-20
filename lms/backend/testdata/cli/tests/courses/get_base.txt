@@ -1,0 +1,9 @@
+{
+    "cli": "lms.cli.courses.get",
+    "arguments": [
+        'Course 101',
+    ],
+}
+---
+id: 1
+name: Course 101

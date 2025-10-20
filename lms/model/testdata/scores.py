@@ -152,7 +152,7 @@ def _load_gradebooks(
         ) -> None:
     """ Load unresolved gradebooks from scores. """
 
-    for course_name in lms.model.testdata.courses.COURSE_NAMES:
+    for course_name in lms.model.testdata.courses.COURSES.keys():
         assignments: typing.Any = lms.model.testdata.assignments.COURSE_ASSIGNMENTS[course_name].values()
         assignment_queries = list(sorted([get_assignment_query(assignment) for assignment in assignments]))
 

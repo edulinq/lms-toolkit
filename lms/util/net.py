@@ -10,11 +10,13 @@ import edq.util.json
 
 CANVAS_CLEAN_REMOVE_CONTENT_KEYS: typing.List[str] = [
     'created_at',
+    'ics',
     'last_activity_at',
     'lti_context_id',
     'secure_params',
     'total_activity_time',
     'updated_at',
+    'uuid',
 ]
 """ Keys to remove from Canvas content. """
 

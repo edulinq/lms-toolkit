@@ -3,6 +3,7 @@ import re
 import typing
 
 import lms.model.assignments
+import lms.model.courses
 import lms.model.scores
 import lms.model.users
 
@@ -38,6 +39,61 @@ class APIBackend():
         logging.warning("Object not found: '%s'. Identifiers: %s.", label, identifiers)
 
     # API Methods
+
+    def courses_get(self,
+            course_queries: typing.List[lms.model.courses.CourseQuery],
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.courses.Course]:
+        """
+        Get the specified courses associated with the given course.
+        """
+
+        return self.courses_resolve_and_list(course_queries, **kwargs)
+
+    def courses_fetch(self,
+            course_id: str,
+            **kwargs: typing.Any) -> typing.Union[lms.model.courses.Course, None]:
+        """
+        Fetch a single course associated with the context user.
+        Return None if no matching course is found.
+
+        By default, this will just do a list and choose the relevant record.
+        Specific backends may override this if there are performance concerns.
+        """
+
+        courses = self.courses_resolve_and_list([lms.model.courses.CourseQuery(id = course_id)])
+        if (len(courses) == 0):
+            return None
+
+        return courses[0]
+
+    def courses_list(self,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.courses.Course]:
+        """
+        List the courses associated with the context user.
+        """
+
+        raise NotImplementedError('courses_list')
+
+    def courses_resolve_and_list(self,
+            course_queries: typing.List[lms.model.courses.CourseQuery],
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.courses.Course]:
+        """
+        List the courses and then match the given queries.
+        """
+
+        if (len(course_queries) == 0):
+            return []
+
+        courses = self.courses_list(**kwargs)
+
+        matches = []
+        for course in courses:
+            for query in course_queries:
+                if (query.match(course)):
+                    matches.append(course)
+                    break
+
+        return matches
 
     def courses_assignments_get(self,
             course_id: str,
@@ -392,6 +448,29 @@ class APIBackend():
         queries = []
         for text in texts:
             query = self.parse_assignment_query(text)
+            if (query is not None):
+                queries.append(query)
+
+        return queries
+
+    def parse_course_query(self, text: typing.Union[str, None]) -> typing.Union[lms.model.courses.CourseQuery, None]:
+        """
+        Attempt to parse a course query from a string.
+        The there is no query, return a None.
+        If the query is malformed, raise an exception.
+
+        By default, this method assumes that LMS IDs are ints.
+        Child backends may override this to implement their specific behavior.
+        """
+
+        return self._parse_int_query(lms.model.courses.CourseQuery, text, check_email = False)
+
+    def parse_course_queries(self, texts: typing.List[typing.Union[str, None]]) -> typing.List[lms.model.courses.CourseQuery]:
+        """ Parse a list of course queries. """
+
+        queries = []
+        for text in texts:
+            query = self.parse_course_query(text)
             if (query is not None):
                 queries.append(query)
 

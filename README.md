@@ -145,6 +145,8 @@ Legend:
 
 | Feature                                 | Canvas | Moodle |
 |-----------------------------------------|--------|--------|
+| lms.cli.courses.get                     | `+`    | `-`    |
+| lms.cli.courses.list                    | `+`    | `-`    |
 | lms.cli.courses.assignments.get         | `+`    | `-`    |
 | lms.cli.courses.assignments.list        | `+`    | `-`    |
 | lms.cli.courses.assignments.scores.get  | `+`    | `-`    |

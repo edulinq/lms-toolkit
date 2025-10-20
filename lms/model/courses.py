@@ -1,75 +1,44 @@
 import typing
 
 import edq.util.json
-import edq.util.time
 
 import lms.model.base
 import lms.util.string
 
-class Assignment(lms.model.base.BaseType):
+class Course(lms.model.base.BaseType):
     """
-    An assignment within a course.
+    A course.
     """
 
     CORE_FIELDS = [
-        'id', 'name', 'description',
-        'open_date', 'close_date', 'due_date',
-        'points_possible', 'position', 'group_id',
+        'id', 'name',
     ]
 
     def __init__(self,
             id: typing.Union[str, int, None] = None,
             name: typing.Union[str, None] = None,
-            description: typing.Union[str, None] = None,
-            open_date: typing.Union[edq.util.time.Timestamp, None] = None,
-            close_date: typing.Union[edq.util.time.Timestamp, None] = None,
-            due_date: typing.Union[edq.util.time.Timestamp, None] = None,
-            points_possible: typing.Union[float, None] = None,
-            position: typing.Union[int, None] = None,
-            group_id: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
 
         if (id is None):
-            raise ValueError("Assignment must have an id.")
+            raise ValueError("Course must have an id.")
 
         self.id: str = str(id)
-        """ The LMS's identifier for this assignment. """
+        """ The LMS's identifier for this course. """
 
         self.name: typing.Union[str, None] = name
-        """ The display name of this assignment. """
+        """ The display name of this course. """
 
-        self.description: typing.Union[str, None] = description
-        """ The description of this assignment. """
+    def to_query(self) -> 'CourseQuery':
+        """ Get a query representation of this course. """
 
-        self.open_date: typing.Union[edq.util.time.Timestamp, None] = open_date
-        """ The datetime that this assignment becomes open at. """
+        return CourseQuery(id = self.id, name = self.name)
 
-        self.close_date: typing.Union[edq.util.time.Timestamp, None] = close_date
-        """ The datetime that this assignment becomes close at. """
-
-        self.due_date: typing.Union[edq.util.time.Timestamp, None] = due_date
-        """ The datetime that this assignment is due at. """
-
-        self.points_possible: typing.Union[float, None] = points_possible
-        """ The maximum number of points possible for this assignment. """
-
-        self.position: typing.Union[int, None] = position
-        """ The order that this assignment should appear relative to other assignments. """
-
-        self.group_id: typing.Union[str, None] = group_id
-        """ The LMS's identifier for the group this assignment appears in. """
-
-    def to_query(self) -> 'AssignmentQuery':
-        """ Get a query representation of this assignment. """
-
-        return AssignmentQuery(id = self.id, name = self.name)
-
-class AssignmentQuery(edq.util.json.DictConverter):
+class CourseQuery(edq.util.json.DictConverter):
     """
-    A class for the different ways one can attempt to reference an LMS assignment.
-    In general, an assignment can be queried by:
-     - LMS Assignment ID (`id`)
+    A class for the different ways one can attempt to reference an LMS course.
+    In general, a course can be queried by:
+     - LMS Course ID (`id`)
      - Full Name (`name`)
      - f"{name} ({id})"
     """
@@ -88,7 +57,7 @@ class AssignmentQuery(edq.util.json.DictConverter):
         """ The display name of this query. """
 
         if ((self.id is None) and (self.name is None)):
-            raise ValueError("Assignment query is empty, it must have at least one piece of information (id, name).")
+            raise ValueError("Course query is empty, it must have at least one piece of information (id, name).")
 
     def requires_resolution(self) -> bool:
         """
@@ -98,8 +67,8 @@ class AssignmentQuery(edq.util.json.DictConverter):
 
         return ((self.id is None) or (self.name is not None))
 
-    def match(self, target: typing.Union[Assignment, 'AssignmentQuery', None]) -> bool:
-        """ Check if this query matches an assignment. """
+    def match(self, target: typing.Union[Course, 'CourseQuery', None]) -> bool:
+        """ Check if this query matches a course. """
 
         if (target is None):
             return False
@@ -117,7 +86,7 @@ class AssignmentQuery(edq.util.json.DictConverter):
         return True
 
     def __eq__(self, other: object) -> bool:
-        if (not isinstance(other, AssignmentQuery)):
+        if (not isinstance(other, CourseQuery)):
             return False
 
         # Check the ID specially.
@@ -128,7 +97,7 @@ class AssignmentQuery(edq.util.json.DictConverter):
         return (self.name == other.name)
 
     def __lt__(self, other: object) -> bool:
-        if (not isinstance(other, AssignmentQuery)):
+        if (not isinstance(other, CourseQuery)):
             return False
 
         # Check the ID specially.
@@ -169,15 +138,15 @@ class AssignmentQuery(edq.util.json.DictConverter):
 
         return str(self)
 
-class ResolvedAssignmentQuery(AssignmentQuery):
+class ResolvedCourseQuery(CourseQuery):
     """
-    A AssignmentQuery that has been resolved (verified) from a real assignment instance.
+    A CourseQuery that has been resolved (verified) from a real course instance.
     """
 
     def __init__(self,
-            assignment: Assignment,
+            course: Course,
             **kwargs: typing.Any) -> None:
-        super().__init__(id = assignment.id, name = assignment.name, **kwargs)
+        super().__init__(id = course.id, name = course.name, **kwargs)
 
         if (self.id is None):
             raise ValueError("A resolved query cannot be created without an ID.")

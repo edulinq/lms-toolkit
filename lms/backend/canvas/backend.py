@@ -5,9 +5,11 @@ import typing
 import lms.backend.canvas.courses.assignments.list
 import lms.backend.canvas.courses.assignments.scores.list
 import lms.backend.canvas.courses.gradebook.fetch
+import lms.backend.canvas.courses.list
 import lms.backend.canvas.courses.users.list
 import lms.backend.canvas.courses.users.scores.list
 import lms.model.assignments
+import lms.model.courses
 import lms.model.backend
 import lms.model.scores
 import lms.model.users
@@ -33,6 +35,10 @@ class CanvasBackend(lms.model.backend.APIBackend):
         return {
             "Authorization": f"Bearer {self.token}",
         }
+
+    def courses_list(self,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.courses.Course]:
+        return lms.backend.canvas.courses.list.request(self)
 
     def courses_assignments_list(self,
             course_id: str,
