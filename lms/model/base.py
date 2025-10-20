@@ -11,8 +11,8 @@ class BaseType(edq.util.json.DictConverter):
     This class ensures that all children have the core functionality necessary for this package.
 
     The typical structure of types in this package is that types in the model package extend this class.
-    Then, backends make declare their own types that extend the other classes from the model package.
-    For example: lms.model.base.BaseType -> lms.model.users.CourseUser -> lms.backend.canvas.model.users.CourseUser
+    Then, backends may declare their own types that extend the other classes from the model package.
+    For example: lms.model.base.BaseType -> lms.model.assignments.Assignment -> lms.backend.canvas.model.assignments.Assignment
 
     General (but less efficient) implementations of core functions will be provided.
     """

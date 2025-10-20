@@ -4,6 +4,7 @@ import typing
 
 import edq.core.log
 import edq.testing.cli
+import edq.testing.unittest
 import edq.testing.httpserver
 import edq.util.pyimport
 
@@ -267,7 +268,7 @@ def _wrap_test_function(test_function: BackendTestFunction) -> typing.Callable:
         try:
             test_function(self)
         except NotImplementedError as ex:
-            # Skip tests for backend component that do not implementations.
+            # Skip tests for backend component that do not have implementations.
             self.skipTest(f"Backend component not implemented: {str(ex)}.")
 
     return __method
@@ -292,10 +293,22 @@ def discover_test_cases(target_class: type) -> None:
         add_test_path(target_class, path)
 
 def attach_test_cases(target_class: type) -> None:
-    """ Attatch all the standard test cases to the given class. """
+    """ Attach all the standard test cases to the given class. """
 
     # Attach backend tests.
     discover_test_cases(target_class)
 
     # Attach CLI tests.
-    edq.testing.cli.discover_test_cases(target_class, CLI_TESTS_DIR, CLI_DATA_DIR)
+    edq.testing.cli.discover_test_cases(target_class, CLI_TESTS_DIR, CLI_DATA_DIR, test_method_wrapper = _wrap_cli_test_method)
+
+def _wrap_cli_test_method(test_method: typing.Callable, test_info_path: str) -> typing.Callable:
+    """ Wrap the CLI tests to ignore NotImplemented errors. """
+
+    def __method(self: edq.testing.unittest.BaseTest) -> None:
+        try:
+            test_method(self, reraise_exception_types = (NotImplementedError,))
+        except NotImplementedError as ex:
+            # Skip tests for backend component that do not have implementations.
+            self.skipTest(f"Backend component not implemented: {str(ex)}.")
+
+    return __method

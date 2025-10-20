@@ -3,9 +3,11 @@ import typing
 import lms.util.net
 
 BACKEND_TYPE_CANVAS: str = 'canvas'
+BACKEND_TYPE_MOODLE: str = 'moodle'
 
 BACKEND_TYPES: typing.List[str] = [
     BACKEND_TYPE_CANVAS,
+    BACKEND_TYPE_MOODLE,
 ]
 
 OUTPUT_FORMAT_JSON: str = 'json'
@@ -20,4 +22,5 @@ OUTPUT_FORMATS: typing.List[str] = [
 
 BACKEND_REQUEST_CLEANING_FUNCS: typing.Dict[str, typing.Callable] = {
     BACKEND_TYPE_CANVAS: lms.util.net.clean_canvas_response,
+    BACKEND_TYPE_MOODLE: lms.util.net.clean_moodle_response,
 }

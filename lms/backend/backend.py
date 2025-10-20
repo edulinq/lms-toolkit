@@ -3,6 +3,7 @@ import typing
 import edq.util.net
 
 import lms.backend.canvas.backend
+import lms.backend.moodle.backend
 import lms.model.constants
 import lms.model.backend
 
@@ -30,6 +31,9 @@ def get_backend(
     if (backend_type == lms.model.constants.BACKEND_TYPE_CANVAS):
         return lms.backend.canvas.backend.CanvasBackend(server, **kwargs)
 
+    if (backend_type == lms.model.constants.BACKEND_TYPE_MOODLE):
+        return lms.backend.moodle.backend.MoodleBackend(server, **kwargs)
+
     raise ValueError(f"Unknown backend type: '{backend_type}'. Known backend types: {lms.model.constants.BACKEND_TYPES}.")
 
 def guess_backend_type(
@@ -53,7 +57,13 @@ def guess_backend_type(
         return backend_type
 
     # Make a request to the server and examine the response.
+    backend_type = _guess_backend_type_from_request(server)
+    if (backend_type is not None):
+        return backend_type
 
+    return None
+
+def _guess_backend_type_from_request(server: str) -> typing.Union[str, None]:
     options = {
         'allow_redirects': False,
     }
@@ -69,6 +79,10 @@ def guess_backend_type(
     if ('_normandy_session' in response.headers.get('set-cookie', '')):
         return lms.model.constants.BACKEND_TYPE_CANVAS
 
+    # Moodle requests that a specific cookie is set.
+    if ('MoodleSession' in response.headers.get('set-cookie', '')):
+        return lms.model.constants.BACKEND_TYPE_MOODLE
+
     return None
 
 def _guess_backend_type_from_url(server: str) -> typing.Union[str, None]:
@@ -81,5 +95,8 @@ def _guess_backend_type_from_url(server: str) -> typing.Union[str, None]:
 
     if ('canvas' in server):
         return lms.model.constants.BACKEND_TYPE_CANVAS
+
+    if ('moodle' in server):
+        return lms.model.constants.BACKEND_TYPE_MOODLE
 
     return None

@@ -31,19 +31,20 @@ def clean_lms_response(response: requests.Response, body: str) -> str:
         if ('canvas' in key):
             return clean_canvas_response(response, body)
 
+        if ('moodle' in key):
+            return clean_moodle_response(response, body)
+
     return body
 
 def clean_canvas_response(response: requests.Response, body: str) -> str:
     """
     See clean_lms_response(), but specifically for the Canvas LMS.
     This function will:
-     - Remove X- headers.
+     - Call _clean_base_response().
      - Remove content keys: [last_activity_at, total_activity_time]
     """
 
-    for key in list(response.headers.keys()):
-        if (key.strip().lower().startswith('x-')):
-            response.headers.pop(key, None)
+    body = _clean_base_response(response, body)
 
     # Most canvas responses are JSON.
     try:
@@ -57,6 +58,30 @@ def clean_canvas_response(response: requests.Response, body: str) -> str:
 
     # Convert body back to a string.
     body = edq.util.json.dumps(data)
+
+    return body
+
+def clean_moodle_response(response: requests.Response, body: str) -> str:
+    """
+    See clean_lms_response(), but specifically for the Moodle LMS.
+    This function will:
+     - Call _clean_base_response().
+    """
+
+    body = _clean_base_response(response, body)
+
+    return body
+
+def _clean_base_response(response: requests.Response, body: str) -> str:
+    """
+    Do response cleaning that is common amonst all backend types.
+    This function will:
+     - Remove X- headers.
+    """
+
+    for key in list(response.headers.keys()):
+        if (key.strip().lower().startswith('x-')):
+            response.headers.pop(key, None)
 
     return body
 
