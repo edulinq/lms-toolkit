@@ -47,40 +47,6 @@ class APIBackend():
         Get the specified courses associated with the given course.
         """
 
-        return self.courses_resolve_and_list(course_queries, **kwargs)
-
-    def courses_fetch(self,
-            course_id: str,
-            **kwargs: typing.Any) -> typing.Union[lms.model.courses.Course, None]:
-        """
-        Fetch a single course associated with the context user.
-        Return None if no matching course is found.
-
-        By default, this will just do a list and choose the relevant record.
-        Specific backends may override this if there are performance concerns.
-        """
-
-        courses = self.courses_resolve_and_list([lms.model.courses.CourseQuery(id = course_id)])
-        if (len(courses) == 0):
-            return None
-
-        return courses[0]
-
-    def courses_list(self,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.courses.Course]:
-        """
-        List the courses associated with the context user.
-        """
-
-        raise NotImplementedError('courses_list')
-
-    def courses_resolve_and_list(self,
-            course_queries: typing.List[lms.model.courses.CourseQuery],
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.courses.Course]:
-        """
-        List the courses and then match the given queries.
-        """
-
         if (len(course_queries) == 0):
             return []
 
@@ -95,49 +61,37 @@ class APIBackend():
 
         return matches
 
+    def courses_fetch(self,
+            course_id: str,
+            **kwargs: typing.Any) -> typing.Union[lms.model.courses.Course, None]:
+        """
+        Fetch a single course associated with the context user.
+        Return None if no matching course is found.
+
+        By default, this will just do a list and choose the relevant record.
+        Specific backends may override this if there are performance concerns.
+        """
+
+        courses = self.courses_get([lms.model.courses.CourseQuery(id = course_id)])
+        if (len(courses) == 0):
+            return None
+
+        return courses[0]
+
+    def courses_list(self,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.courses.Course]:
+        """
+        List the courses associated with the context user.
+        """
+
+        raise NotImplementedError('courses_list')
+
     def courses_assignments_get(self,
             course_id: str,
             assignment_queries: typing.List[lms.model.assignments.AssignmentQuery],
             **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
         """
         Get the specified assignments associated with the given course.
-        """
-
-        return self.courses_assignments_resolve_and_list(course_id, assignment_queries, **kwargs)
-
-    def courses_assignments_fetch(self,
-            course_id: str,
-            assignment_id: str,
-            **kwargs: typing.Any) -> typing.Union[lms.model.assignments.Assignment, None]:
-        """
-        Fetch a single assignment associated with the given course.
-        Return None if no matching assignment is found.
-
-        By default, this will just do a list and choose the relevant record.
-        Specific backends may override this if there are performance concerns.
-        """
-
-        assignments = self.courses_assignments_resolve_and_list(course_id, [lms.model.assignments.AssignmentQuery(id = assignment_id)])
-        if (len(assignments) == 0):
-            return None
-
-        return assignments[0]
-
-    def courses_assignments_list(self,
-            course_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
-        """
-        List the assignments associated with the given course.
-        """
-
-        raise NotImplementedError('courses_assignments_list')
-
-    def courses_assignments_resolve_and_list(self,
-            course_id: str,
-            assignment_queries: typing.List[lms.model.assignments.AssignmentQuery],
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
-        """
-        List the course assignments and then match the given queries.
         """
 
         if (len(assignment_queries) == 0):
@@ -153,6 +107,34 @@ class APIBackend():
                     break
 
         return matches
+
+    def courses_assignments_fetch(self,
+            course_id: str,
+            assignment_id: str,
+            **kwargs: typing.Any) -> typing.Union[lms.model.assignments.Assignment, None]:
+        """
+        Fetch a single assignment associated with the given course.
+        Return None if no matching assignment is found.
+
+        By default, this will just do a list and choose the relevant record.
+        Specific backends may override this if there are performance concerns.
+        """
+
+        assignments = self.courses_assignments_list(course_id)
+        for assignment in assignments:
+            if (assignment.id == assignment_id):
+                return assignment
+
+        return None
+
+    def courses_assignments_list(self,
+            course_id: str,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
+        """
+        List the assignments associated with the given course.
+        """
+
+        raise NotImplementedError('courses_assignments_list')
 
     def courses_assignments_scores_get(self,
             course_id: str,
@@ -188,7 +170,7 @@ class APIBackend():
         Specific backends may override this if there are performance concerns.
         """
 
-        scores = self.courses_assignments_scores_resolve_and_list(course_id, lms.model.assignments.AssignmentQuery(id = assignment_id))
+        scores = self.courses_assignments_scores_list(course_id, assignment_id)
         for score in scores:
             if ((score.user_query is not None) and (score.user_query.id == user_id)):
                 return score
@@ -293,7 +275,19 @@ class APIBackend():
         Get the specified users associated with the given course.
         """
 
-        return self.courses_users_resolve_and_list(course_id, user_queries, **kwargs)
+        if (len(user_queries) == 0):
+            return []
+
+        users = self.courses_users_list(course_id, **kwargs)
+
+        matches = []
+        for user in users:
+            for query in user_queries:
+                if (query.match(user)):
+                    matches.append(user)
+                    break
+
+        return matches
 
     def courses_users_fetch(self,
             course_id: str,
@@ -322,28 +316,6 @@ class APIBackend():
         """
 
         raise NotImplementedError('courses_users_list')
-
-    def courses_users_resolve_and_list(self,
-            course_id: str,
-            user_queries: typing.List[lms.model.users.UserQuery],
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.users.CourseUser]:
-        """
-        List the course users and then match the given queries.
-        """
-
-        if (len(user_queries) == 0):
-            return []
-
-        users = self.courses_users_list(course_id, **kwargs)
-
-        matches = []
-        for user in users:
-            for query in user_queries:
-                if (query.match(user)):
-                    matches.append(user)
-                    break
-
-        return matches
 
     def courses_users_scores_get(self,
             course_id: str,
@@ -556,7 +528,7 @@ class APIBackend():
             **kwargs: typing.Any) -> typing.List[lms.model.assignments.ResolvedAssignmentQuery]:
         """
         Resolve a list of assignment queries into a list of resolved assignment queries.
-        The returned list of queries may be shorter than the list of queries (if assignment are not matched).
+        The returned list may be shorter than the list of queries (if input queries are not matched).
         The queries will be deduplicated and sorted.
 
         If |empty_all| is true and no queries are specified, then all assignments will be returned.
@@ -584,7 +556,7 @@ class APIBackend():
             **kwargs: typing.Any) -> typing.List[lms.model.users.ResolvedUserQuery]:
         """
         Resolve a list of user queries into a list of resolved user queries.
-        The returned list of queries may be shorter than the list of queries (if user are not matched).
+        The returned list may be shorter than the list of queries (if input queries are not matched).
         The queries will be deduplicated and sorted.
 
         If |empty_all| is true and no queries are specified, then all users will be returned.

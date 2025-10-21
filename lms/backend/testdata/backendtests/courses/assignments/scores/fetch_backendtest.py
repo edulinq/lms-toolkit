@@ -4,7 +4,7 @@ import lms.model.testdata.scores
 def test_courses_assignments_scores_fetch_base(test: lms.backend.testing.BackendTest):
     """ Test the base functionality of fetching assignments scores. """
 
-    scores = lms.model.testdata.scores.COURSE_ASSIGNMENT_SCORES
+    scores = lms.model.testdata.scores.COURSE_ASSIGNMENT_SCORES_UNRESOLVED
 
     # [(kwargs (and overrides), expected, error substring), ...]
     test_cases = [
