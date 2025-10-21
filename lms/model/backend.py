@@ -1,13 +1,11 @@
 import logging
-import re
 import typing
 
 import lms.model.assignments
 import lms.model.courses
+import lms.model.query
 import lms.model.scores
 import lms.model.users
-
-T = typing.TypeVar('T')
 
 class APIBackend():
     """
@@ -453,7 +451,7 @@ class APIBackend():
         Child backends may override this to implement their specific behavior.
         """
 
-        return self._parse_int_query(lms.model.assignments.AssignmentQuery, text, check_email = False)
+        return lms.model.query.parse_int_query(lms.model.assignments.AssignmentQuery, text, check_email = False)
 
     def parse_assignment_queries(self, texts: typing.List[typing.Union[str, None]]) -> typing.List[lms.model.assignments.AssignmentQuery]:
         """ Parse a list of assignment queries. """
@@ -476,7 +474,7 @@ class APIBackend():
         Child backends may override this to implement their specific behavior.
         """
 
-        return self._parse_int_query(lms.model.courses.CourseQuery, text, check_email = False)
+        return lms.model.query.parse_int_query(lms.model.courses.CourseQuery, text, check_email = False)
 
     def parse_course_queries(self, texts: typing.List[typing.Union[str, None]]) -> typing.List[lms.model.courses.CourseQuery]:
         """ Parse a list of course queries. """
@@ -499,7 +497,7 @@ class APIBackend():
         Child backends may override this to implement their specific behavior.
         """
 
-        return self._parse_int_query(lms.model.users.UserQuery, text, check_email = True)
+        return lms.model.query.parse_int_query(lms.model.users.UserQuery, text, check_email = True)
 
     def parse_user_queries(self, texts: typing.List[typing.Union[str, None]]) -> typing.List[lms.model.users.UserQuery]:
         """ Parse a list of user queries. """
@@ -511,56 +509,6 @@ class APIBackend():
                 queries.append(query)
 
         return queries
-
-    def _parse_int_query(self, query_type: typing.Type[T], text: typing.Union[str, None],
-            check_email: bool = True,
-            ) -> typing.Union[T, None]:
-        """
-        Parse a query with the assumption that LMS ids are ints.
-
-        Accepts queries are in the following forms:
-         - LMS ID (`id`)
-         - Email (`email`)
-         - Full Name (`name`)
-         - f"{email} ({id})"
-         - f"{name} ({id})"
-        """
-
-        if (text is None):
-            return None
-
-        # Clean whitespace.
-        text = re.sub(r'\s+', ' ', str(text)).strip()
-        if (len(text) == 0):
-            return None
-
-        id = None
-        email = None
-        name = None
-
-        match = re.search(r'^(\S.*)\((\d+)\)$', text)
-        if (match is not None):
-            # Query has both text and id.
-            name = match.group(1).strip()
-            id = match.group(2)
-        elif (re.search(r'^\d+$', text) is not None):
-            # Query must be an ID.
-            id = text
-        else:
-            name = text
-
-        # Check if the name is actually an email address.
-        if (check_email and (name is not None) and ('@' in name)):
-            email = name
-            name = None
-
-        data = {
-            'id': id,
-            'name': name,
-            'email': email,
-        }
-
-        return query_type(**data)
 
     def resolve_assignment_queries(self,
             course_id: str,

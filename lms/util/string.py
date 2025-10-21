@@ -10,7 +10,13 @@ def compare_maybe_ints(a: typing.Union[str, int, None], b: typing.Union[str, int
     """
 
     if ((a is None) or (b is None)):
-        return ((a is None) and (b is None))
+        if ((a is None) and (b is None)):
+            return 0
+
+        if (a is None):
+            return -1
+
+        return 1
 
     values = [a, b]
     has_str = False
