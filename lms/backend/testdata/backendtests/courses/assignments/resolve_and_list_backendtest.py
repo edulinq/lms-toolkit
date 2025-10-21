@@ -1,14 +1,15 @@
 import lms.backend.testing
+import lms.model.courses
 import lms.model.testdata.assignments
 
-def test_courses_assignments_list_base(test: lms.backend.testing.BackendTest):
-    """ Test the base functionality of listing course assignments. """
+def test_courses_assignments_resolve_and_list_base(test: lms.backend.testing.BackendTest):
+    """ Test the base functionality of resolving and listing course assignments. """
 
     # [(kwargs (and overrides), expected, error substring), ...]
     test_cases = [
         (
             {
-                'course_id': '1',
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
             },
             [
                 lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course 101']['Homework 0'],
@@ -17,7 +18,7 @@ def test_courses_assignments_list_base(test: lms.backend.testing.BackendTest):
         ),
         (
             {
-                'course_id': '2',
+                'course_query': lms.model.courses.CourseQuery(id = '2'),
             },
             [
                 lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course Using Different Languages']['A Simple Bash Assignment'],
@@ -28,7 +29,7 @@ def test_courses_assignments_list_base(test: lms.backend.testing.BackendTest):
         ),
         (
             {
-                'course_id': '3',
+                'course_query': lms.model.courses.CourseQuery(id = '3'),
             },
             [
                 lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 1'],
@@ -37,6 +38,16 @@ def test_courses_assignments_list_base(test: lms.backend.testing.BackendTest):
             ],
             None,
         ),
+
+        (
+            {
+                'course_query': lms.model.courses.CourseQuery(name = 'Course 101'),
+            },
+            [
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course 101']['Homework 0'],
+            ],
+            None,
+        ),
     ]
 
-    test.base_request_test(test.backend.courses_assignments_list, test_cases)
+    test.base_request_test(test.backend.courses_assignments_resolve_and_list, test_cases)

@@ -10,6 +10,7 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
         # Empty
         (
             {
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
                 'user_queries': [],
             },
             [
@@ -20,6 +21,7 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
         # Base - List
         (
             {
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
                 'user_queries': [
                     lms.model.users.UserQuery(id = '2'),
                     lms.model.users.UserQuery(id = '3'),
@@ -35,6 +37,21 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
         # Base - Fetch
         (
             {
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
+                'user_queries': [
+                    lms.model.users.UserQuery(id = '2'),
+                ],
+            },
+            [
+                lms.model.testdata.users.COURSE_USERS['Course 101']['course-admin'],
+            ],
+            None,
+        ),
+
+        # Course Query
+        (
+            {
+                'course_query': lms.model.courses.CourseQuery(name = 'Course 101'),
                 'user_queries': [
                     lms.model.users.UserQuery(id = '2'),
                 ],
@@ -48,6 +65,7 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
         # Query - Name
         (
             {
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
                 'user_queries': [
                     lms.model.users.UserQuery(name = 'course-admin'),
                 ],
@@ -61,6 +79,7 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
         # Query - Email
         (
             {
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
                 'user_queries': [
                     lms.model.users.UserQuery(email = 'course-admin@test.edulinq.org'),
                 ],
@@ -74,6 +93,7 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
         # Query - Label Name
         (
             {
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
                 'user_queries': [
                     lms.model.users.UserQuery(name = 'course-admin', id = '2'),
                 ],
@@ -87,6 +107,7 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
         # Query - Label Email
         (
             {
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
                 'user_queries': [
                     lms.model.users.UserQuery(email = 'course-admin@test.edulinq.org', id = '2'),
                 ],
@@ -97,9 +118,22 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
             None,
         ),
 
+        # Miss - Course
+        (
+            {
+                'course_query': lms.model.courses.CourseQuery(id = '999'),
+                'user_queries': [
+                    lms.model.users.UserQuery(id = '2'),
+                ],
+            },
+            None,
+            'Could not resolve course query',
+        ),
+
         # Miss - ID
         (
             {
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
                 'user_queries': [
                     lms.model.users.UserQuery(id = 999),
                 ],
@@ -112,6 +146,7 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
         # Miss - Name
         (
             {
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
                 'user_queries': [
                     lms.model.users.UserQuery(name = 'ZZZ'),
                 ],
@@ -124,6 +159,7 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
         # Miss - Email
         (
             {
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
                 'user_queries': [
                     lms.model.users.UserQuery(email = 'ZZZ@test.edulinq.org'),
                 ],
@@ -136,6 +172,7 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
         # Miss - Partial Match
         (
             {
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
                 'user_queries': [
                     lms.model.users.UserQuery(id = '2', name = 'ZZZ'),
                 ],
@@ -148,6 +185,7 @@ def test_courses_users_get_base(test: lms.backend.testing.BackendTest):
         # Multiple Match
         (
             {
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
                 'user_queries': [
                     lms.model.users.UserQuery(id = '2'),
                     lms.model.users.UserQuery(name = 'course-admin'),

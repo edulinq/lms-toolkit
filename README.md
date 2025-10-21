@@ -85,14 +85,9 @@ Many commands can output data in three different formats:
 ### Retrieval Operations
 
 When retrieving data from the LMS,
-this project tends to use three different types of operations:
+this project tends to use two different types of operations:
  - **list** -- List out all the available entries, e.g., list all the users in a course.
- - **fetch** -- Fetch one specific entry by identifier (not by query), e.g., fetch a specific user by id.
  - **get** -- Get a collection of entries by query, e.g., get several users by their email.
-
-Fetch operations have the potential to be the fastest,
-but are also the hardest to use (since you will need to know the LMS identifier for an object).
-Fetch operations may not be exposed in the CLI.
 
 ## CLI Tools
 
@@ -108,7 +103,7 @@ python3 -m lms.cli.courses.users.list
 
 #### Get Course Users
 
-To fetch information about course users, use the `lms.cli.courses.users.get` tool.
+To get information about course users, use the `lms.cli.courses.users.get` tool.
 For example:
 ```
 python3 -m lms.cli.courses.users.get sslug@test.edulinq.org
@@ -126,10 +121,10 @@ python3 -m lms.cli.courses.assignments.list
 
 #### Get Assignments
 
-To fetch information about course assignments, use the `lms.cli.courses.assignments.get` tool.
+To get information about course assignments, use the `lms.cli.courses.assignments.get` tool.
 For example:
 ```
-python3 -m lms.cli.courses.assignments.fetch 'Homework 1'
+python3 -m lms.cli.courses.assignments.get 'Homework 1'
 ```
 
 Any number of assignment queries may be specified.

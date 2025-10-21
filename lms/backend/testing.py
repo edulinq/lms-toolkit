@@ -25,9 +25,6 @@ CLI_GLOBAL_CONFG_PATH: str = os.path.join(CLI_DATA_DIR, 'testing-edq-lms.json')
 TEST_FUNC_NAME_PREFIX: str = 'test_'
 TEST_FILENAME_GLOB_PATTERN: str = '*_backendtest.py'
 
-TEST_COURSE_ID: str = '1'
-""" The standard test course ID. """
-
 class BackendTest(edq.testing.httpserver.HTTPServerTest):
     """
     A special test suite that is common across all LMS backends.
@@ -112,9 +109,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
     def get_base_args(cls) -> typing.Dict[str, typing.Any]:
         """ Get a copy of the base arguments for a request (function). """
 
-        return {
-            'course_id': TEST_COURSE_ID,
-        }
+        return {}
 
     @classmethod
     def get_server_url(cls) -> str:

@@ -72,11 +72,12 @@ class APIBackend():
         Specific backends may override this if there are performance concerns.
         """
 
-        courses = self.courses_get([lms.model.courses.CourseQuery(id = course_id)])
-        if (len(courses) == 0):
-            return None
+        courses = self.courses_list(**kwargs)
+        for course in courses:
+            if (course.id == course_id):
+                return course
 
-        return courses[0]
+        return None
 
     def courses_list(self,
             **kwargs: typing.Any) -> typing.Sequence[lms.model.courses.Course]:
@@ -87,7 +88,7 @@ class APIBackend():
         raise NotImplementedError('courses_list')
 
     def courses_assignments_get(self,
-            course_id: str,
+            course_query: lms.model.courses.CourseQuery,
             assignment_queries: typing.List[lms.model.assignments.AssignmentQuery],
             **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
         """
@@ -97,7 +98,9 @@ class APIBackend():
         if (len(assignment_queries) == 0):
             return []
 
-        assignments = self.courses_assignments_list(course_id, **kwargs)
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+
+        assignments = self.courses_assignments_list(resolved_course_query.get_id(), **kwargs)
 
         matches = []
         for assignment in assignments:
@@ -120,7 +123,7 @@ class APIBackend():
         Specific backends may override this if there are performance concerns.
         """
 
-        assignments = self.courses_assignments_list(course_id)
+        assignments = self.courses_assignments_list(course_id, **kwargs)
         for assignment in assignments:
             if (assignment.id == assignment_id):
                 return assignment
@@ -136,8 +139,18 @@ class APIBackend():
 
         raise NotImplementedError('courses_assignments_list')
 
+    def courses_assignments_resolve_and_list(self,
+            course_query: lms.model.courses.CourseQuery,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
+        """
+        List the assignments associated with the given course.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        return self.courses_assignments_list(resolved_course_query.get_id(), **kwargs)
+
     def courses_assignments_scores_get(self,
-            course_id: str,
+            course_query: lms.model.courses.CourseQuery,
             assignment_query: lms.model.assignments.AssignmentQuery,
             user_queries: typing.List[lms.model.users.UserQuery],
             **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
@@ -148,7 +161,7 @@ class APIBackend():
         if (len(user_queries) == 0):
             return []
 
-        scores = self.courses_assignments_scores_resolve_and_list(course_id, assignment_query)
+        scores = self.courses_assignments_scores_resolve_and_list(course_query, assignment_query, **kwargs)
 
         matches = []
         for score in scores:
@@ -170,7 +183,7 @@ class APIBackend():
         Specific backends may override this if there are performance concerns.
         """
 
-        scores = self.courses_assignments_scores_list(course_id, assignment_id)
+        scores = self.courses_assignments_scores_list(course_id, assignment_id, **kwargs)
         for score in scores:
             if ((score.user_query is not None) and (score.user_query.id == user_id)):
                 return score
@@ -188,7 +201,7 @@ class APIBackend():
         raise NotImplementedError('courses_assignments_scores_list')
 
     def courses_assignments_scores_resolve_and_list(self,
-            course_id: str,
+            course_query: lms.model.courses.CourseQuery,
             assignment_query: lms.model.assignments.AssignmentQuery,
             **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
         """
@@ -198,21 +211,23 @@ class APIBackend():
         (instead of the reduced version usually returned with scores).
         """
 
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+
         # Resolve the assignment query.
-        matched_assignments = self.courses_assignments_get(course_id, [assignment_query], **kwargs)
+        matched_assignments = self.courses_assignments_get(resolved_course_query, [assignment_query], **kwargs)
         if (len(matched_assignments) == 0):
             return []
 
         target_assignment = matched_assignments[0]
 
         # List the scores.
-        scores = self.courses_assignments_scores_list(course_id, target_assignment.id, **kwargs)
+        scores = self.courses_assignments_scores_list(resolved_course_query.get_id(), target_assignment.id, **kwargs)
         if (len(scores) == 0):
             return []
 
         # Resolve the scores' queries.
 
-        users = self.courses_users_list(course_id, **kwargs)
+        users = self.courses_users_list(resolved_course_query.get_id(), **kwargs)
         users_map = {user.id: user for user in users}
 
         for score in scores:
@@ -224,7 +239,7 @@ class APIBackend():
         return scores
 
     def courses_gradebook_get(self,
-            course_id: str,
+            course_query: lms.model.courses.CourseQuery,
             assignment_queries: typing.List[lms.model.assignments.AssignmentQuery],
             user_queries: typing.List[lms.model.users.UserQuery],
             **kwargs: typing.Any) -> lms.model.scores.Gradebook:
@@ -233,13 +248,16 @@ class APIBackend():
         Specifying no users/assignments is the same as requesting all of them.
         """
 
-        resolved_assignment_queries = self.resolve_assignment_queries(course_id, assignment_queries, empty_all = True, **kwargs)
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+
+        resolved_assignment_queries = self.resolve_assignment_queries(resolved_course_query.get_id(), assignment_queries, empty_all = True, **kwargs)
         assignment_ids = [query.get_id() for query in resolved_assignment_queries]
 
-        resolved_user_queries = self.resolve_user_queries(course_id, user_queries, empty_all = True, only_students = True, **kwargs)
+        resolved_user_queries = self.resolve_user_queries(resolved_course_query.get_id(), user_queries,
+                empty_all = True, only_students = True, **kwargs)
         user_ids = [query.get_id() for query in resolved_user_queries]
 
-        gradebook = self.courses_gradebook_fetch(course_id, assignment_ids, user_ids, **kwargs)
+        gradebook = self.courses_gradebook_fetch(resolved_course_query.get_id(), assignment_ids, user_ids, **kwargs)
 
         # Resolve the gradebook's queries (so it can show names/emails instead of just IDs).
         gradebook.update_queries(resolved_assignment_queries, resolved_user_queries)
@@ -265,10 +283,20 @@ class APIBackend():
         List the full gradebook associated with this course.
         """
 
-        return self.courses_gradebook_get(course_id, [], [], **kwargs)
+        return self.courses_gradebook_get(lms.model.courses.CourseQuery(id = course_id), [], [], **kwargs)
+
+    def courses_gradebook_resolve_and_list(self,
+            course_query: lms.model.courses.CourseQuery,
+            **kwargs: typing.Any) -> lms.model.scores.Gradebook:
+        """
+        List the full gradebook associated with this course.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        return self.courses_gradebook_list(resolved_course_query.get_id(), **kwargs)
 
     def courses_users_get(self,
-            course_id: str,
+            course_query: lms.model.courses.CourseQuery,
             user_queries: typing.List[lms.model.users.UserQuery],
             **kwargs: typing.Any) -> typing.Sequence[lms.model.users.CourseUser]:
         """
@@ -278,7 +306,8 @@ class APIBackend():
         if (len(user_queries) == 0):
             return []
 
-        users = self.courses_users_list(course_id, **kwargs)
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        users = self.courses_users_list(resolved_course_query.get_id(), **kwargs)
 
         matches = []
         for user in users:
@@ -301,7 +330,7 @@ class APIBackend():
         Specific backends may override this if there are performance concerns.
         """
 
-        users = self.courses_users_list(course_id)
+        users = self.courses_users_list(course_id, **kwargs)
         for user in users:
             if (user.id == user_id):
                 return user
@@ -317,8 +346,18 @@ class APIBackend():
 
         raise NotImplementedError('courses_users_list')
 
+    def courses_users_resolve_and_list(self,
+            course_query: lms.model.courses.CourseQuery,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.users.CourseUser]:
+        """
+        List the users associated with the given course.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        return self.courses_users_list(resolved_course_query.get_id())
+
     def courses_users_scores_get(self,
-            course_id: str,
+            course_query: lms.model.courses.CourseQuery,
             user_query: lms.model.users.UserQuery,
             assignment_queries: typing.List[lms.model.assignments.AssignmentQuery],
             **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
@@ -329,7 +368,7 @@ class APIBackend():
         if (len(assignment_queries) == 0):
             return []
 
-        scores = self.courses_users_scores_resolve_and_list(course_id, user_query)
+        scores = self.courses_users_scores_resolve_and_list(course_query, user_query, **kwargs)
 
         matches = []
         for score in scores:
@@ -352,7 +391,7 @@ class APIBackend():
         """
 
         # The default implementation is the same as courses_assignments_scores_fetch().
-        return self.courses_assignments_scores_fetch(course_id, assignment_id, user_id)
+        return self.courses_assignments_scores_fetch(course_id, assignment_id, user_id, **kwargs)
 
     def courses_users_scores_list(self,
             course_id: str,
@@ -365,7 +404,7 @@ class APIBackend():
         raise NotImplementedError('courses_users_scores_list')
 
     def courses_users_scores_resolve_and_list(self,
-            course_id: str,
+            course_query: lms.model.courses.CourseQuery,
             user_query: lms.model.users.UserQuery,
             **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
         """
@@ -375,21 +414,23 @@ class APIBackend():
         (instead of the reduced version usually returned with scores).
         """
 
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+
         # Resolve the user query.
-        matched_users = self.courses_users_get(course_id, [user_query], **kwargs)
+        matched_users = self.courses_users_get(resolved_course_query, [user_query], **kwargs)
         if (len(matched_users) == 0):
             return []
 
         target_user = matched_users[0]
 
         # List the scores.
-        scores = self.courses_users_scores_list(course_id, target_user.id, **kwargs)
+        scores = self.courses_users_scores_list(resolved_course_query.get_id(), target_user.id, **kwargs)
         if (len(scores) == 0):
             return []
 
         # Resolve the scores' queries.
 
-        assignments = self.courses_assignments_list(course_id, **kwargs)
+        assignments = self.courses_assignments_list(resolved_course_query.get_id(), **kwargs)
         assignments_map = {assignment.id: assignment for assignment in assignments}
 
         for score in scores:
@@ -544,6 +585,47 @@ class APIBackend():
             for assignment in assignments:
                 if (query.match(assignment)):
                     matched_queries.append(lms.model.assignments.ResolvedAssignmentQuery(assignment))
+                    break
+
+        return list(sorted(set(matched_queries)))
+
+    def resolve_course_query(self,
+            course_query: lms.model.courses.CourseQuery,
+            **kwargs: typing.Any) -> lms.model.courses.ResolvedCourseQuery:
+        """ Resolve the course query or raise an exception. """
+
+        # Shortcut already resolved queries.
+        if (isinstance(course_query, lms.model.courses.ResolvedCourseQuery)):
+            return course_query
+
+        results = self.resolve_course_queries([course_query], **kwargs)
+        if (len(results) == 0):
+            raise ValueError(f"Could not resolve course query: '{course_query}'.")
+
+        return results[0]
+
+    def resolve_course_queries(self,
+            course_queries: typing.List[lms.model.courses.CourseQuery],
+            empty_all: bool = False,
+            **kwargs: typing.Any) -> typing.List[lms.model.courses.ResolvedCourseQuery]:
+        """
+        Resolve a list of course queries into a list of resolved course queries.
+        The returned list may be shorter than the list of queries (if input queries are not matched).
+        The queries will be deduplicated and sorted.
+
+        If |empty_all| is true and no queries are specified, then all courses will be returned.
+        """
+
+        courses = self.courses_list(**kwargs)
+
+        if (empty_all and (len(course_queries) == 0)):
+            return list(sorted({lms.model.courses.ResolvedCourseQuery(course) for course in courses}))
+
+        matched_queries = []
+        for query in course_queries:
+            for course in courses:
+                if (query.match(course)):
+                    matched_queries.append(lms.model.courses.ResolvedCourseQuery(course))
                     break
 
         return list(sorted(set(matched_queries)))

@@ -14,16 +14,16 @@ def run_cli(args: argparse.Namespace) -> int:
 
     config = args._config
 
-    course = lms.cli.common.check_required_course(config)
-    if (course is None):
-        return 1
-
     backend = lms.backend.instance.get_backend(**config)
+
+    course_query = lms.cli.common.check_required_course(backend, config)
+    if (course_query is None):
+        return 1
 
     assignment_queries = backend.parse_assignment_queries(args.assignments)
     user_queries = backend.parse_user_queries(args.users)
 
-    gradebook = backend.courses_gradebook_get(course, assignment_queries, user_queries)
+    gradebook = backend.courses_gradebook_get(course_query, assignment_queries, user_queries)
 
     output = lms.model.base.base_list_to_output_format([gradebook], args.output_format,
             skip_headers = args.skip_headers,

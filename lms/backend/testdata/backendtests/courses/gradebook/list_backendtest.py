@@ -35,8 +35,8 @@ def test_courses_gradebook_list_base(test: lms.backend.testing.BackendTest):
             {
                 'course_id': '999',
             },
-            lms.model.scores.Gradebook([], []),
             None,
+            'Could not resolve course query',
         ),
     ]
 

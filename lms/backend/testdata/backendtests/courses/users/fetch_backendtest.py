@@ -10,6 +10,7 @@ def test_courses_users_fetch_base(test: lms.backend.testing.BackendTest):
         # Base
         (
             {
+                'course_id': '1',
                 'user_id': '6',
             },
             lms.model.testdata.users.COURSE_USERS['Course 101']['course-student'],
@@ -19,6 +20,7 @@ def test_courses_users_fetch_base(test: lms.backend.testing.BackendTest):
         # Miss
         (
             {
+                'course_id': '1',
                 'user_id': '999',
             },
             None,

@@ -10,6 +10,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         # Empty
         (
             {
+                'course_query': lms.model.courses.CourseQuery(id = 1),
                 'assignment_queries': [],
             },
             [
@@ -17,10 +18,50 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
             None,
         ),
 
-        # Base - List
+        # Course Query
         (
             {
-                'course_id': '2',
+                'course_query': lms.model.courses.CourseQuery(name = 'Course 101'),
+                'assignment_queries': [
+                    lms.model.assignments.AssignmentQuery(name = 'Homework 0'),
+                ],
+            },
+            [
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course 101']['Homework 0'],
+            ],
+            None,
+        ),
+
+        # Miss - Course Query
+        (
+            {
+                'course_query': lms.model.courses.CourseQuery(name = 'ZZZ'),
+                'assignment_queries': [
+                    lms.model.assignments.AssignmentQuery(name = 'Homework 0'),
+                ],
+            },
+            None,
+            'Could not resolve course query',
+        ),
+
+        # Single
+        (
+            {
+                'course_query': lms.model.courses.CourseQuery(id = 2),
+                'assignment_queries': [
+                    lms.model.assignments.AssignmentQuery(id = '2'),
+                ],
+            },
+            [
+                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course Using Different Languages']['A Simple Bash Assignment'],
+            ],
+            None,
+        ),
+
+        # Multiple
+        (
+            {
+                'course_query': lms.model.courses.CourseQuery(id = 2),
                 'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(id = '2'),
                     lms.model.assignments.AssignmentQuery(id = '3'),
@@ -33,24 +74,10 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
             None,
         ),
 
-        # Base - Fetch
-        (
-            {
-                'course_id': '2',
-                'assignment_queries': [
-                    lms.model.assignments.AssignmentQuery(id = '2'),
-                ],
-            },
-            [
-                lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course Using Different Languages']['A Simple Bash Assignment'],
-            ],
-            None,
-        ),
-
         # Query - Name
         (
             {
-                'course_id': '2',
+                'course_query': lms.model.courses.CourseQuery(id = 2),
                 'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(name = 'A Simple Bash Assignment'),
                 ],
@@ -64,7 +91,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         # Query - Label
         (
             {
-                'course_id': '2',
+                'course_query': lms.model.courses.CourseQuery(id = 2),
                 'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(name = 'A Simple Bash Assignment', id = '2'),
                 ],
@@ -78,7 +105,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         # Miss - ID
         (
             {
-                'course_id': '2',
+                'course_query': lms.model.courses.CourseQuery(id = 2),
                 'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(id = 999),
                 ],
@@ -91,7 +118,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         # Miss - Query
         (
             {
-                'course_id': '2',
+                'course_query': lms.model.courses.CourseQuery(id = 2),
                 'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(name = 'ZZZ'),
                 ],
@@ -104,7 +131,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         # Miss - Partial Match
         (
             {
-                'course_id': '2',
+                'course_query': lms.model.courses.CourseQuery(id = 2),
                 'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(id = '2', name = 'ZZZ'),
                 ],
@@ -117,7 +144,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         # Multiple Match
         (
             {
-                'course_id': '2',
+                'course_query': lms.model.courses.CourseQuery(id = 2),
                 'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(id = '2'),
                     lms.model.assignments.AssignmentQuery(name = 'A Simple Bash Assignment'),

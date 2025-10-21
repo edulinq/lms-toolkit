@@ -1,5 +1,6 @@
 import lms.backend.testing
 import lms.model.assignments
+import lms.model.courses
 import lms.model.testdata.scores
 import lms.model.users
 
@@ -13,7 +14,7 @@ def test_courses_assignments_scores_get_base(test: lms.backend.testing.BackendTe
         # Empty
         (
             {
-                'course_id': '1',
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
                 'assignment_query': lms.model.assignments.AssignmentQuery(id = '1'),
                 'user_queries': [],
             },
@@ -25,7 +26,22 @@ def test_courses_assignments_scores_get_base(test: lms.backend.testing.BackendTe
         # Base
         (
             {
-                'course_id': '1',
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
+                'assignment_query': lms.model.assignments.AssignmentQuery(id = '1'),
+                'user_queries': [
+                    lms.model.users.UserQuery(id = '6'),
+                ],
+            },
+            [
+                scores['Course 101']['Homework 0']['course-student'],
+            ],
+            None,
+        ),
+
+        # Course Query
+        (
+            {
+                'course_query': lms.model.courses.CourseQuery(name = 'Course 101'),
                 'assignment_query': lms.model.assignments.AssignmentQuery(id = '1'),
                 'user_queries': [
                     lms.model.users.UserQuery(id = '6'),
@@ -40,7 +56,7 @@ def test_courses_assignments_scores_get_base(test: lms.backend.testing.BackendTe
         # Queries
         (
             {
-                'course_id': '1',
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
                 'assignment_query': lms.model.assignments.AssignmentQuery(name = 'Homework 0'),
                 'user_queries': [
                     lms.model.users.UserQuery(email = 'course-student@test.edulinq.org'),

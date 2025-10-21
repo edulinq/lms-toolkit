@@ -9,6 +9,7 @@ def test_courses_assignments_fetch_base(test: lms.backend.testing.BackendTest):
         # Base
         (
             {
+                'course_id': '1',
                 'assignment_id': '1',
             },
             lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course 101']['Homework 0'],
@@ -18,6 +19,7 @@ def test_courses_assignments_fetch_base(test: lms.backend.testing.BackendTest):
         # Miss
         (
             {
+                'course_id': '1',
                 'assignment_id': '999',
             },
             None,

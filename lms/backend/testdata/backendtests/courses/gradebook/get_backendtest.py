@@ -1,5 +1,6 @@
 import lms.backend.testing
 import lms.model.assignments
+import lms.model.courses
 import lms.model.scores
 import lms.model.testdata.assignments
 import lms.model.testdata.users
@@ -14,7 +15,18 @@ def test_courses_gradebook_get_base(test: lms.backend.testing.BackendTest):
         # Base
         (
             {
-                'course_id': '1',
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
+                'assignment_queries': lms.model.testdata.scores.COURSE_GRADEBOOKS['Course 101'].assignments,
+                'user_queries': lms.model.testdata.scores.COURSE_GRADEBOOKS['Course 101'].users,
+            },
+            lms.model.testdata.scores.COURSE_GRADEBOOKS['Course 101'],
+            None,
+        ),
+
+        # Course Query
+        (
+            {
+                'course_query': lms.model.courses.CourseQuery(name = 'Course 101'),
                 'assignment_queries': lms.model.testdata.scores.COURSE_GRADEBOOKS['Course 101'].assignments,
                 'user_queries': lms.model.testdata.scores.COURSE_GRADEBOOKS['Course 101'].users,
             },
@@ -25,7 +37,7 @@ def test_courses_gradebook_get_base(test: lms.backend.testing.BackendTest):
         # No Queries
         (
             {
-                'course_id': '1',
+                'course_query': lms.model.courses.CourseQuery(id = '1'),
                 'assignment_queries': [],
                 'user_queries': [],
             },
@@ -36,18 +48,18 @@ def test_courses_gradebook_get_base(test: lms.backend.testing.BackendTest):
         # Miss
         (
             {
-                'course_id': '999',
+                'course_query': lms.model.courses.CourseQuery(id = '999'),
                 'assignment_queries': [],
                 'user_queries': [],
             },
-            lms.model.scores.Gradebook([], []),
             None,
+            'Could not resolve course query',
         ),
 
         # Single Assignment
         (
             {
-                'course_id': '3',
+                'course_query': lms.model.courses.CourseQuery(id = '3'),
                 'assignment_queries': [
                     lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 2'].to_query(),
                 ],
@@ -60,7 +72,7 @@ def test_courses_gradebook_get_base(test: lms.backend.testing.BackendTest):
         # Single User
         (
             {
-                'course_id': '3',
+                'course_query': lms.model.courses.CourseQuery(id = '3'),
                 'assignment_queries': [],
                 'user_queries': [
                     lms.model.testdata.users.COURSE_USERS['Extra Course']['extra-course-student-2'].to_query(),
@@ -73,7 +85,7 @@ def test_courses_gradebook_get_base(test: lms.backend.testing.BackendTest):
         # Doubles
         (
             {
-                'course_id': '3',
+                'course_query': lms.model.courses.CourseQuery(id = '3'),
                 'assignment_queries': [
                     lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 1'].to_query(),
                     lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 3'].to_query(),

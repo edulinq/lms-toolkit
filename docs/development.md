@@ -2,6 +2,26 @@
 
 This document contains notes for developers.
 
+## Conventions
+
+### Retrieval Operations
+
+At the user-level,
+we expose two main retrieval operations: list and get.
+See [the README](../README.md#retrieval-operations).
+
+At the developer level, a backend typically exposes three or four retrieval operations:
+ - **list** -- List out all the available entries, e.g., list all the users in a course.
+               All inputs should already be resolved to IDs.
+ - **resolve_and_list** -- List out all the available entries, e.g., list all the users in a course.
+                           Inputs for dependent objects will be queries.
+ - **fetch** -- Fetch one specific entry by identifier (not by query), e.g., fetch a specific user by id.
+                All inputs should already be resolved to IDs.
+ - **get** -- Get a collection of entries by query, e.g., get several users by their email.
+
+Most of these operations will be implemented by the base backend,
+and only `list` will need to be implemented by the child backend.
+
 ## Test Data
 
 The majority of the data needed for testing takes the form of
