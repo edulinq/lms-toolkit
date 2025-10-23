@@ -61,7 +61,7 @@ def clean_canvas_response(response: requests.Response, body: str) -> str:
 
     # Most canvas responses are JSON.
     try:
-        data = edq.util.json.loads(body)
+        data = edq.util.json.loads(body, strict = True)
     except Exception:
         # Response is not JSON.
         return body

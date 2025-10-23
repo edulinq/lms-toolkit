@@ -51,7 +51,7 @@ def make_get_request(
 
         return None
 
-    return edq.util.json.loads(body_text)
+    return edq.util.json.loads(body_text, strict = True)
 
 def make_get_request_list(
         url: str,
@@ -75,7 +75,7 @@ def make_get_request_list(
             return None
 
         next_url = fetch_next_canvas_link(response)
-        new_results = edq.util.json.loads(body_text)
+        new_results = edq.util.json.loads(body_text, strict = True)
 
         for new_result in new_results:
             output.append(new_result)
