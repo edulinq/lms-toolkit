@@ -5,6 +5,9 @@ import edq.util.json
 import lms.model.constants
 import lms.util.string
 
+TEXT_SEPARATOR: str = ': '
+TEXT_EMPTY_VALUE: str = ''
+
 class BaseType(edq.util.json.DictConverter):
     """
     The base class for all core LMS types.
@@ -88,8 +91,6 @@ class BaseType(edq.util.json.DictConverter):
     def as_text_rows(self,
             skip_headers: bool = False,
             pretty_headers: bool = False,
-            separator: str = ': ',
-            empty_value: str = '',
             **kwargs: typing.Any) -> typing.List[str]:
         """
         Create a representation of this object in the "text" style of this project meant for display.
@@ -104,7 +105,7 @@ class BaseType(edq.util.json.DictConverter):
                 if (pretty_headers):
                     header = header.replace('_', ' ').title()
 
-                row = f"{header}{separator}{row}"
+                row = f"{header}{TEXT_SEPARATOR}{row}"
 
             rows.append(row)
 
@@ -163,7 +164,7 @@ class BaseType(edq.util.json.DictConverter):
         Keys are placed in the dictionary in a consistent ordering.
         """
 
-        field_names = self.CORE_FIELDS
+        field_names = self.CORE_FIELDS.copy()
 
         # Append any extra fields after the core fields.
         if (include_extra_fields):
@@ -198,16 +199,15 @@ class BaseType(edq.util.json.DictConverter):
 
     def _value_to_text(self,
             value: typing.Any,
-            empty_value: str = '',
             indent: typing.Union[int, None] = None,
             **kwargs: typing.Any) -> str:
         """
         Convert some arbitrary value (usually found within a BaseType) to a string.
-        None values will be returned as `empty_value`.
+        None values will be returned as `TEXT_EMPTY_VALUE`.
         """
 
         if (value is None):
-            return empty_value
+            return TEXT_EMPTY_VALUE
 
         if (hasattr(value, '_to_text')):
             return str(value._to_text())
@@ -221,7 +221,6 @@ def base_list_to_output_format(values: typing.Sequence[BaseType], output_format:
         sort: bool = True,
         skip_headers: bool = False,
         pretty_headers: bool = False,
-        empty_value: str = '',
         include_extra_fields: bool = False,
         **kwargs: typing.Any) -> str:
     """
@@ -245,13 +244,11 @@ def base_list_to_output_format(values: typing.Sequence[BaseType], output_format:
     elif (output_format == lms.model.constants.OUTPUT_FORMAT_TABLE):
         output = base_list_to_table(values,
                 skip_headers = skip_headers, pretty_headers = pretty_headers,
-                empty_value = empty_value,
                 include_extra_fields = include_extra_fields,
                 **kwargs)
     elif (output_format == lms.model.constants.OUTPUT_FORMAT_TEXT):
         output = base_list_to_text(values,
                 skip_headers = skip_headers, pretty_headers = pretty_headers,
-                empty_value = empty_value,
                 include_extra_fields = include_extra_fields,
                 **kwargs)
     else:
