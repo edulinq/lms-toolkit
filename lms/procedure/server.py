@@ -22,6 +22,11 @@ import lms.util.net
 DEFAULT_STARTUP_WAIT_SECS: float = 10.0
 SERVER_STOP_WAIT_SECS: float = 5.00
 
+BACKEND_REQUEST_CLEANING_FUNCS: typing.Dict[str, typing.Callable] = {
+    lms.model.constants.BACKEND_TYPE_CANVAS: lms.util.net.clean_canvas_response,
+    lms.model.constants.BACKEND_TYPE_MOODLE: lms.util.net.clean_moodle_response,
+}
+
 class ServerRunner():
     """
     A class for running an LMS server for some sort of larger process.
@@ -144,7 +149,7 @@ class ServerRunner():
         self._old_set_exchanges_clean_func = lms.cli.parser._set_exchanges_clean_func
         lms.cli.parser._set_exchanges_clean_func = False
 
-        exchange_clean_func = lms.model.constants.BACKEND_REQUEST_CLEANING_FUNCS.get(self.backend_type, lms.util.net.clean_lms_response)
+        exchange_clean_func = BACKEND_REQUEST_CLEANING_FUNCS.get(self.backend_type, lms.util.net.clean_lms_response)
         exchange_clean_func_name = edq.util.reflection.get_qualified_name(exchange_clean_func)
 
         self._old_exchanges_out_dir = edq.util.net._exchanges_out_dir

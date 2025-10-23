@@ -2,6 +2,7 @@ import logging
 import typing
 
 import lms.model.assignments
+import lms.model.constants
 import lms.model.courses
 import lms.model.query
 import lms.model.scores
@@ -19,11 +20,29 @@ class APIBackend():
 
     def __init__(self,
             server: str,
+            backend_type: str,
             **kwargs: typing.Any) -> None:
         self.server: str = server
         """ The server this backend will connect to. """
 
+        self.backend_type: str = backend_type
+        """
+        The type for this backend.
+        Should be set by the child class.
+        """
+
     # Core Methods
+
+    def get_standard_headers(self) -> typing.Dict[str, str]:
+        """
+        Get standard headers for this backend.
+        Children should take care to set the write header when performing a write operation.
+        """
+
+        return {
+            lms.model.constants.HEADER_KEY_BACKEND: self.backend_type,
+            lms.model.constants.HEADER_KEY_WRITE: 'false',
+        }
 
     def not_found(self, label: str, identifiers: typing.Dict[str, typing.Any]) -> None:
         """

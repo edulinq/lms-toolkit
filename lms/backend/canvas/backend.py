@@ -9,6 +9,7 @@ import lms.backend.canvas.courses.list
 import lms.backend.canvas.courses.users.list
 import lms.backend.canvas.courses.users.scores.list
 import lms.model.assignments
+import lms.model.constants
 import lms.model.courses
 import lms.model.backend
 import lms.model.scores
@@ -22,7 +23,7 @@ class CanvasBackend(lms.model.backend.APIBackend):
             server: str,
             token: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
-        super().__init__(server, **kwargs)
+        super().__init__(server, lms.model.constants.BACKEND_TYPE_CANVAS, **kwargs)
 
         if (token is None):
             raise ValueError("Canvas backends require a token.")
@@ -30,11 +31,11 @@ class CanvasBackend(lms.model.backend.APIBackend):
         self.token: str = token
 
     def get_standard_headers(self) -> typing.Dict[str, str]:
-        """ Get standard Canvas headers. """
+        headers = super().get_standard_headers()
 
-        return {
-            "Authorization": f"Bearer {self.token}",
-        }
+        headers['Authorization'] = f"Bearer {self.token}"
+
+        return headers
 
     def courses_list(self,
             **kwargs: typing.Any) -> typing.Sequence[lms.model.courses.Course]:

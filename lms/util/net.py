@@ -4,9 +4,10 @@ Utilities for network and HTTP.
 
 import typing
 
+import edq.util.json
 import requests
 
-import edq.util.json
+import lms.model.constants
 
 CANVAS_CLEAN_REMOVE_CONTENT_KEYS: typing.List[str] = [
     'created_at',
@@ -27,6 +28,16 @@ def clean_lms_response(response: requests.Response, body: str) -> str:
     and clean the response accordingly.
     """
 
+    # Check the standard LMS Toolkit backend header.
+    backend_type = response.headers.get(lms.model.constants.HEADER_KEY_BACKEND, '').lower()
+
+    if (backend_type == lms.model.constants.BACKEND_TYPE_CANVAS):
+        return clean_canvas_response(response, body)
+
+    if (backend_type == lms.model.constants.BACKEND_TYPE_MOODLE):
+        return clean_moodle_response(response, body)
+
+    # Try looking inside the header keys.
     for key in response.headers:
         key = key.lower().strip()
 
