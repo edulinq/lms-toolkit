@@ -4,6 +4,7 @@ import typing
 
 import lms.backend.canvas.courses.assignments.list
 import lms.backend.canvas.courses.assignments.scores.list
+import lms.backend.canvas.courses.assignments.scores.upload
 import lms.backend.canvas.courses.gradebook.fetch
 import lms.backend.canvas.courses.list
 import lms.backend.canvas.courses.users.list
@@ -54,6 +55,16 @@ class CanvasBackend(lms.model.backend.APIBackend):
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         parsed_assignment_id = lms.util.parse.required_int(assignment_id, 'assignment_id')
         return lms.backend.canvas.courses.assignments.scores.list.request(self, parsed_course_id, parsed_assignment_id)
+
+    def courses_assignments_scores_upload(self,
+            course_id: str,
+            assignment_id: str,
+            scores: typing.Dict[str, lms.model.scores.ScoreFragment],
+            **kwargs: typing.Any) -> int:
+        parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
+        parsed_assignment_id = lms.util.parse.required_int(assignment_id, 'assignment_id')
+        parsed_scores = {lms.util.parse.required_int(user_id, 'user_id'): score for (user_id, score) in scores.items()}
+        return lms.backend.canvas.courses.assignments.scores.upload.request(self, parsed_course_id, parsed_assignment_id, parsed_scores)
 
     def courses_gradebook_fetch(self,
             course_id: str,

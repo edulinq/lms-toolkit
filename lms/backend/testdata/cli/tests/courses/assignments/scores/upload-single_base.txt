@@ -1,0 +1,11 @@
+{
+    "cli": "lms.cli.courses.assignments.scores.upload-single",
+    "arguments": [
+        "--course", "1",
+        "--assignment", "1",
+        "--user", "6",
+        "1.0"
+    ],
+}
+---
+Uploaded 1 Score(s)

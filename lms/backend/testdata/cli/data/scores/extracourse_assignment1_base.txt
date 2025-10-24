@@ -1,0 +1,5 @@
+User	Score	Comment
+extra-course-student-1@test.edulinq.org	1
+extra-course-student-2@test.edulinq.org	1.5
+extra-course-student-3@test.edulinq.org	2	foo
+extra-course-student-4@test.edulinq.org	2.5	foo

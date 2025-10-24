@@ -1,0 +1,12 @@
+{
+    "cli": "lms.cli.courses.assignments.scores.upload-single",
+    "arguments": [
+        "--course", '999',
+        "--assignment", "1",
+        "--user", "6",
+        "1.0"
+    ],
+    error: true,
+}
+---
+builtins.ValueError: Could not resolve course query: '999'.

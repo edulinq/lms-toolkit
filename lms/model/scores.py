@@ -1,10 +1,27 @@
 import typing
 
+import edq.util.json
 import edq.util.time
 
 import lms.model.assignments
 import lms.model.base
 import lms.model.users
+
+class ScoreFragment(edq.util.json.DictConverter):
+    """ A small subset of information about a score. """
+
+    def __init__(self,
+            score: typing.Union[float, None] = None,
+            comment: typing.Union[str, None] = None,
+            **kwargs: typing.Any) -> None:
+        self.score: typing.Union[float, None] = score
+        """
+        The numeric score.
+        A None value indicates that the score should be cleared.
+        """
+
+        self.comment: typing.Union[str, None] = comment
+        """ An optional comment for this score. """
 
 class AssignmentScore(lms.model.base.BaseType):
     """

@@ -69,6 +69,12 @@ def clean_canvas_response(response: requests.Response, body: str) -> str:
     # Remove any content keys.
     _recursive_remove_keys(data, set(CANVAS_CLEAN_REMOVE_CONTENT_KEYS))
 
+    # Remove special fields.
+
+    if ('submissions/update_grades' in response.request.url):
+        data.pop('id', None)
+        data.pop('url', None)
+
     # Convert body back to a string.
     body = edq.util.json.dumps(data)
 

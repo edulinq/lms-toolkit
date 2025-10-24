@@ -255,6 +255,54 @@ class APIBackend():
 
         return scores
 
+    def courses_assignments_scores_resolve_and_upload(self,
+            course_query: lms.model.courses.CourseQuery,
+            assignment_query: lms.model.assignments.AssignmentQuery,
+            scores: typing.Dict[lms.model.users.UserQuery, lms.model.scores.ScoreFragment],
+            **kwargs: typing.Any) -> int:
+        """
+        Resolve queries and upload assignment scores.
+        A None score (ScoreFragment.score) indicates that the score should be cleared.
+        Return the number of scores sent to the LMS.
+        """
+
+        if (len(scores) == 0):
+            return 0
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_assignment_query = self.resolve_assignment_query(resolved_course_query.get_id(), assignment_query, **kwargs)
+
+        resolved_users = self.resolve_user_queries(resolved_course_query.get_id(), list(scores.keys()), warn_on_miss = True)
+        resolved_scores: typing.Dict[str, lms.model.scores.ScoreFragment] = {}
+
+        for (user, score) in scores.items():
+            for resolved_user in resolved_users:
+                if (user.match(resolved_user)):
+                    resolved_scores[resolved_user.get_id()] = score
+                    continue
+
+        if (len(resolved_scores) == 0):
+            return 0
+
+        return self.courses_assignments_scores_upload(
+                resolved_course_query.get_id(),
+                resolved_assignment_query.get_id(),
+                resolved_scores,
+                **kwargs)
+
+    def courses_assignments_scores_upload(self,
+            course_id: str,
+            assignment_id: str,
+            scores: typing.Dict[str, lms.model.scores.ScoreFragment],
+            **kwargs: typing.Any) -> int:
+        """
+        Upload assignment scores (indexed by user id).
+        A None score (ScoreFragment.score) indicates that the score should be cleared.
+        Return the number of scores sent to the LMS.
+        """
+
+        raise NotImplementedError('courses_assignments_scores_resolve_and_upload')
+
     def courses_gradebook_get(self,
             course_query: lms.model.courses.CourseQuery,
             assignment_queries: typing.List[lms.model.assignments.AssignmentQuery],
@@ -529,10 +577,27 @@ class APIBackend():
 
         return queries
 
+    def resolve_assignment_query(self,
+            course_id: str,
+            assignment_query: lms.model.assignments.AssignmentQuery,
+            **kwargs: typing.Any) -> lms.model.assignments.ResolvedAssignmentQuery:
+        """ Resolve the assignment query or raise an exception. """
+
+        # Shortcut already resolved queries.
+        if (isinstance(assignment_query, lms.model.assignments.ResolvedAssignmentQuery)):
+            return assignment_query
+
+        results = self.resolve_assignment_queries(course_id, [assignment_query], **kwargs)
+        if (len(results) == 0):
+            raise ValueError(f"Could not resolve assignment query: '{assignment_query}'.")
+
+        return results[0]
+
     def resolve_assignment_queries(self,
             course_id: str,
             assignment_queries: typing.List[lms.model.assignments.AssignmentQuery],
             empty_all: bool = False,
+            warn_on_miss: bool = False,
             **kwargs: typing.Any) -> typing.List[lms.model.assignments.ResolvedAssignmentQuery]:
         """
         Resolve a list of assignment queries into a list of resolved assignment queries.
@@ -549,10 +614,15 @@ class APIBackend():
 
         matched_queries = []
         for query in assignment_queries:
+            match = False
             for assignment in assignments:
                 if (query.match(assignment)):
                     matched_queries.append(lms.model.assignments.ResolvedAssignmentQuery(assignment))
+                    match = True
                     break
+
+            if ((not match) and warn_on_miss):
+                logging.warning("Could not resolve assignment query '%s'.", query)
 
         return list(sorted(set(matched_queries)))
 
@@ -574,6 +644,7 @@ class APIBackend():
     def resolve_course_queries(self,
             course_queries: typing.List[lms.model.courses.CourseQuery],
             empty_all: bool = False,
+            warn_on_miss: bool = False,
             **kwargs: typing.Any) -> typing.List[lms.model.courses.ResolvedCourseQuery]:
         """
         Resolve a list of course queries into a list of resolved course queries.
@@ -590,10 +661,15 @@ class APIBackend():
 
         matched_queries = []
         for query in course_queries:
+            match = False
             for course in courses:
                 if (query.match(course)):
                     matched_queries.append(lms.model.courses.ResolvedCourseQuery(course))
+                    match = True
                     break
+
+            if ((not match) and warn_on_miss):
+                logging.warning("Could not resolve course query '%s'.", query)
 
         return list(sorted(set(matched_queries)))
 
@@ -602,6 +678,7 @@ class APIBackend():
             user_queries: typing.List[lms.model.users.UserQuery],
             empty_all: bool = False,
             only_students: bool = False,
+            warn_on_miss: bool = False,
             **kwargs: typing.Any) -> typing.List[lms.model.users.ResolvedUserQuery]:
         """
         Resolve a list of user queries into a list of resolved user queries.
@@ -621,9 +698,14 @@ class APIBackend():
 
         matched_queries = []
         for query in user_queries:
+            match = False
             for user in users:
                 if (query.match(user)):
                     matched_queries.append(lms.model.users.ResolvedUserQuery(user))
+                    match = True
                     break
+
+            if ((not match) and warn_on_miss):
+                logging.warning("Could not resolve user query '%s'.", query)
 
         return list(sorted(set(matched_queries)))

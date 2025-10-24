@@ -1,0 +1,12 @@
+{
+    "cli": "lms.cli.courses.assignments.scores.upload",
+    "arguments": [
+        "--course", "1",
+        "--assignment", "1",
+        "--skip-rows", "1",
+        "__DATA_DIR__(scores/course101_hw0_nan.txt)",
+    ],
+    "error": true,
+}
+---
+builtins.ValueError: File '__DATA_DIR__(scores/course101_hw0_nan.txt)' line 2 has a score that cannot be converted to a number: 'ZZZ'.

@@ -1,0 +1,2 @@
+User	Score	Comment
+6	1.0	foo

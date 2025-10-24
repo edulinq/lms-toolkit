@@ -1,0 +1,11 @@
+{
+    "cli": "lms.cli.courses.assignments.scores.upload",
+    "arguments": [
+        "--course", "Extra Course",
+        "--assignment", "Assignment 1",
+        "--skip-rows", "1",
+        "__DATA_DIR__(scores/extracourse_assignment1_base.txt)",
+    ],
+}
+---
+Uploaded 4 Score(s)
