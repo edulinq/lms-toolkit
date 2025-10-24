@@ -12,6 +12,7 @@ import typing
 
 import edq.util.dirent
 import edq.util.net
+import edq.util.parse
 import edq.util.reflection
 
 import lms.backend.instance
@@ -99,6 +100,12 @@ class ServerRunner():
         The original value may be changed in start(), and will be reset in stop().
         """
 
+        self._old_make_request_exchange_complete_func: typing.Union[edq.util.net.HTTPExchangeComplete, None] = None
+        """
+        The value of lms.util.net._make_request_exchange_complete_func when start() is called.
+        The original value may be changed in start(), and will be reset in stop().
+        """
+
         self._process: typing.Union[subprocess.Popen, None] = None
         """ The server process. """
 
@@ -114,6 +121,14 @@ class ServerRunner():
         # Ensure stop() is called.
         atexit.register(self.stop)
 
+        def _make_request_callback(exchange: edq.util.net.HTTPExchange) -> None:
+            # Restart if the request is a write.
+            if (edq.util.parse.boolean(exchange.headers.get(lms.model.constants.HEADER_KEY_WRITE, False))):
+                self.restart()
+
+        self._old_make_request_exchange_complete_func = edq.util.net._make_request_exchange_complete_func
+        edq.util.net._make_request_exchange_complete_func = typing.cast(edq.util.net.HTTPExchangeComplete, _make_request_callback)
+
         # Start the server.
 
         logging.info("Writing HTTP exchanges to '%s'.", self.http_exchanges_out_dir)
@@ -121,23 +136,8 @@ class ServerRunner():
         logging.info("Starting the server ('%s') and waiting %0.2f seconds.", self.server, self.startup_wait_secs)
 
         self._server_output_file = open(self.server_output_path, 'a', encoding = edq.util.dirent.DEFAULT_ENCODING)  # pylint: disable=consider-using-with
-        self._process = subprocess.Popen(self.server_start_command,  # pylint: disable=consider-using-with
-                shell = True, stdout = self._server_output_file, stderr = subprocess.STDOUT)
 
-        status = None
-        try:
-            # Ensure the server is running cleanly.
-            status = self._process.wait(self.startup_wait_secs)
-        except subprocess.TimeoutExpired:
-            # Good, the server is running.
-            pass
-
-        if (status is not None):
-            hint = f"code: '{status}'"
-            if (status == 125):
-                hint = 'server may already be running'
-
-            raise ValueError(f"Server was unable to start successfully ('{hint}').")
+        self._start_server()
 
         # Resolve the backend type.
         self.backend_type = lms.backend.instance.guess_backend_type(self.server, backend_type = self.backend_type)
@@ -158,6 +158,30 @@ class ServerRunner():
         self._old_exchanges_clean_func = edq.util.net._exchanges_clean_func
         edq.util.net._exchanges_clean_func = exchange_clean_func_name
 
+    def _start_server(self) -> None:
+        """ Start the server. """
+
+        if (self._process is not None):
+            return
+
+        self._process = subprocess.Popen(self.server_start_command,  # pylint: disable=consider-using-with
+                shell = True, stdout = self._server_output_file, stderr = subprocess.STDOUT)
+
+        status = None
+        try:
+            # Ensure the server is running cleanly.
+            status = self._process.wait(self.startup_wait_secs)
+        except subprocess.TimeoutExpired:
+            # Good, the server is running.
+            pass
+
+        if (status is not None):
+            hint = f"code: '{status}'"
+            if (status == 125):
+                hint = 'server may already be running'
+
+            raise ValueError(f"Server was unable to start successfully ('{hint}').")
+
     def stop(self) -> None:
         """ Stop the server. """
 
@@ -175,22 +199,36 @@ class ServerRunner():
         edq.util.net._exchanges_clean_func = self._old_exchanges_clean_func
         self._old_exchanges_clean_func = None
 
+        edq.util.net._make_request_exchange_complete_func = self._old_make_request_exchange_complete_func
+        self._old_make_request_exchange_complete_func = None
+
         # Stop the server.
         logging.info('Stopping the server.')
         self._stop_server()
-
-        self._process = None
 
         if (self._server_output_file is not None):
             self._server_output_file.close()
             self._server_output_file = None
 
+    def restart(self) -> None:
+        """ Restart the server. """
+
+        logging.debug('Restarting the server.')
+        self._stop_server()
+        self._start_server()
+
     def _stop_server(self) -> typing.Union[int, None]:
+        """ Stop the server process and return the exit status. """
+
         if (self._process is None):
             return None
 
+        # Mark the process as dead, so it can be restarted (if need be).
+        current_process = self._process
+        self._process = None
+
         # Check if the process is already dead.
-        status = self._process.poll()
+        status = current_process.poll()
         if (status is not None):
             return status
 
@@ -200,29 +238,29 @@ class ServerRunner():
                     shell = True, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL,
                     check = False)
 
-        status = self._process.poll()
+        status = current_process.poll()
         if (status is not None):
             return status
 
         # Try to end the server gracefully.
         try:
-            self._process.send_signal(signal.SIGINT)
-            self._process.wait(SERVER_STOP_WAIT_SECS)
+            current_process.send_signal(signal.SIGINT)
+            current_process.wait(SERVER_STOP_WAIT_SECS)
         except subprocess.TimeoutExpired:
             pass
 
-        status = self._process.poll()
+        status = current_process.poll()
         if (status is not None):
             return status
 
         # End the server hard.
         try:
-            self._process.kill()
-            self._process.wait(SERVER_STOP_WAIT_SECS)
+            current_process.kill()
+            current_process.wait(SERVER_STOP_WAIT_SECS)
         except subprocess.TimeoutExpired:
             pass
 
-        status = self._process.poll()
+        status = current_process.poll()
         if (status is not None):
             return status
 
