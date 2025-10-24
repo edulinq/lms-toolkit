@@ -8,6 +8,8 @@ import lms.util.string
 TEXT_SEPARATOR: str = ': '
 TEXT_EMPTY_VALUE: str = ''
 
+T = typing.TypeVar('T', bound = 'BaseType')
+
 class BaseType(edq.util.json.DictConverter):
     """
     The base class for all core LMS types.
@@ -216,6 +218,17 @@ class BaseType(edq.util.json.DictConverter):
             return str(edq.util.json.dumps(value, indent = indent))
 
         return str(value)
+
+    @classmethod
+    def from_json_dict(cls: typing.Type[T],
+            data: typing.Dict[str, typing.Any],
+            **kwargs: typing.Any) -> T:
+        """
+        Create an object from a dict that can be used for JSON.
+        This is the inverse of as_json_dict().
+        """
+
+        return typing.cast(T, cls.from_dict(data))
 
 def base_list_to_output_format(values: typing.Sequence[BaseType], output_format: str,
         sort: bool = True,
