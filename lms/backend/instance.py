@@ -1,6 +1,7 @@
 import typing
 
 import edq.util.net
+import requests
 
 import lms.backend.canvas.backend
 import lms.backend.moodle.backend
@@ -52,23 +53,36 @@ def guess_backend_type(
         return None
 
     # Try looking at the URL string itself.
-    backend_type = _guess_backend_type_from_url(server)
+    backend_type = guess_backend_type_from_url(server)
     if (backend_type is not None):
         return backend_type
 
     # Make a request to the server and examine the response.
-    backend_type = _guess_backend_type_from_request(server)
+    backend_type = guess_backend_type_from_request(server)
     if (backend_type is not None):
         return backend_type
 
     return None
 
-def _guess_backend_type_from_request(server: str) -> typing.Union[str, None]:
+def guess_backend_type_from_request(server: str, timeout_secs: float = edq.util.net.DEFAULT_REQUEST_TIMEOUT_SECS) -> typing.Union[str, None]:
+    """
+    Attempt to guess the backend type by pinging the server.
+    This function will not do any lexical analysis on the server string.
+    """
+
     options = {
         'allow_redirects': False,
     }
 
-    response, _ = edq.util.net.make_get(server, raise_for_status = False, additional_requests_options = options)
+    try:
+        response, _ = edq.util.net.make_get(server,
+                raise_for_status = False,
+                timeout_secs = timeout_secs,
+                additional_requests_options = options)
+    except requests.exceptions.ConnectionError:
+        return None
+    except requests.exceptions.Timeout:
+        return None
 
     # Canvas sends a special header.
     header_keys = [key.lower() for key in response.headers.keys()]
@@ -85,7 +99,7 @@ def _guess_backend_type_from_request(server: str) -> typing.Union[str, None]:
 
     return None
 
-def _guess_backend_type_from_url(server: str) -> typing.Union[str, None]:
+def guess_backend_type_from_url(server: str) -> typing.Union[str, None]:
     """
     Attempt to guess the backend type only from a string server URL.
     This function will only do lexical analysis on the string (no HTTP requests will be made).

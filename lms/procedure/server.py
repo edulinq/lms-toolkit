@@ -8,6 +8,7 @@ import atexit
 import logging
 import signal
 import subprocess
+import time
 import typing
 
 import edq.util.dirent
@@ -20,8 +21,12 @@ import lms.cli.parser
 import lms.model.constants
 import lms.util.net
 
+SERVER_STARTUP_INITIAL_WAIT_SECS: float = 0.2
 DEFAULT_STARTUP_WAIT_SECS: float = 10.0
 SERVER_STOP_WAIT_SECS: float = 5.00
+
+IDENTIFY_MAX_ATTEMPTS: int = 100
+IDENTIFY_WAIT_SECS: float = 0.25
 
 BACKEND_REQUEST_CLEANING_FUNCS: typing.Dict[str, typing.Callable] = {
     lms.model.constants.BACKEND_TYPE_CANVAS: lms.util.net.clean_canvas_response,
@@ -41,6 +46,7 @@ class ServerRunner():
             http_exchanges_out_dir: typing.Union[str, None] = None,
             server_output_path: typing.Union[str, None] = None,
             startup_wait_secs: typing.Union[float, None] = None,
+            startup_skip_identify: typing.Union[bool, None] = False,
             **kwargs: typing.Any) -> None:
         if (server is None):
             raise ValueError('No server specified.')
@@ -81,6 +87,16 @@ class ServerRunner():
 
         self.startup_wait_secs = startup_wait_secs
         """ How long to wait after the server start command is run before making requests to the server. """
+
+        if (startup_skip_identify is None):
+            startup_skip_identify = False
+
+        self.startup_skip_identify: bool = startup_skip_identify
+        """
+        Whether to skip trying to identify the server after it has been started.
+        This acts as a way to have a variable wait for the server to start.
+        When not used, self.startup_wait_secs is the only way to wait for the server to start.
+        """
 
         self._old_exchanges_out_dir: typing.Union[str, None] = None
         """
@@ -133,7 +149,7 @@ class ServerRunner():
 
         logging.info("Writing HTTP exchanges to '%s'.", self.http_exchanges_out_dir)
         logging.info("Writing server output to '%s'.", self.server_output_path)
-        logging.info("Starting the server ('%s') and waiting %0.2f seconds.", self.server, self.startup_wait_secs)
+        logging.info("Starting the server ('%s') and waiting for it.", self.server)
 
         self._server_output_file = open(self.server_output_path, 'a', encoding = edq.util.dirent.DEFAULT_ENCODING)  # pylint: disable=consider-using-with
 
@@ -169,8 +185,8 @@ class ServerRunner():
 
         status = None
         try:
-            # Ensure the server is running cleanly.
-            status = self._process.wait(self.startup_wait_secs)
+            # Wait for a short period for the process to start.
+            status = self._process.wait(SERVER_STARTUP_INITIAL_WAIT_SECS)
         except subprocess.TimeoutExpired:
             # Good, the server is running.
             pass
@@ -181,6 +197,27 @@ class ServerRunner():
                 hint = 'server may already be running'
 
             raise ValueError(f"Server was unable to start successfully ('{hint}').")
+
+        # Ping the server to check if it has started.
+        if (not self.startup_skip_identify):
+            for _ in range(IDENTIFY_MAX_ATTEMPTS):
+                backend_type = lms.backend.instance.guess_backend_type_from_request(self.server, timeout_secs = IDENTIFY_WAIT_SECS)
+                if (backend_type is not None):
+                    # The server is running and responding, exit early.
+                    return
+
+                time.sleep(IDENTIFY_WAIT_SECS)
+
+        status = None
+        try:
+            # Ensure the server is running cleanly.
+            status = self._process.wait(self.startup_wait_secs)
+        except subprocess.TimeoutExpired:
+            # Good, the server is running.
+            pass
+
+        if (status is not None):
+            raise ValueError(f"Server was unable to start successfully ('code: {status}').")
 
     def stop(self) -> None:
         """ Stop the server. """
@@ -272,6 +309,10 @@ def modify_parser(parser: argparse.ArgumentParser) -> None:
     parser.add_argument('server_start_command', metavar = 'RUN_SERVER_COMMAND',
         action = 'store', type = str,
         help = 'The command to run the LMS server that will be the target of the data generation commands.')
+
+    parser.add_argument('--startup-skip-identify', dest = 'startup_skip_identify',
+        action = 'store_true', default = False,
+        help = 'If set, startup will skip trying to identify the server as a means of checking that the server is started.')
 
     parser.add_argument('--startup-wait', dest = 'startup_wait_secs',
         action = 'store', type = float, default = DEFAULT_STARTUP_WAIT_SECS,
