@@ -595,36 +595,21 @@ class APIBackend():
 
     def resolve_assignment_queries(self,
             course_id: str,
-            assignment_queries: typing.List[lms.model.assignments.AssignmentQuery],
-            empty_all: bool = False,
-            warn_on_miss: bool = False,
+            queries: typing.List[lms.model.assignments.AssignmentQuery],
             **kwargs: typing.Any) -> typing.List[lms.model.assignments.ResolvedAssignmentQuery]:
         """
         Resolve a list of assignment queries into a list of resolved assignment queries.
-        The returned list may be shorter than the list of queries (if input queries are not matched).
-        The queries will be deduplicated and sorted.
-
-        If |empty_all| is true and no queries are specified, then all assignments will be returned.
+        See _resolve_queries().
         """
 
-        assignments = self.courses_assignments_list(course_id, **kwargs)
+        results = self._resolve_queries(
+            queries,
+            'assignment',
+            self.courses_assignments_list(course_id, **kwargs),
+            lms.model.assignments.ResolvedAssignmentQuery,
+            **kwargs)
 
-        if (empty_all and (len(assignment_queries) == 0)):
-            return list(sorted({lms.model.assignments.ResolvedAssignmentQuery(assignment) for assignment in assignments}))
-
-        matched_queries = []
-        for query in assignment_queries:
-            match = False
-            for assignment in assignments:
-                if (query.match(assignment)):
-                    matched_queries.append(lms.model.assignments.ResolvedAssignmentQuery(assignment))
-                    match = True
-                    break
-
-            if ((not match) and warn_on_miss):
-                logging.warning("Could not resolve assignment query '%s'.", query)
-
-        return list(sorted(set(matched_queries)))
+        return typing.cast(typing.List[lms.model.assignments.ResolvedAssignmentQuery], results)
 
     def resolve_course_query(self,
             course_query: lms.model.courses.CourseQuery,
@@ -642,70 +627,88 @@ class APIBackend():
         return results[0]
 
     def resolve_course_queries(self,
-            course_queries: typing.List[lms.model.courses.CourseQuery],
-            empty_all: bool = False,
-            warn_on_miss: bool = False,
+            queries: typing.List[lms.model.courses.CourseQuery],
             **kwargs: typing.Any) -> typing.List[lms.model.courses.ResolvedCourseQuery]:
         """
         Resolve a list of course queries into a list of resolved course queries.
-        The returned list may be shorter than the list of queries (if input queries are not matched).
-        The queries will be deduplicated and sorted.
-
-        If |empty_all| is true and no queries are specified, then all courses will be returned.
+        See _resolve_queries().
         """
 
-        courses = self.courses_list(**kwargs)
+        results = self._resolve_queries(
+            queries,
+            'course',
+            self.courses_list(**kwargs),
+            lms.model.courses.ResolvedCourseQuery,
+            **kwargs)
 
-        if (empty_all and (len(course_queries) == 0)):
-            return list(sorted({lms.model.courses.ResolvedCourseQuery(course) for course in courses}))
-
-        matched_queries = []
-        for query in course_queries:
-            match = False
-            for course in courses:
-                if (query.match(course)):
-                    matched_queries.append(lms.model.courses.ResolvedCourseQuery(course))
-                    match = True
-                    break
-
-            if ((not match) and warn_on_miss):
-                logging.warning("Could not resolve course query '%s'.", query)
-
-        return list(sorted(set(matched_queries)))
+        return typing.cast(typing.List[lms.model.courses.ResolvedCourseQuery], results)
 
     def resolve_user_queries(self,
             course_id: str,
-            user_queries: typing.List[lms.model.users.UserQuery],
-            empty_all: bool = False,
+            queries: typing.List[lms.model.users.UserQuery],
             only_students: bool = False,
-            warn_on_miss: bool = False,
             **kwargs: typing.Any) -> typing.List[lms.model.users.ResolvedUserQuery]:
         """
         Resolve a list of user queries into a list of resolved user queries.
+        See _resolve_queries().
+        """
+
+        filter_func = None
+        if (only_students):
+            filter_func = lambda user: user.is_student()  # pylint: disable=unnecessary-lambda-assignment
+
+        results = self._resolve_queries(
+            queries,
+            'user',
+            self.courses_users_list(course_id, **kwargs),
+            lms.model.users.ResolvedUserQuery,
+            filter_func = filter_func,
+            **kwargs)
+
+        return typing.cast(typing.List[lms.model.users.ResolvedUserQuery], results)
+
+    def _resolve_queries(self,
+            queries: typing.Sequence[lms.model.query.BaseQuery],
+            label: str,
+            items: typing.Sequence,
+            resolved_query_class: typing.Type,
+            empty_all: bool = False,
+            warn_on_miss: bool = False,
+            filter_func: typing.Union[typing.Callable, None] = None,
+            **kwargs: typing.Any) -> typing.List[lms.model.query.ResolvedBaseQuery]:
+        """
+        Resolve a list of queries.
         The returned list may be shorter than the list of queries (if input queries are not matched).
         The queries will be deduplicated and sorted.
 
-        If |empty_all| is true and no queries are specified, then all users will be returned.
+        If |empty_all| is true and no queries are specified, then all items will be returned.
+
+        If |filter_func| is passed, then that function will be called with each raw item,
+        and ones that return true will be kept.
         """
 
-        users = self.courses_users_list(course_id, **kwargs)
+        if (filter_func is not None):
+            items = list(filter(filter_func, items))
 
-        if (only_students):
-            users = list(filter(lambda user: user.is_student(), users))
+        if (empty_all and (len(queries) == 0)):
+            return list(sorted({resolved_query_class(item) for item in items}))
 
-        if (empty_all and (len(user_queries) == 0)):
-            return list(sorted({lms.model.users.ResolvedUserQuery(user) for user in users}))
-
-        matched_queries = []
-        for query in user_queries:
+        matched_queries = []  # type: ignore[var-annotated]
+        for query in queries:
             match = False
-            for user in users:
-                if (query.match(user)):
-                    matched_queries.append(lms.model.users.ResolvedUserQuery(user))
+            for item in items:
+                if (query.match(item)):
+                    matched_query = resolved_query_class(item)
+
+                    if (match):
+                        raise ValueError(
+                            f"Ambiguous {label} query ('{query}')"
+                            f" matches multiple {label}s ['{matched_queries[-1]}', '{matched_query}'].")
+
+                    matched_queries.append(matched_query)
                     match = True
-                    break
 
             if ((not match) and warn_on_miss):
-                logging.warning("Could not resolve user query '%s'.", query)
+                logging.warning("Could not resolve %s query '%s'.", label, query)
 
         return list(sorted(set(matched_queries)))
