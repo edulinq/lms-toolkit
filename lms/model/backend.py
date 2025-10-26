@@ -4,6 +4,8 @@ import typing
 import lms.model.assignments
 import lms.model.constants
 import lms.model.courses
+import lms.model.groups
+import lms.model.groupsets
 import lms.model.query
 import lms.model.scores
 import lms.model.users
@@ -360,6 +362,134 @@ class APIBackend():
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
         return self.courses_gradebook_list(resolved_course_query.get_id(), **kwargs)
 
+    def courses_groupsets_get(self,
+            course_query: lms.model.courses.CourseQuery,
+            groupset_queries: typing.List[lms.model.groupsets.GroupSetQuery],
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSet]:
+        """
+        Get the specified group sets associated with the given course.
+        """
+
+        if (len(groupset_queries) == 0):
+            return []
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        groupsets = self.courses_groupsets_list(resolved_course_query.get_id(), **kwargs)
+
+        matches = []
+        for groupset in groupsets:
+            for query in groupset_queries:
+                if (query.match(groupset)):
+                    matches.append(groupset)
+                    break
+
+        return matches
+
+    def courses_groupsets_fetch(self,
+            course_id: str,
+            groupset_id: str,
+            **kwargs: typing.Any) -> typing.Union[lms.model.groupsets.GroupSet, None]:
+        """
+        Fetch a single group set associated with the given course.
+        Return None if no matching group set is found.
+
+        By default, this will just do a list and choose the relevant record.
+        Specific backends may override this if there are performance concerns.
+        """
+
+        groupsets = self.courses_groupsets_list(course_id, **kwargs)
+        for groupset in groupsets:
+            if (groupset.id == groupset_id):
+                return groupset
+
+        return None
+
+    def courses_groupsets_list(self,
+            course_id: str,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSet]:
+        """
+        List the group sets associated with the given course.
+        """
+
+        raise NotImplementedError('courses_groupsets_list')
+
+    def courses_groupsets_resolve_and_list(self,
+            course_query: lms.model.courses.CourseQuery,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSet]:
+        """
+        List the group sets associated with the given course.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        return self.courses_groupsets_list(resolved_course_query.get_id(), **kwargs)
+
+    def courses_groups_get(self,
+            course_query: lms.model.courses.CourseQuery,
+            groupset_query: lms.model.groupsets.GroupSetQuery,
+            group_queries: typing.List[lms.model.groups.GroupQuery],
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.Group]:
+        """
+        Get the specified groups associated with the given course.
+        """
+
+        if (len(group_queries) == 0):
+            return []
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_groupset_query = self.resolve_groupset_query(resolved_course_query.get_id(), groupset_query, **kwargs)
+        groups = self.courses_groups_list(resolved_course_query.get_id(), resolved_groupset_query.get_id(), **kwargs)
+
+        matches = []
+        for group in groups:
+            for query in group_queries:
+                if (query.match(group)):
+                    matches.append(group)
+                    break
+
+        return matches
+
+    def courses_groups_fetch(self,
+            course_id: str,
+            groupset_id: str,
+            group_id: str,
+            **kwargs: typing.Any) -> typing.Union[lms.model.groups.Group, None]:
+        """
+        Fetch a single group associated with the given course.
+        Return None if no matching group is found.
+
+        By default, this will just do a list and choose the relevant record.
+        Specific backends may override this if there are performance concerns.
+        """
+
+        groups = self.courses_groups_list(course_id, groupset_id, **kwargs)
+        for group in groups:
+            if (group.id == group_id):
+                return group
+
+        return None
+
+    def courses_groups_list(self,
+            course_id: str,
+            groupset_id: str,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.Group]:
+        """
+        List the groups associated with the given course.
+        """
+
+        raise NotImplementedError('courses_groups_list')
+
+    def courses_groups_resolve_and_list(self,
+            course_query: lms.model.courses.CourseQuery,
+            groupset_query: lms.model.groupsets.GroupSetQuery,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.Group]:
+        """
+        List the groups associated with the given course.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_groupset_query = self.resolve_groupset_query(resolved_course_query.get_id(), groupset_query, **kwargs)
+        return self.courses_groups_list(resolved_course_query.get_id(), resolved_groupset_query.get_id(), **kwargs)
+
     def courses_users_get(self,
             course_query: lms.model.courses.CourseQuery,
             user_queries: typing.List[lms.model.users.UserQuery],
@@ -419,7 +549,7 @@ class APIBackend():
         """
 
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
-        return self.courses_users_list(resolved_course_query.get_id())
+        return self.courses_users_list(resolved_course_query.get_id(), **kwargs)
 
     def courses_users_scores_get(self,
             course_query: lms.model.courses.CourseQuery,
@@ -554,6 +684,52 @@ class APIBackend():
 
         return queries
 
+    def parse_groupset_query(self, text: typing.Union[str, None]) -> typing.Union[lms.model.groupsets.GroupSetQuery, None]:
+        """
+        Attempt to parse a group set query from a string.
+        The there is no query, return a None.
+        If the query is malformed, raise an exception.
+
+        By default, this method assumes that LMS IDs are ints.
+        Child backends may override this to implement their specific behavior.
+        """
+
+        return lms.model.query.parse_int_query(lms.model.groupsets.GroupSetQuery, text, check_email = False)
+
+    def parse_groupset_queries(self, texts: typing.List[typing.Union[str, None]]) -> typing.List[lms.model.groupsets.GroupSetQuery]:
+        """ Parse a list of group set queries. """
+
+        queries = []
+        for text in texts:
+            query = self.parse_groupset_query(text)
+            if (query is not None):
+                queries.append(query)
+
+        return queries
+
+    def parse_group_query(self, text: typing.Union[str, None]) -> typing.Union[lms.model.groups.GroupQuery, None]:
+        """
+        Attempt to parse a group query from a string.
+        The there is no query, return a None.
+        If the query is malformed, raise an exception.
+
+        By default, this method assumes that LMS IDs are ints.
+        Child backends may override this to implement their specific behavior.
+        """
+
+        return lms.model.query.parse_int_query(lms.model.groups.GroupQuery, text, check_email = False)
+
+    def parse_group_queries(self, texts: typing.List[typing.Union[str, None]]) -> typing.List[lms.model.groups.GroupQuery]:
+        """ Parse a list of group queries. """
+
+        queries = []
+        for text in texts:
+            query = self.parse_group_query(text)
+            if (query is not None):
+                queries.append(query)
+
+        return queries
+
     def parse_user_query(self, text: typing.Union[str, None]) -> typing.Union[lms.model.users.UserQuery, None]:
         """
         Attempt to parse a user query from a string.
@@ -642,6 +818,58 @@ class APIBackend():
             **kwargs)
 
         return typing.cast(typing.List[lms.model.courses.ResolvedCourseQuery], results)
+
+    def resolve_group_queries(self,
+            course_id: str,
+            queries: typing.List[lms.model.groups.GroupQuery],
+            **kwargs: typing.Any) -> typing.List[lms.model.groups.ResolvedGroupQuery]:
+        """
+        Resolve a list of group queries into a list of resolved group queries.
+        See _resolve_queries().
+        """
+
+        results = self._resolve_queries(
+            queries,
+            'group',
+            self.courses_groups_list(course_id, **kwargs),
+            lms.model.groups.ResolvedGroupQuery,
+            **kwargs)
+
+        return typing.cast(typing.List[lms.model.groups.ResolvedGroupQuery], results)
+
+    def resolve_groupset_queries(self,
+            course_id: str,
+            queries: typing.List[lms.model.groupsets.GroupSetQuery],
+            **kwargs: typing.Any) -> typing.List[lms.model.groupsets.ResolvedGroupSetQuery]:
+        """
+        Resolve a list of group set queries into a list of resolved group set queries.
+        See _resolve_queries().
+        """
+
+        results = self._resolve_queries(
+            queries,
+            'group set',
+            self.courses_groupsets_list(course_id, **kwargs),
+            lms.model.groupsets.ResolvedGroupSetQuery,
+            **kwargs)
+
+        return typing.cast(typing.List[lms.model.groupsets.ResolvedGroupSetQuery], results)
+
+    def resolve_groupset_query(self,
+            course_id: str,
+            groupset_query: lms.model.groupsets.GroupSetQuery,
+            **kwargs: typing.Any) -> lms.model.groupsets.ResolvedGroupSetQuery:
+        """ Resolve the group set query or raise an exception. """
+
+        # Shortcut already resolved queries.
+        if (isinstance(groupset_query, lms.model.groupsets.ResolvedGroupSetQuery)):
+            return groupset_query
+
+        results = self.resolve_groupset_queries(course_id, [groupset_query], **kwargs)
+        if (len(results) == 0):
+            raise ValueError(f"Could not resolve group set query: '{groupset_query}'.")
+
+        return results[0]
 
     def resolve_user_queries(self,
             course_id: str,

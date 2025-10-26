@@ -6,13 +6,17 @@ import lms.backend.canvas.courses.assignments.list
 import lms.backend.canvas.courses.assignments.scores.list
 import lms.backend.canvas.courses.assignments.scores.upload
 import lms.backend.canvas.courses.gradebook.fetch
+import lms.backend.canvas.courses.groupsets.list
+import lms.backend.canvas.courses.groups.list
 import lms.backend.canvas.courses.list
 import lms.backend.canvas.courses.users.list
 import lms.backend.canvas.courses.users.scores.list
 import lms.model.assignments
+import lms.model.backend
 import lms.model.constants
 import lms.model.courses
-import lms.model.backend
+import lms.model.groups
+import lms.model.groupsets
 import lms.model.scores
 import lms.model.users
 import lms.util.parse
@@ -81,6 +85,20 @@ class CanvasBackend(lms.model.backend.APIBackend):
         parsed_user_ids = [lms.util.parse.required_int(user_id, 'user_id') for user_id in user_ids]
 
         return lms.backend.canvas.courses.gradebook.fetch.request(self, parsed_course_id, parsed_assignment_ids, parsed_user_ids)
+
+    def courses_groupsets_list(self,
+            course_id: str,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSet]:
+        parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
+        return lms.backend.canvas.courses.groupsets.list.request(self, parsed_course_id)
+
+    def courses_groups_list(self,
+            course_id: str,
+            groupset_id: str,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.Group]:
+        parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
+        parsed_groupset_id = lms.util.parse.required_int(groupset_id, 'groupset_id')
+        return lms.backend.canvas.courses.groups.list.request(self, parsed_course_id, parsed_groupset_id)
 
     def courses_users_list(self,
             course_id: typing.Union[str, None] = None,

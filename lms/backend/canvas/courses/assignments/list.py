@@ -18,7 +18,7 @@ def request(backend: typing.Any,
         identifiers = {
             'course_id': course_id,
         }
-        backend.not_found('course', identifiers)
+        backend.not_found('assignments', identifiers)
 
         return []
 

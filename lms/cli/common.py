@@ -3,8 +3,30 @@ import typing
 import lms.model.backend
 import lms.model.assignments
 import lms.model.courses
+import lms.model.groupsets
 import lms.model.users
 import lms.util.parse
+
+def check_required_assignment(
+        backend: lms.model.backend.APIBackend,
+        config: typing.Dict[str, typing.Any],
+        ) -> typing.Union[lms.model.assignments.AssignmentQuery, None]:
+    """
+    Fetch and ensure that an assignment is provided in the config.
+    If no assignment is provided, print a message and return None.
+    """
+
+    assignment = lms.util.parse.optional_string(config.get('assignment', None))
+    if (assignment is None):
+        print('ERROR: No assignment has been provided.')
+        return None
+
+    query = backend.parse_assignment_query(assignment)
+    if (query is None):
+        print('ERROR: Assignment query is malformed.')
+        return None
+
+    return query
 
 def check_required_course(
         backend: lms.model.backend.APIBackend,
@@ -27,23 +49,23 @@ def check_required_course(
 
     return query
 
-def check_required_assignment(
+def check_required_groupset(
         backend: lms.model.backend.APIBackend,
         config: typing.Dict[str, typing.Any],
-        ) -> typing.Union[lms.model.assignments.AssignmentQuery, None]:
+        ) -> typing.Union[lms.model.groupsets.GroupSetQuery, None]:
     """
-    Fetch and ensure that an assignment is provided in the config.
-    If no assignment is provided, print a message and return None.
+    Fetch and ensure that a group set is provided in the config.
+    If no group set is provided, print a message and return None.
     """
 
-    assignment = lms.util.parse.optional_string(config.get('assignment', None))
-    if (assignment is None):
-        print('ERROR: No assignment has been provided.')
+    groupset = lms.util.parse.optional_string(config.get('groupset', None))
+    if (groupset is None):
+        print('ERROR: No group set has been provided.')
         return None
 
-    query = backend.parse_assignment_query(assignment)
+    query = backend.parse_groupset_query(groupset)
     if (query is None):
-        print('ERROR: Assignment query is malformed.')
+        print('ERROR: Group set query is malformed.')
         return None
 
     return query

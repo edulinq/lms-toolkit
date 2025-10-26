@@ -1,0 +1,13 @@
+{
+    "cli": "lms.cli.courses.groups.list",
+    "arguments": [
+        '--course', '3',
+        '--groupset', '100',
+    ],
+}
+---
+id: 101
+name: Group 1-1
+
+id: 102
+name: Group 1-2

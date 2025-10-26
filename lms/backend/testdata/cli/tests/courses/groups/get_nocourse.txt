@@ -1,0 +1,6 @@
+{
+    "cli": "lms.cli.courses.groups.get",
+    "arguments": [],
+}
+---
+ERROR: No course has been provided.
