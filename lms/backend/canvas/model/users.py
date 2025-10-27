@@ -4,7 +4,6 @@ import lms.model.users
 
 CORE_FIELDS: typing.List[str] = [
     'id',
-    'email',
 ]
 
 ENROLLMENT_TYPE_TO_ROLE: typing.Dict[str, lms.model.users.CourseRole] = {
@@ -41,6 +40,10 @@ class CourseUser(lms.model.users.CourseUser):
 
         # Modify specific arguments before sending them to super.
         kwargs['id'] = lms.util.parse.required_string(kwargs.get('id', None), 'id')
+
+        # Canvas sometimes has email under different fields.
+        if ((kwargs.get('email', None) is None) or (len(kwargs.get('email', '')) == 0)):
+            kwargs['email'] = kwargs.get('login_id', None)
 
         if (enrollments is not None):
             kwargs['raw_role'] = self._parse_role_from_enrollments(enrollments)

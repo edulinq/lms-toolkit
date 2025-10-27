@@ -144,6 +144,8 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
             request_function: typing.Callable,
             test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], typing.Any, typing.Union[str, None]]],
             stop_on_notimplemented: bool = True,
+            actual_clean_func: typing.Union[typing.Callable, None] = None,
+            expected_clean_func: typing.Union[typing.Callable, None] = None,
             ) -> None:
         """
         A common test for the base request functionality.
@@ -182,6 +184,12 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
 
                 if (error_substring is not None):
                     self.fail(f"Did not get expected error: '{error_substring}'.")
+
+                if (actual_clean_func is not None):
+                    actual = actual_clean_func(actual)
+
+                if (expected_clean_func is not None):
+                    expected = expected_clean_func(expected)
 
                 # If we expect a tuple, compare the tuple contents instead of the tuple itself.
                 if (isinstance(expected, tuple)):

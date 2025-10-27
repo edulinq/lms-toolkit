@@ -423,6 +423,42 @@ class APIBackend():
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
         return self.courses_groupsets_list(resolved_course_query.get_id(), **kwargs)
 
+    def courses_groupsets_memberships_list(self,
+            course_id: str,
+            groupset_id: str,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.GroupMembership]:
+        """
+        List the membership of the group sets associated with the given course.
+        """
+
+        raise NotImplementedError('courses_groupsets_memberships_list')
+
+    def courses_groupsets_memberships_resolve_and_list(self,
+            course_query: lms.model.courses.CourseQuery,
+            groupset_query: lms.model.groupsets.GroupSetQuery,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.GroupMembership]:
+        """
+        List the membership of the group sets associated with the given course.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_groupset_query = self.resolve_groupset_query(resolved_course_query.get_id(), groupset_query, **kwargs)
+
+        memberships = self.courses_groupsets_memberships_list(resolved_course_query.get_id(), resolved_groupset_query.get_id(), **kwargs)
+
+        # Resolve memberships.
+
+        users = self.courses_users_list(resolved_course_query.get_id(), **kwargs)
+        groups = self.courses_groups_list(resolved_course_query.get_id(), resolved_groupset_query.get_id(), **kwargs)
+
+        users_map = {user.id: user.to_query() for user in users}
+        groups_map = {group.id: group.to_query() for group in groups}
+
+        for membership in memberships:
+            membership.update_queries(resolved_groupset_query, users = users_map, groups = groups_map)
+
+        return memberships
+
     def courses_groups_get(self,
             course_query: lms.model.courses.CourseQuery,
             groupset_query: lms.model.groupsets.GroupSetQuery,
@@ -489,6 +525,53 @@ class APIBackend():
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
         resolved_groupset_query = self.resolve_groupset_query(resolved_course_query.get_id(), groupset_query, **kwargs)
         return self.courses_groups_list(resolved_course_query.get_id(), resolved_groupset_query.get_id(), **kwargs)
+
+    def courses_groups_memberships_list(self,
+            course_id: str,
+            groupset_id: str,
+            group_id: str,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.GroupMembership]:
+        """
+        List the membership of the group associated with the given group set.
+        """
+
+        raise NotImplementedError('courses_groups_memberships_list')
+
+    def courses_groups_memberships_resolve_and_list(self,
+            course_query: lms.model.courses.CourseQuery,
+            groupset_query: lms.model.groupsets.GroupSetQuery,
+            group_query: lms.model.groups.GroupQuery,
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.GroupMembership]:
+        """
+        List the membership of the group associated with the given group set.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_groupset_query = self.resolve_groupset_query(resolved_course_query.get_id(), groupset_query, **kwargs)
+
+        groups = self.courses_groups_get(resolved_course_query, resolved_groupset_query, [group_query], **kwargs)
+        if (len(groups) == 0):
+            raise ValueError(f"Unable to find group: '{group_query}'.")
+
+        group = groups[0]
+
+        memberships = self.courses_groups_memberships_list(
+                resolved_course_query.get_id(),
+                resolved_groupset_query.get_id(),
+                group.id,
+                **kwargs)
+
+        # Resolve memberships.
+
+        users = self.courses_users_list(resolved_course_query.get_id(), **kwargs)
+        users_map = {user.id: user.to_query() for user in users}
+
+        groups_map = {group.id: group.to_query()}
+
+        for membership in memberships:
+            membership.update_queries(resolved_groupset_query, users = users_map, groups = groups_map)
+
+        return memberships
 
     def courses_users_get(self,
             course_query: lms.model.courses.CourseQuery,
@@ -788,17 +871,17 @@ class APIBackend():
         return typing.cast(typing.List[lms.model.assignments.ResolvedAssignmentQuery], results)
 
     def resolve_course_query(self,
-            course_query: lms.model.courses.CourseQuery,
+            query: lms.model.courses.CourseQuery,
             **kwargs: typing.Any) -> lms.model.courses.ResolvedCourseQuery:
         """ Resolve the course query or raise an exception. """
 
         # Shortcut already resolved queries.
-        if (isinstance(course_query, lms.model.courses.ResolvedCourseQuery)):
-            return course_query
+        if (isinstance(query, lms.model.courses.ResolvedCourseQuery)):
+            return query
 
-        results = self.resolve_course_queries([course_query], **kwargs)
+        results = self.resolve_course_queries([query], **kwargs)
         if (len(results) == 0):
-            raise ValueError(f"Could not resolve course query: '{course_query}'.")
+            raise ValueError(f"Could not resolve course query: '{query}'.")
 
         return results[0]
 
@@ -821,6 +904,7 @@ class APIBackend():
 
     def resolve_group_queries(self,
             course_id: str,
+            groupset_id: str,
             queries: typing.List[lms.model.groups.GroupQuery],
             **kwargs: typing.Any) -> typing.List[lms.model.groups.ResolvedGroupQuery]:
         """
@@ -831,11 +915,28 @@ class APIBackend():
         results = self._resolve_queries(
             queries,
             'group',
-            self.courses_groups_list(course_id, **kwargs),
+            self.courses_groups_list(course_id, groupset_id, **kwargs),
             lms.model.groups.ResolvedGroupQuery,
             **kwargs)
 
         return typing.cast(typing.List[lms.model.groups.ResolvedGroupQuery], results)
+
+    def resolve_group_query(self,
+            course_id: str,
+            groupset_id: str,
+            query: lms.model.groups.GroupQuery,
+            **kwargs: typing.Any) -> lms.model.groups.ResolvedGroupQuery:
+        """ Resolve the group query or raise an exception. """
+
+        # Shortcut already resolved queries.
+        if (isinstance(query, lms.model.groups.ResolvedGroupQuery)):
+            return query
+
+        results = self.resolve_group_queries(course_id, groupset_id, [query], **kwargs)
+        if (len(results) == 0):
+            raise ValueError(f"Could not resolve group query: '{query}'.")
+
+        return results[0]
 
     def resolve_groupset_queries(self,
             course_id: str,

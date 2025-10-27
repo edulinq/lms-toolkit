@@ -5,6 +5,29 @@ import edq.util.time
 import lms.model.base
 import lms.model.query
 
+class AssignmentQuery(lms.model.query.BaseQuery):
+    """
+    A class for the different ways one can attempt to reference an LMS assignment.
+    In general, an assignment can be queried by:
+     - LMS Assignment ID (`id`)
+     - Full Name (`name`)
+     - f"{name} ({id})"
+    """
+
+    _include_email = False
+
+class ResolvedAssignmentQuery(lms.model.query.ResolvedBaseQuery, AssignmentQuery):
+    """
+    A AssignmentQuery that has been resolved (verified) from a real assignment instance.
+    """
+
+    _include_email = False
+
+    def __init__(self,
+            assignment: 'Assignment',
+            **kwargs: typing.Any) -> None:
+        super().__init__(id = assignment.id, name = assignment.name, **kwargs)
+
 class Assignment(lms.model.base.BaseType):
     """
     An assignment within a course.
@@ -59,30 +82,7 @@ class Assignment(lms.model.base.BaseType):
         self.group_id: typing.Union[str, None] = group_id
         """ The LMS's identifier for the group this assignment appears in. """
 
-    def to_query(self) -> 'AssignmentQuery':
+    def to_query(self) -> ResolvedAssignmentQuery:
         """ Get a query representation of this assignment. """
 
-        return AssignmentQuery(id = self.id, name = self.name)
-
-class AssignmentQuery(lms.model.query.BaseQuery):
-    """
-    A class for the different ways one can attempt to reference an LMS assignment.
-    In general, an assignment can be queried by:
-     - LMS Assignment ID (`id`)
-     - Full Name (`name`)
-     - f"{name} ({id})"
-    """
-
-    _include_email = False
-
-class ResolvedAssignmentQuery(lms.model.query.ResolvedBaseQuery, AssignmentQuery):
-    """
-    A AssignmentQuery that has been resolved (verified) from a real assignment instance.
-    """
-
-    _include_email = False
-
-    def __init__(self,
-            assignment: Assignment,
-            **kwargs: typing.Any) -> None:
-        super().__init__(id = assignment.id, name = assignment.name, **kwargs)
+        return ResolvedAssignmentQuery(self)

@@ -4,6 +4,31 @@ import typing
 import lms.model.base
 import lms.model.query
 
+class UserQuery(lms.model.query.BaseQuery):
+    """
+    A class for the different ways one can attempt to reference an LMS user.
+    In general, a user can be queried by:
+     - LMS User ID (`id`)
+     - Email (`email`)
+     - Full Name (`name`)
+     - f"{email} ({id})"
+     - f"{name} ({id})"
+    """
+
+    _include_email = True
+
+class ResolvedUserQuery(lms.model.query.ResolvedBaseQuery, UserQuery):
+    """
+    A UserQuery that has been resolved (verified) from a real user instance.
+    """
+
+    _include_email = True
+
+    def __init__(self,
+            user: 'ServerUser',
+            **kwargs: typing.Any) -> None:
+        super().__init__(id = user.id, name = user.name, email = user.email, **kwargs)
+
 class CourseRole(enum.Enum):
     """
     Different roles a user can have in a course.
@@ -46,10 +71,10 @@ class ServerUser(lms.model.base.BaseType):
         self.email: typing.Union[str, None] = email
         """ The email address of this user. """
 
-    def to_query(self) -> 'UserQuery':
+    def to_query(self) -> ResolvedUserQuery:
         """ Get a query representation of this user. """
 
-        return UserQuery(id = self.id, name = self.name, email = self.email)
+        return ResolvedUserQuery(self)
 
 class CourseUser(ServerUser):
     """
@@ -81,28 +106,3 @@ class CourseUser(ServerUser):
         """
 
         return (self.role == CourseRole.STUDENT)
-
-class UserQuery(lms.model.query.BaseQuery):
-    """
-    A class for the different ways one can attempt to reference an LMS user.
-    In general, a user can be queried by:
-     - LMS User ID (`id`)
-     - Email (`email`)
-     - Full Name (`name`)
-     - f"{email} ({id})"
-     - f"{name} ({id})"
-    """
-
-    _include_email = True
-
-class ResolvedUserQuery(lms.model.query.ResolvedBaseQuery, UserQuery):
-    """
-    A UserQuery that has been resolved (verified) from a real user instance.
-    """
-
-    _include_email = True
-
-    def __init__(self,
-            user: ServerUser,
-            **kwargs: typing.Any) -> None:
-        super().__init__(id = user.id, name = user.name, email = user.email, **kwargs)

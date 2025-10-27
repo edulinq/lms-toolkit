@@ -25,6 +25,7 @@ def get_parser(description: str,
         include_assignment: bool = False,
         include_user: bool = False,
         include_groupset: bool = False,
+        include_group: bool = False,
         include_net: bool = True,
         ) -> argparse.ArgumentParser:
     """
@@ -41,6 +42,7 @@ def get_parser(description: str,
             'assignment': 'assignment',
             'user': 'user',
             'groupset': 'groupset',
+            'group': 'group',
         },
     }
 
@@ -90,6 +92,11 @@ def get_parser(description: str,
         parser.add_argument('--groupset', dest = 'groupset',
             action = 'store', type = str, default = None,
             help = 'The group set to target for this operation.')
+
+    if (include_group):
+        parser.add_argument('--group', dest = 'group',
+            action = 'store', type = str, default = None,
+            help = 'The group to target for this operation.')
 
     if (include_output_format):
         parser.add_argument('--format', dest = 'output_format',

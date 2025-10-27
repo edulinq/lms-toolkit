@@ -1,7 +1,32 @@
 import typing
 
 import lms.model.base
+import lms.model.groupsets
 import lms.model.query
+import lms.model.users
+
+class GroupQuery(lms.model.query.BaseQuery):
+    """
+    A class for the different ways one can attempt to reference an LMS group.
+    In general, a group can be queried by:
+     - LMS Group ID (`id`)
+     - Full Name (`name`)
+     - f"{name} ({id})"
+    """
+
+    _include_email = False
+
+class ResolvedGroupQuery(lms.model.query.ResolvedBaseQuery, GroupQuery):
+    """
+    A GroupQuery that has been resolved (verified) from a real group instance.
+    """
+
+    _include_email = False
+
+    def __init__(self,
+            group: 'Group',
+            **kwargs: typing.Any) -> None:
+        super().__init__(id = group.id, name = group.name, **kwargs)
 
 class Group(lms.model.base.BaseType):
     """
@@ -27,30 +52,51 @@ class Group(lms.model.base.BaseType):
         self.name: typing.Union[str, None] = name
         """ The display name of this group. """
 
-    def to_query(self) -> 'GroupQuery':
+    def to_query(self) -> ResolvedGroupQuery:
         """ Get a query representation of this group. """
 
-        return GroupQuery(id = self.id, name = self.name)
+        return ResolvedGroupQuery(self)
 
-class GroupQuery(lms.model.query.BaseQuery):
+class GroupMembership(lms.model.base.BaseType):
     """
-    A class for the different ways one can attempt to reference an LMS group.
-    In general, a group can be queried by:
-     - LMS Group ID (`id`)
-     - Full Name (`name`)
-     - f"{name} ({id})"
+    An instance of a user being in a group.
     """
 
-    _include_email = False
-
-class ResolvedGroupQuery(lms.model.query.ResolvedBaseQuery, GroupQuery):
-    """
-    A GroupQuery that has been resolved (verified) from a real group instance.
-    """
-
-    _include_email = False
+    CORE_FIELDS = [
+        'groupset', 'group', 'user',
+    ]
 
     def __init__(self,
-            group: Group,
+            user: lms.model.users.UserQuery,
+            groupset: lms.model.groupsets.GroupSetQuery,
+            group: GroupQuery,
             **kwargs: typing.Any) -> None:
-        super().__init__(id = group.id, name = group.name, **kwargs)
+        super().__init__(**kwargs)
+
+        self.groupset: lms.model.groupsets.GroupSetQuery = groupset
+        """ The group set the group belongs to. """
+
+        self.group: GroupQuery = group
+        """ The group the user belongs to. """
+
+        self.user: lms.model.users.UserQuery = user
+        """ The user in a group. """
+
+    def update_queries(self,
+            groupset: typing.Union[lms.model.groupsets.ResolvedGroupSetQuery, None] = None,
+            users: typing.Union[typing.Dict[str, lms.model.users.ResolvedUserQuery], None] = None,
+            groups: typing.Union[typing.Dict[str, ResolvedGroupQuery], None] = None,
+            ) -> None:
+        """
+        Update the queries with resolved variants.
+        The maps should be keyed by respective ids.
+        """
+
+        if (groupset is not None):
+            self.groupset = groupset
+
+        if ((users is not None) and (self.user.id in users)):
+            self.user = users[self.user.id]
+
+        if ((groups is not None) and (self.group.id in groups)):
+            self.group = groups[self.group.id]

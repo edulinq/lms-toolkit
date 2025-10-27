@@ -40,6 +40,7 @@ def make_get_request(
         headers: typing.Dict[str, typing.Any],
         data: typing.Union[typing.Dict[str, typing.Any], None] = None,
         raise_on_404: bool = False,
+        json: bool = True,
         ) -> typing.Union[typing.Any, None]:
     """ Make a single Canvas GET request and return the decoded JSON body. """
 
@@ -50,6 +51,9 @@ def make_get_request(
             raise ex
 
         return None
+
+    if (not json):
+        return body_text
 
     return edq.util.json.loads(body_text, strict = True)
 
@@ -75,8 +79,8 @@ def make_get_request_list(
             return None
 
         next_url = fetch_next_canvas_link(response)
-        new_results = edq.util.json.loads(body_text, strict = True)
 
+        new_results = edq.util.json.loads(body_text, strict = True)
         for new_result in new_results:
             output.append(new_result)
 
@@ -87,6 +91,7 @@ def make_post_request(
         headers: typing.Dict[str, typing.Any],
         data: typing.Union[typing.Dict[str, typing.Any], None] = None,
         raise_on_404: bool = False,
+        json: bool = True,
         ) -> typing.Union[typing.Any, None]:
     """ Make a single Canvas POST request and return the decoded JSON body. """
 
@@ -97,6 +102,9 @@ def make_post_request(
             raise ex
 
         return None
+
+    if (not json):
+        return body_text
 
     return edq.util.json.loads(body_text, strict = True)
 

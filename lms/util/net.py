@@ -3,6 +3,7 @@ Utilities for network and HTTP.
 """
 
 import typing
+import urllib.parse
 
 import edq.util.json
 import requests
@@ -93,10 +94,15 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
 
 def _clean_base_response(response: requests.Response, body: str) -> str:
     """
-    Do response cleaning that is common amonst all backend types.
+    Do response cleaning that is common amongst all backend types.
     This function will:
      - Remove X- headers.
     """
+
+    # Index requests are generally for identification, and we use headers.
+    path = urllib.parse.urlparse(response.request.url).path.strip()
+    if (path in ['', '/']):
+        body = ''
 
     for key in list(response.headers.keys()):
         if (key.strip().lower().startswith('x-')):

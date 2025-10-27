@@ -70,6 +70,27 @@ def check_required_groupset(
 
     return query
 
+def check_required_group(
+        backend: lms.model.backend.APIBackend,
+        config: typing.Dict[str, typing.Any],
+        ) -> typing.Union[lms.model.groups.GroupQuery, None]:
+    """
+    Fetch and ensure that a group is provided in the config.
+    If no group is provided, print a message and return None.
+    """
+
+    group = lms.util.parse.optional_string(config.get('group', None))
+    if (group is None):
+        print('ERROR: No group has been provided.')
+        return None
+
+    query = backend.parse_group_query(group)
+    if (query is None):
+        print('ERROR: Group query is malformed.')
+        return None
+
+    return query
+
 def check_required_user(
         backend: lms.model.backend.APIBackend,
         config: typing.Dict[str, typing.Any],
