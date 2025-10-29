@@ -15,7 +15,7 @@ COURSE_ASSIGNMENT_SCORES: typing.Dict[str, typing.Dict[str, typing.Dict[str, lms
 COURSE_ASSIGNMENT_SCORES['Course 101'] = {
     'Homework 0': {
         'course-student': lms.model.scores.AssignmentScore(
-            id = '103',
+            id = '110050101',
             assignment_query = lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course 101']['Homework 0'].to_query(),
             user_query = lms.model.testdata.users.COURSE_USERS['Course 101']['course-student'].to_query(),
             score = 2.0,
@@ -27,28 +27,28 @@ COURSE_ASSIGNMENT_SCORES['Course 101'] = {
 COURSE_ASSIGNMENT_SCORES['Extra Course'] = {
     'Assignment 1': {
         'extra-course-student-1': lms.model.scores.AssignmentScore(
-            id = '1011',
+            id = '130060101',
             assignment_query = lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 1'].to_query(),
             user_query = lms.model.testdata.users.COURSE_USERS['Extra Course']['extra-course-student-1'].to_query(),
             score = 10.0,
             graded_date = edq.util.time.Timestamp(1100000000000),
         ),
         'extra-course-student-2': lms.model.scores.AssignmentScore(
-            id = '1012',
+            id = '130070101',
             assignment_query = lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 1'].to_query(),
             user_query = lms.model.testdata.users.COURSE_USERS['Extra Course']['extra-course-student-2'].to_query(),
             score = 7.5,
             graded_date = edq.util.time.Timestamp(1100000000000),
         ),
         'extra-course-student-3': lms.model.scores.AssignmentScore(
-            id = '1013',
+            id = '130080101',
             assignment_query = lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 1'].to_query(),
             user_query = lms.model.testdata.users.COURSE_USERS['Extra Course']['extra-course-student-3'].to_query(),
             score = 5.0,
             graded_date = edq.util.time.Timestamp(1100000000000),
         ),
         'extra-course-student-4': lms.model.scores.AssignmentScore(
-            id = '1014',
+            id = '130090101',
             assignment_query = lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 1'].to_query(),
             user_query = lms.model.testdata.users.COURSE_USERS['Extra Course']['extra-course-student-4'].to_query(),
             score = 0.0,
@@ -57,28 +57,28 @@ COURSE_ASSIGNMENT_SCORES['Extra Course'] = {
     },
     'Assignment 2': {
         'extra-course-student-1': lms.model.scores.AssignmentScore(
-            id = '1021',
+            id = '130060201',
             assignment_query = lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 2'].to_query(),
             user_query = lms.model.testdata.users.COURSE_USERS['Extra Course']['extra-course-student-1'].to_query(),
             score = 20.0,
             graded_date = edq.util.time.Timestamp(1200000000000),
         ),
         'extra-course-student-2': lms.model.scores.AssignmentScore(
-            id = '1022',
+            id = '130070201',
             assignment_query = lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 2'].to_query(),
             user_query = lms.model.testdata.users.COURSE_USERS['Extra Course']['extra-course-student-2'].to_query(),
             score = 15.0,
             graded_date = edq.util.time.Timestamp(1200000000000),
         ),
         'extra-course-student-3': lms.model.scores.AssignmentScore(
-            id = '1023',
+            id = '130080201',
             assignment_query = lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 2'].to_query(),
             user_query = lms.model.testdata.users.COURSE_USERS['Extra Course']['extra-course-student-3'].to_query(),
             score = 10.0,
             graded_date = edq.util.time.Timestamp(1200000000000),
         ),
         'extra-course-student-4': lms.model.scores.AssignmentScore(
-            id = '1024',
+            id = '130090201',
             assignment_query = lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 2'].to_query(),
             user_query = lms.model.testdata.users.COURSE_USERS['Extra Course']['extra-course-student-4'].to_query(),
             score = 0.0,
@@ -87,21 +87,21 @@ COURSE_ASSIGNMENT_SCORES['Extra Course'] = {
     },
     'Assignment 3': {
         'extra-course-student-1': lms.model.scores.AssignmentScore(
-            id = '1031',
+            id = '130060301',
             assignment_query = lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 3'].to_query(),
             user_query = lms.model.testdata.users.COURSE_USERS['Extra Course']['extra-course-student-1'].to_query(),
             score = 30.0,
             graded_date = edq.util.time.Timestamp(1300000000000),
         ),
         'extra-course-student-2': lms.model.scores.AssignmentScore(
-            id = '1032',
+            id = '130070301',
             assignment_query = lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 3'].to_query(),
             user_query = lms.model.testdata.users.COURSE_USERS['Extra Course']['extra-course-student-2'].to_query(),
             score = 22.5,
             graded_date = edq.util.time.Timestamp(1300000000000),
         ),
         'extra-course-student-3': lms.model.scores.AssignmentScore(
-            id = '1033',
+            id = '130080301',
             assignment_query = lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 3'].to_query(),
             user_query = lms.model.testdata.users.COURSE_USERS['Extra Course']['extra-course-student-3'].to_query(),
             score = 15.0,

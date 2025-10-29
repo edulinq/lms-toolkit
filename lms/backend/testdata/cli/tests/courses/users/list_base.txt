@@ -1,31 +1,31 @@
 {
     "cli": "lms.cli.courses.users.list",
     "arguments": [
-        '--course', '1',
+        "--course", "Course 101",
     ],
 }
 ---
-id: 2
+id: 100010000
 name: course-admin
 email: course-admin@test.edulinq.org
 role: grader
 
-id: 3
+id: 100020000
 name: course-grader
 email: course-grader@test.edulinq.org
 role: grader
 
-id: 4
+id: 100030000
 name: course-other
 email: course-other@test.edulinq.org
 role: other
 
-id: 5
+id: 100040000
 name: course-owner
 email: course-owner@test.edulinq.org
 role: owner
 
-id: 6
+id: 100050000
 name: course-student
 email: course-student@test.edulinq.org
 role: student

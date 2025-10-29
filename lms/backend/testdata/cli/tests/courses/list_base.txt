@@ -4,11 +4,11 @@
     ],
 }
 ---
-id: 1
+id: 110000000
 name: Course 101
 
-id: 2
+id: 120000000
 name: Course Using Different Languages
 
-id: 3
+id: 130000000
 name: Extra Course

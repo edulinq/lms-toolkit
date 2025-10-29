@@ -1,14 +1,14 @@
 {
     "cli": "lms.cli.courses.users.list",
     "arguments": [
-        '--course', '1',
-        '--format', 'table',
+        "--course", "Course 101",
+        "--format", "table",
     ],
 }
 ---
 id	name	email	role
-2	course-admin	course-admin@test.edulinq.org	grader
-3	course-grader	course-grader@test.edulinq.org	grader
-4	course-other	course-other@test.edulinq.org	other
-5	course-owner	course-owner@test.edulinq.org	owner
-6	course-student	course-student@test.edulinq.org	student
+100010000	course-admin	course-admin@test.edulinq.org	grader
+100020000	course-grader	course-grader@test.edulinq.org	grader
+100030000	course-other	course-other@test.edulinq.org	other
+100040000	course-owner	course-owner@test.edulinq.org	owner
+100050000	course-student	course-student@test.edulinq.org	student

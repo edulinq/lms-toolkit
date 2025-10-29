@@ -1,9 +1,9 @@
 {
     "cli": "lms.cli.courses.gradebook.get",
     "arguments": [
-        '--course', '1',
-        '--assignment', 'ZZZ',
+        "--course", "110000000",
+        "--assignment", "ZZZ",
     ],
 }
 ---
-User: course-student@test.edulinq.org (6)
+User: course-student@test.edulinq.org (100050000)

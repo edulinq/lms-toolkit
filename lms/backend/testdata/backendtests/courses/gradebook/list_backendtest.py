@@ -10,21 +10,21 @@ def test_courses_gradebook_list_base(test: lms.backend.testing.BackendTest):
         # Base
         (
             {
-                'course_id': '1',
+                'course_id': '110000000',
             },
             lms.model.testdata.scores.COURSE_GRADEBOOKS['Course 101'],
             None,
         ),
         (
             {
-                'course_id': '2',
+                'course_id': '120000000',
             },
             lms.model.testdata.scores.COURSE_GRADEBOOKS['Course Using Different Languages'],
             None,
         ),
         (
             {
-                'course_id': '3',
+                'course_id': '130000000',
             },
             lms.model.testdata.scores.COURSE_GRADEBOOKS['Extra Course'],
             None,

@@ -9,7 +9,7 @@ def test_courses_assignments_resolve_and_list_base(test: lms.backend.testing.Bac
     test_cases = [
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '1'),
+                'course_query': lms.model.courses.CourseQuery(id = '110000000'),
             },
             [
                 lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course 101']['Homework 0'],
@@ -18,7 +18,7 @@ def test_courses_assignments_resolve_and_list_base(test: lms.backend.testing.Bac
         ),
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '2'),
+                'course_query': lms.model.courses.CourseQuery(id = '120000000'),
             },
             [
                 lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Course Using Different Languages']['A Simple Bash Assignment'],
@@ -29,7 +29,7 @@ def test_courses_assignments_resolve_and_list_base(test: lms.backend.testing.Bac
         ),
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '3'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
             },
             [
                 lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 1'],

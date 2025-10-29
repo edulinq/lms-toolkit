@@ -1,9 +1,9 @@
 {
     "cli": "lms.cli.courses.users.scores.get",
     "arguments": [
-        '--course', '1',
-        '--user', 'course-admin@test.edulinq.org',
-        '--format', 'json',
+        "--course", "Course 101",
+        "--user", "course-admin@test.edulinq.org",
+        "--format", "json",
     ],
 }
 ---

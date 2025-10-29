@@ -10,7 +10,7 @@ def test_courses_groupsets_memberships_list_base(test: lms.backend.testing.Backe
     test_cases = [
         (
             {
-                'course_id': '1',
+                'course_id': '110000000',
                 'groupset_id': '999',
             },
             [
@@ -19,7 +19,7 @@ def test_courses_groupsets_memberships_list_base(test: lms.backend.testing.Backe
         ),
         (
             {
-                'course_id': '2',
+                'course_id': '120000000',
                 'groupset_id': '999',
             },
             [
@@ -28,8 +28,8 @@ def test_courses_groupsets_memberships_list_base(test: lms.backend.testing.Backe
         ),
         (
             {
-                'course_id': '3',
-                'groupset_id': '100',
+                'course_id': '130000000',
+                'groupset_id': '131010100',
             },
             [
                 lms.model.testdata.groups.COURSE_GROUP_MEMBERSHIPS['Extra Course']['Group Set 1']['extra-course-student-1'],
@@ -41,8 +41,8 @@ def test_courses_groupsets_memberships_list_base(test: lms.backend.testing.Backe
         ),
         (
             {
-                'course_id': '3',
-                'groupset_id': '200',
+                'course_id': '130000000',
+                'groupset_id': '131020200',
             },
             [
                 lms.model.testdata.groups.COURSE_GROUP_MEMBERSHIPS['Extra Course']['Group Set 2']['extra-course-student-1'],

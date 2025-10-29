@@ -6,6 +6,6 @@ User	Score
 
 
 
-6	1.0
+course-student@test.edulinq.org	1.0
 
 

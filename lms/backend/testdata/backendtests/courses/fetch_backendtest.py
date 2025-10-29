@@ -9,7 +9,7 @@ def test_courses_fetch_base(test: lms.backend.testing.BackendTest):
         # Base
         (
             {
-                'course_id': '1',
+                'course_id': '110000000',
             },
             lms.model.testdata.courses.COURSES['Course 101'],
             None,

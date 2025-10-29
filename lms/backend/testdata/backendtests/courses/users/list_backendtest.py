@@ -8,7 +8,7 @@ def test_courses_users_list_base(test: lms.backend.testing.BackendTest):
     test_cases = [
         (
             {
-                'course_id': '1',
+                'course_id': '110000000',
             },
             [
                 lms.model.testdata.users.COURSE_USERS['Course 101']['course-admin'],
@@ -21,7 +21,7 @@ def test_courses_users_list_base(test: lms.backend.testing.BackendTest):
         ),
         (
             {
-                'course_id': '2',
+                'course_id': '120000000',
             },
             [
                 lms.model.testdata.users.COURSE_USERS['Course 101']['course-admin'],
@@ -34,7 +34,7 @@ def test_courses_users_list_base(test: lms.backend.testing.BackendTest):
         ),
         (
             {
-                'course_id': '3',
+                'course_id': '130000000',
             },
             [
                 lms.model.testdata.users.COURSE_USERS['Extra Course']['course-owner'],

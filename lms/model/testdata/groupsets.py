@@ -7,11 +7,11 @@ COURSE_GROUPSETS: typing.Dict[str, typing.Dict[str, lms.model.groupsets.GroupSet
 
 COURSE_GROUPSETS['Extra Course'] = {
     'Group Set 1': lms.model.groupsets.GroupSet(
-        id = '100',
+        id = '131010100',
         name = 'Group Set 1',
     ),
     'Group Set 2': lms.model.groupsets.GroupSet(
-        id = '200',
+        id = '131020200',
         name = 'Group Set 2',
     ),
 }

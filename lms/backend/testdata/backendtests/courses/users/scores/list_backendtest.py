@@ -10,8 +10,8 @@ def test_courses_users_scores_list_base(test: lms.backend.testing.BackendTest):
     test_cases = [
         (
             {
-                'course_id': '1',
-                'user_id': '6',
+                'course_id': '110000000',
+                'user_id': '100050000',
             },
             [
                 scores['Course 101']['Homework 0']['course-student'],
@@ -21,8 +21,8 @@ def test_courses_users_scores_list_base(test: lms.backend.testing.BackendTest):
 
         (
             {
-                'course_id': '2',
-                'user_id': '6',
+                'course_id': '120000000',
+                'user_id': '100050000',
             },
             [
             ],
@@ -31,8 +31,8 @@ def test_courses_users_scores_list_base(test: lms.backend.testing.BackendTest):
 
         (
             {
-                'course_id': '3',
-                'user_id': '7',
+                'course_id': '130000000',
+                'user_id': '100060000',
             },
             [
                 scores['Extra Course']['Assignment 1']['extra-course-student-1'],
@@ -44,8 +44,8 @@ def test_courses_users_scores_list_base(test: lms.backend.testing.BackendTest):
 
         (
             {
-                'course_id': '3',
-                'user_id': '8',
+                'course_id': '130000000',
+                'user_id': '100070000',
             },
             [
                 scores['Extra Course']['Assignment 1']['extra-course-student-2'],
@@ -57,8 +57,8 @@ def test_courses_users_scores_list_base(test: lms.backend.testing.BackendTest):
 
         (
             {
-                'course_id': '3',
-                'user_id': '9',
+                'course_id': '130000000',
+                'user_id': '100080000',
             },
             [
                 scores['Extra Course']['Assignment 1']['extra-course-student-3'],
@@ -70,8 +70,8 @@ def test_courses_users_scores_list_base(test: lms.backend.testing.BackendTest):
 
         (
             {
-                'course_id': '3',
-                'user_id': '10',
+                'course_id': '130000000',
+                'user_id': '100090000',
             },
             [
                 scores['Extra Course']['Assignment 1']['extra-course-student-4'],

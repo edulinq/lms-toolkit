@@ -1,33 +1,33 @@
 {
     "cli": "lms.cli.courses.users.list",
     "arguments": [
-        '--course', '1',
-        '--format', 'text',
-        '--pretty-headers',
+        "--course", "110000000",
+        "--format", "text",
+        "--pretty-headers",
     ],
 }
 ---
-Id: 2
+Id: 100010000
 Name: course-admin
 Email: course-admin@test.edulinq.org
 Role: grader
 
-Id: 3
+Id: 100020000
 Name: course-grader
 Email: course-grader@test.edulinq.org
 Role: grader
 
-Id: 4
+Id: 100030000
 Name: course-other
 Email: course-other@test.edulinq.org
 Role: other
 
-Id: 5
+Id: 100040000
 Name: course-owner
 Email: course-owner@test.edulinq.org
 Role: owner
 
-Id: 6
+Id: 100050000
 Name: course-student
 Email: course-student@test.edulinq.org
 Role: student

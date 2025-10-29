@@ -10,7 +10,7 @@ def test_courses_groupsets_memberships_resolve_and_list_base(test: lms.backend.t
     test_cases = [
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '1'),
+                'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'groupset_query': lms.model.groupsets.GroupSetQuery(id = '999'),
             },
             None,
@@ -18,7 +18,7 @@ def test_courses_groupsets_memberships_resolve_and_list_base(test: lms.backend.t
         ),
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '2'),
+                'course_query': lms.model.courses.CourseQuery(id = '120000000'),
                 'groupset_query': lms.model.groupsets.GroupSetQuery(id = '999'),
             },
             None,
@@ -26,8 +26,8 @@ def test_courses_groupsets_memberships_resolve_and_list_base(test: lms.backend.t
         ),
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '3'),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '100'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131010100'),
             },
             [
                 lms.model.testdata.groups.COURSE_GROUP_MEMBERSHIPS['Extra Course']['Group Set 1']['extra-course-student-1'],
@@ -39,8 +39,8 @@ def test_courses_groupsets_memberships_resolve_and_list_base(test: lms.backend.t
         ),
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '3'),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '200'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131020200'),
             },
             [
                 lms.model.testdata.groups.COURSE_GROUP_MEMBERSHIPS['Extra Course']['Group Set 2']['extra-course-student-1'],

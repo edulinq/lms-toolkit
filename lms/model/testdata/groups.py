@@ -9,19 +9,19 @@ COURSE_GROUPS: typing.Dict[str, typing.Dict[str, lms.model.groups.Group]] = {}
 
 COURSE_GROUPS['Extra Course'] = {
     'Group 1-1': lms.model.groups.Group(
-        id = '101',
+        id = '131010101',
         name = 'Group 1-1',
     ),
     'Group 1-2': lms.model.groups.Group(
-        id = '102',
+        id = '131010102',
         name = 'Group 1-2',
     ),
     'Group 2-1': lms.model.groups.Group(
-        id = '201',
+        id = '131020201',
         name = 'Group 2-1',
     ),
     'Group 2-2': lms.model.groups.Group(
-        id = '202',
+        id = '131020202',
         name = 'Group 2-2',
     ),
 }

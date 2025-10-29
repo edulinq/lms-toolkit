@@ -11,7 +11,7 @@ def test_courses_groups_memberships_resolve_and_list_base(test: lms.backend.test
     test_cases = [
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '1'),
+                'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'groupset_query': lms.model.groupsets.GroupSetQuery(id = '999'),
                 'group_query': lms.model.groups.GroupQuery(id = '999'),
             },
@@ -20,7 +20,7 @@ def test_courses_groups_memberships_resolve_and_list_base(test: lms.backend.test
         ),
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '2'),
+                'course_query': lms.model.courses.CourseQuery(id = '120000000'),
                 'groupset_query': lms.model.groupsets.GroupSetQuery(id = '999'),
                 'group_query': lms.model.groups.GroupQuery(id = '999'),
             },
@@ -29,9 +29,9 @@ def test_courses_groups_memberships_resolve_and_list_base(test: lms.backend.test
         ),
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '3'),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '100'),
-                'group_query': lms.model.groups.GroupQuery(id = '101'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131010100'),
+                'group_query': lms.model.groups.GroupQuery(id = '131010101'),
             },
             [
                 lms.model.testdata.groups.COURSE_GROUP_MEMBERSHIPS['Extra Course']['Group Set 1']['extra-course-student-1'],
@@ -41,9 +41,9 @@ def test_courses_groups_memberships_resolve_and_list_base(test: lms.backend.test
         ),
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '3'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
                 'groupset_query': lms.model.groupsets.GroupSetQuery(name = 'Group Set 1'),
-                'group_query': lms.model.groups.GroupQuery(id = '102'),
+                'group_query': lms.model.groups.GroupQuery(id = '131010102'),
             },
             [
                 lms.model.testdata.groups.COURSE_GROUP_MEMBERSHIPS['Extra Course']['Group Set 1']['extra-course-student-3'],
@@ -53,8 +53,8 @@ def test_courses_groups_memberships_resolve_and_list_base(test: lms.backend.test
         ),
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '3'),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '200'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131020200'),
                 'group_query': lms.model.groups.GroupQuery(name = 'Group 2-1'),
             },
             [
@@ -65,7 +65,7 @@ def test_courses_groups_memberships_resolve_and_list_base(test: lms.backend.test
         ),
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '3'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
                 'groupset_query': lms.model.groupsets.GroupSetQuery(name = 'Group Set 2'),
                 'group_query': lms.model.groups.GroupQuery(name = 'Group 2-2'),
             },

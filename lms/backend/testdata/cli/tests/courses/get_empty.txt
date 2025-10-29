@@ -1,7 +1,7 @@
 {
     "cli": "lms.cli.courses.get",
     "arguments": [
-        '--format', 'json',
+        "--format", "json",
     ],
 }
 ---

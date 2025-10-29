@@ -1,8 +1,8 @@
 {
     "cli": "lms.cli.courses.assignments.get",
     "arguments": [
-        '--course', '1',
-        '--format', 'json',
+        "--course", "110000000",
+        "--format", "json",
     ],
 }
 ---

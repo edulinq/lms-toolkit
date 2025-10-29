@@ -1,9 +1,9 @@
 {
     "cli": "lms.cli.courses.assignments.scores.upload-single",
     "arguments": [
-        "--course", "1",
-        "--assignment", "1",
-        "--user", "6",
+        "--course", "Course 101",
+        "--assignment", "Homework 0",
+        "--user", "course-student",
         "1.0"
     ],
 }

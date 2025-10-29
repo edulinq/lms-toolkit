@@ -9,9 +9,9 @@ def test_courses_groups_fetch_base(test: lms.backend.testing.BackendTest):
         # Base
         (
             {
-                'course_id': '3',
-                'groupset_id': '100',
-                'group_id': '101',
+                'course_id': '130000000',
+                'groupset_id': '131010100',
+                'group_id': '131010101',
             },
             lms.model.testdata.groups.COURSE_GROUPS['Extra Course']['Group 1-1'],
             None,
@@ -20,9 +20,9 @@ def test_courses_groups_fetch_base(test: lms.backend.testing.BackendTest):
         # Miss - Group Set
         (
             {
-                'course_id': '1',
+                'course_id': '110000000',
                 'groupset_id': '999',
-                'group_id': '101',
+                'group_id': '131010101',
             },
             None,
             None,
@@ -31,8 +31,8 @@ def test_courses_groups_fetch_base(test: lms.backend.testing.BackendTest):
         # Miss - Group
         (
             {
-                'course_id': '1',
-                'groupset_id': '100',
+                'course_id': '110000000',
+                'groupset_id': '131010100',
                 'group_id': '999',
             },
             None,

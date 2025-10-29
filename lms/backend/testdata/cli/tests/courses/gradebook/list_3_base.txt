@@ -1,26 +1,26 @@
 {
     "cli": "lms.cli.courses.gradebook.list",
     "arguments": [
-        '--course', '3'
+        "--course", "Extra Course"
     ],
 }
 ---
-User: extra-course-student-1@test.edulinq.org (7)
-Assignment 1 (5): 10.0
-Assignment 2 (6): 20.0
-Assignment 3 (7): 30.0
+User: extra-course-student-1@test.edulinq.org (100060000)
+Assignment 1 (130000100): 10.0
+Assignment 2 (130000200): 20.0
+Assignment 3 (130000300): 30.0
 
-User: extra-course-student-2@test.edulinq.org (8)
-Assignment 1 (5): 7.5
-Assignment 2 (6): 15.0
-Assignment 3 (7): 22.5
+User: extra-course-student-2@test.edulinq.org (100070000)
+Assignment 1 (130000100): 7.5
+Assignment 2 (130000200): 15.0
+Assignment 3 (130000300): 22.5
 
-User: extra-course-student-3@test.edulinq.org (9)
-Assignment 1 (5): 5.0
-Assignment 2 (6): 10.0
-Assignment 3 (7): 15.0
+User: extra-course-student-3@test.edulinq.org (100080000)
+Assignment 1 (130000100): 5.0
+Assignment 2 (130000200): 10.0
+Assignment 3 (130000300): 15.0
 
-User: extra-course-student-4@test.edulinq.org (10)
-Assignment 1 (5): 0.0
-Assignment 2 (6): 0.0
-Assignment 3 (7): 
+User: extra-course-student-4@test.edulinq.org (100090000)
+Assignment 1 (130000100): 0.0
+Assignment 2 (130000200): 0.0
+Assignment 3 (130000300): 

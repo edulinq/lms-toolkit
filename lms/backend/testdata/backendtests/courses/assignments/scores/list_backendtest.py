@@ -10,8 +10,8 @@ def test_courses_assignments_scores_list_base(test: lms.backend.testing.BackendT
     test_cases = [
         (
             {
-                'course_id': '1',
-                'assignment_id': '1',
+                'course_id': '110000000',
+                'assignment_id': '110000100',
             },
             [
                 scores['Course 101']['Homework 0']['course-student'],
@@ -21,8 +21,8 @@ def test_courses_assignments_scores_list_base(test: lms.backend.testing.BackendT
 
         (
             {
-                'course_id': '2',
-                'assignment_id': '2',
+                'course_id': '120000000',
+                'assignment_id': '120000100',
             },
             [
             ],
@@ -31,8 +31,8 @@ def test_courses_assignments_scores_list_base(test: lms.backend.testing.BackendT
 
         (
             {
-                'course_id': '3',
-                'assignment_id': '5',
+                'course_id': '130000000',
+                'assignment_id': '130000100',
             },
             [
                 scores['Extra Course']['Assignment 1']['extra-course-student-1'],
@@ -45,8 +45,8 @@ def test_courses_assignments_scores_list_base(test: lms.backend.testing.BackendT
 
         (
             {
-                'course_id': '3',
-                'assignment_id': '6',
+                'course_id': '130000000',
+                'assignment_id': '130000200',
             },
             [
                 scores['Extra Course']['Assignment 2']['extra-course-student-1'],
@@ -59,8 +59,8 @@ def test_courses_assignments_scores_list_base(test: lms.backend.testing.BackendT
 
         (
             {
-                'course_id': '3',
-                'assignment_id': '7',
+                'course_id': '130000000',
+                'assignment_id': '130000300',
             },
             [
                 scores['Extra Course']['Assignment 3']['extra-course-student-1'],

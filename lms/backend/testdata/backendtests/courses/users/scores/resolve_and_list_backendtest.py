@@ -11,8 +11,8 @@ def test_courses_users_scores_resolve_and_list_base(test: lms.backend.testing.Ba
     test_cases = [
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '1'),
-                'user_query': lms.model.users.UserQuery(id = '6'),
+                'course_query': lms.model.courses.CourseQuery(id = '110000000'),
+                'user_query': lms.model.users.UserQuery(id = '100050000'),
             },
             [
                 scores['Course 101']['Homework 0']['course-student'],
@@ -23,7 +23,7 @@ def test_courses_users_scores_resolve_and_list_base(test: lms.backend.testing.Ba
         (
             {
                 'course_query': lms.model.courses.CourseQuery(name = 'Course 101'),
-                'user_query': lms.model.users.UserQuery(id = '6'),
+                'user_query': lms.model.users.UserQuery(id = '100050000'),
             },
             [
                 scores['Course 101']['Homework 0']['course-student'],
@@ -33,8 +33,8 @@ def test_courses_users_scores_resolve_and_list_base(test: lms.backend.testing.Ba
 
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '2'),
-                'user_query': lms.model.users.UserQuery(id = '6'),
+                'course_query': lms.model.courses.CourseQuery(id = '120000000'),
+                'user_query': lms.model.users.UserQuery(id = '100050000'),
             },
             [
             ],
@@ -43,8 +43,8 @@ def test_courses_users_scores_resolve_and_list_base(test: lms.backend.testing.Ba
 
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '3'),
-                'user_query': lms.model.users.UserQuery(id = '7'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'user_query': lms.model.users.UserQuery(id = '100060000'),
             },
             [
                 scores['Extra Course']['Assignment 1']['extra-course-student-1'],
@@ -56,8 +56,8 @@ def test_courses_users_scores_resolve_and_list_base(test: lms.backend.testing.Ba
 
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '3'),
-                'user_query': lms.model.users.UserQuery(id = '8'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'user_query': lms.model.users.UserQuery(id = '100070000'),
             },
             [
                 scores['Extra Course']['Assignment 1']['extra-course-student-2'],
@@ -69,8 +69,8 @@ def test_courses_users_scores_resolve_and_list_base(test: lms.backend.testing.Ba
 
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '3'),
-                'user_query': lms.model.users.UserQuery(id = '9'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'user_query': lms.model.users.UserQuery(id = '100080000'),
             },
             [
                 scores['Extra Course']['Assignment 1']['extra-course-student-3'],
@@ -82,8 +82,8 @@ def test_courses_users_scores_resolve_and_list_base(test: lms.backend.testing.Ba
 
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '3'),
-                'user_query': lms.model.users.UserQuery(id = '10'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'user_query': lms.model.users.UserQuery(id = '100090000'),
             },
             [
                 scores['Extra Course']['Assignment 1']['extra-course-student-4'],

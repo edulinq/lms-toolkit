@@ -21,8 +21,8 @@ def test_courses_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_queries': [
-                    lms.model.courses.CourseQuery(id = '2'),
-                    lms.model.courses.CourseQuery(id = '3'),
+                    lms.model.courses.CourseQuery(id = '120000000'),
+                    lms.model.courses.CourseQuery(id = '130000000'),
                 ],
             },
             [
@@ -36,7 +36,7 @@ def test_courses_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_queries': [
-                    lms.model.courses.CourseQuery(id = '2'),
+                    lms.model.courses.CourseQuery(id = '120000000'),
                 ],
             },
             [
@@ -62,7 +62,7 @@ def test_courses_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_queries': [
-                    lms.model.courses.CourseQuery(name = 'Course 101', id = '1'),
+                    lms.model.courses.CourseQuery(name = 'Course 101', id = '110000000'),
                 ],
             },
             [
@@ -99,7 +99,7 @@ def test_courses_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_queries': [
-                    lms.model.courses.CourseQuery(id = '2', name = 'ZZZ'),
+                    lms.model.courses.CourseQuery(id = '120000000', name = 'ZZZ'),
                 ],
             },
             [
@@ -111,7 +111,7 @@ def test_courses_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_queries': [
-                    lms.model.courses.CourseQuery(id = '1'),
+                    lms.model.courses.CourseQuery(id = '110000000'),
                     lms.model.courses.CourseQuery(name = 'Course 101'),
                 ],
             },

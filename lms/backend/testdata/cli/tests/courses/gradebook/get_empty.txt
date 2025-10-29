@@ -1,11 +1,11 @@
 {
     "cli": "lms.cli.courses.gradebook.get",
     "arguments": [
-        '--course', '2'
+        "--course", "Course Using Different Languages"
     ],
 }
 ---
-User: course-student@test.edulinq.org (6)
-A Simple Bash Assignment (2): 
-A Simple C++ Assignment (3): 
-A Simple Java Assignment (4): 
+User: course-student@test.edulinq.org (100050000)
+A Simple Bash Assignment (120000100): 
+A Simple C++ Assignment (120000200): 
+A Simple Java Assignment (120000300): 

@@ -9,8 +9,8 @@ def test_courses_assignments_scores_upload_base(test: lms.backend.testing.Backen
         # Base
         (
             {
-                'course_id': '1',
-                'assignment_id': '1',
+                'course_id': '110000000',
+                'assignment_id': '110000100',
                 'scores': {
                     '6': lms.model.scores.ScoreFragment(score = 1.0),
                 },
@@ -22,8 +22,8 @@ def test_courses_assignments_scores_upload_base(test: lms.backend.testing.Backen
         # Empty
         (
             {
-                'course_id': '1',
-                'assignment_id': '1',
+                'course_id': '110000000',
+                'assignment_id': '110000100',
                 'scores': {
                     '6': lms.model.scores.ScoreFragment(),
                 },
@@ -35,8 +35,8 @@ def test_courses_assignments_scores_upload_base(test: lms.backend.testing.Backen
         # Comment
         (
             {
-                'course_id': '1',
-                'assignment_id': '1',
+                'course_id': '110000000',
+                'assignment_id': '110000100',
                 'scores': {
                     '6': lms.model.scores.ScoreFragment(score = 1.0, comment = 'foo'),
                 },

@@ -15,7 +15,7 @@ def test_courses_gradebook_get_base(test: lms.backend.testing.BackendTest):
         # Base
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '1'),
+                'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'assignment_queries': lms.model.testdata.scores.COURSE_GRADEBOOKS['Course 101'].assignments,
                 'user_queries': lms.model.testdata.scores.COURSE_GRADEBOOKS['Course 101'].users,
             },
@@ -37,7 +37,7 @@ def test_courses_gradebook_get_base(test: lms.backend.testing.BackendTest):
         # No Queries
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '1'),
+                'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'assignment_queries': [],
                 'user_queries': [],
             },
@@ -59,7 +59,7 @@ def test_courses_gradebook_get_base(test: lms.backend.testing.BackendTest):
         # Single Assignment
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '3'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
                 'assignment_queries': [
                     lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 2'].to_query(),
                 ],
@@ -72,7 +72,7 @@ def test_courses_gradebook_get_base(test: lms.backend.testing.BackendTest):
         # Single User
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '3'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
                 'assignment_queries': [],
                 'user_queries': [
                     lms.model.testdata.users.COURSE_USERS['Extra Course']['extra-course-student-2'].to_query(),
@@ -85,7 +85,7 @@ def test_courses_gradebook_get_base(test: lms.backend.testing.BackendTest):
         # Doubles
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '3'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
                 'assignment_queries': [
                     lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 1'].to_query(),
                     lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 3'].to_query(),

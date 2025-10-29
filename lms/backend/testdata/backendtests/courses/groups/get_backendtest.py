@@ -12,8 +12,8 @@ def test_courses_groups_get_base(test: lms.backend.testing.BackendTest):
         # Empty
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 3),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '100'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131010100'),
                 'group_queries': [],
             },
             [
@@ -25,7 +25,7 @@ def test_courses_groups_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_query': lms.model.courses.CourseQuery(name = 'Extra Course'),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '100'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131010100'),
                 'group_queries': [
                     lms.model.groups.GroupQuery(name = 'Group 1-1'),
                 ],
@@ -40,7 +40,7 @@ def test_courses_groups_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_query': lms.model.courses.CourseQuery(name = 'ZZZ'),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '100'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131010100'),
                 'group_queries': [
                     lms.model.groups.GroupQuery(name = 'Group 1-1'),
                 ],
@@ -52,10 +52,10 @@ def test_courses_groups_get_base(test: lms.backend.testing.BackendTest):
         # Single
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 3),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '100'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131010100'),
                 'group_queries': [
-                    lms.model.groups.GroupQuery(id = '101'),
+                    lms.model.groups.GroupQuery(id = '131010101'),
                 ],
             },
             [
@@ -67,11 +67,11 @@ def test_courses_groups_get_base(test: lms.backend.testing.BackendTest):
         # Multiple
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 3),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '200'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131020200'),
                 'group_queries': [
-                    lms.model.groups.GroupQuery(id = '201'),
-                    lms.model.groups.GroupQuery(id = '202'),
+                    lms.model.groups.GroupQuery(id = '131020201'),
+                    lms.model.groups.GroupQuery(id = '131020202'),
                 ],
             },
             [
@@ -84,8 +84,8 @@ def test_courses_groups_get_base(test: lms.backend.testing.BackendTest):
         # Query - Name
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 3),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '100'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131010100'),
                 'group_queries': [
                     lms.model.groups.GroupQuery(name = 'Group 1-1'),
                 ],
@@ -99,10 +99,10 @@ def test_courses_groups_get_base(test: lms.backend.testing.BackendTest):
         # Query - Label
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 3),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '100'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131010100'),
                 'group_queries': [
-                    lms.model.groups.GroupQuery(name = 'Group 1-2', id = '102'),
+                    lms.model.groups.GroupQuery(name = 'Group 1-2', id = '131010102'),
                 ],
             },
             [
@@ -114,10 +114,10 @@ def test_courses_groups_get_base(test: lms.backend.testing.BackendTest):
         # Miss - ID
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 3),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '100'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131010100'),
                 'group_queries': [
-                    lms.model.groups.GroupQuery(id = 999),
+                    lms.model.groups.GroupQuery(id = '999'),
                 ],
             },
             [
@@ -128,8 +128,8 @@ def test_courses_groups_get_base(test: lms.backend.testing.BackendTest):
         # Miss - Query
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 3),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '100'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131010100'),
                 'group_queries': [
                     lms.model.groups.GroupQuery(name = 'ZZZ'),
                 ],
@@ -142,10 +142,10 @@ def test_courses_groups_get_base(test: lms.backend.testing.BackendTest):
         # Miss - Partial Match
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 3),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '100'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131010100'),
                 'group_queries': [
-                    lms.model.groups.GroupQuery(id = '101', name = 'ZZZ'),
+                    lms.model.groups.GroupQuery(id = '131010101', name = 'ZZZ'),
                 ],
             },
             [
@@ -156,10 +156,10 @@ def test_courses_groups_get_base(test: lms.backend.testing.BackendTest):
         # Multiple Match
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 3),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '100'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131010100'),
                 'group_queries': [
-                    lms.model.groups.GroupQuery(id = '101'),
+                    lms.model.groups.GroupQuery(id = '131010101'),
                     lms.model.groups.GroupQuery(name = 'Group 1-1'),
                 ],
             },

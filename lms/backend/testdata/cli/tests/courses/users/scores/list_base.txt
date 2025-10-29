@@ -1,14 +1,14 @@
 {
     "cli": "lms.cli.courses.users.scores.list",
     "arguments": [
-        '--course', '1',
-        '--user', '6',
+        "--course", "Course 101",
+        "--user", "course-student",
     ],
 }
 ---
-id: 103
-user_query: course-student@test.edulinq.org (6)
-assignment_query: Homework 0 (1)
+id: 110050101
+user_query: course-student@test.edulinq.org (100050000)
+assignment_query: Homework 0 (110000100)
 score: 2.0
 submission_date: 
 graded_date: 1697406273000

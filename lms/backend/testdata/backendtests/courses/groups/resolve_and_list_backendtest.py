@@ -10,7 +10,7 @@ def test_courses_groups_resolve_and_list_base(test: lms.backend.testing.BackendT
     test_cases = [
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '1'),
+                'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'groupset_query': lms.model.groupsets.GroupSetQuery(id = '999'),
             },
             [
@@ -19,7 +19,7 @@ def test_courses_groups_resolve_and_list_base(test: lms.backend.testing.BackendT
         ),
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '2'),
+                'course_query': lms.model.courses.CourseQuery(id = '120000000'),
                 'groupset_query': lms.model.groupsets.GroupSetQuery(id = '999'),
             },
             [
@@ -28,8 +28,8 @@ def test_courses_groups_resolve_and_list_base(test: lms.backend.testing.BackendT
         ),
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '3'),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '100'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131010100'),
             },
             [
                 lms.model.testdata.groups.COURSE_GROUPS['Extra Course']['Group 1-1'],

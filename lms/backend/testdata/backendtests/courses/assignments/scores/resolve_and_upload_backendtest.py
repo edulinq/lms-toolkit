@@ -12,10 +12,10 @@ def test_courses_assignments_scores_resolve_and_upload_base(test: lms.backend.te
         # Base
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '1'),
-                'assignment_query': lms.model.assignments.AssignmentQuery(id = '1'),
+                'course_query': lms.model.courses.CourseQuery(id = '110000000'),
+                'assignment_query': lms.model.assignments.AssignmentQuery(id = '110000100'),
                 'scores': {
-                    lms.model.users.UserQuery(id = 6): lms.model.scores.ScoreFragment(score = 1.0),
+                    lms.model.users.UserQuery(id = '100050000'): lms.model.scores.ScoreFragment(score = 1.0),
                 },
             },
             1,
@@ -25,10 +25,10 @@ def test_courses_assignments_scores_resolve_and_upload_base(test: lms.backend.te
         # Comment
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '1'),
-                'assignment_query': lms.model.assignments.AssignmentQuery(id = '1'),
+                'course_query': lms.model.courses.CourseQuery(id = '110000000'),
+                'assignment_query': lms.model.assignments.AssignmentQuery(id = '110000100'),
                 'scores': {
-                    lms.model.users.UserQuery(id = 6): lms.model.scores.ScoreFragment(score = 1.0, comment = 'foo'),
+                    lms.model.users.UserQuery(id = '100050000'): lms.model.scores.ScoreFragment(score = 1.0, comment = 'foo'),
                 },
             },
             1,

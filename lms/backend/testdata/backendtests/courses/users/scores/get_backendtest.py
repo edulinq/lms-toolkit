@@ -14,8 +14,8 @@ def test_courses_users_scores_get_base(test: lms.backend.testing.BackendTest):
         # Empty
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '1'),
-                'user_query': lms.model.users.UserQuery(id = '6'),
+                'course_query': lms.model.courses.CourseQuery(id = '110000000'),
+                'user_query': lms.model.users.UserQuery(id = '100050000'),
                 'assignment_queries': [],
             },
             [
@@ -26,10 +26,10 @@ def test_courses_users_scores_get_base(test: lms.backend.testing.BackendTest):
         # Base
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '1'),
-                'user_query': lms.model.users.UserQuery(id = '6'),
+                'course_query': lms.model.courses.CourseQuery(id = '110000000'),
+                'user_query': lms.model.users.UserQuery(id = '100050000'),
                 'assignment_queries': [
-                    lms.model.assignments.AssignmentQuery(id = '1'),
+                    lms.model.assignments.AssignmentQuery(id = '110000100'),
                 ],
             },
             [
@@ -42,9 +42,9 @@ def test_courses_users_scores_get_base(test: lms.backend.testing.BackendTest):
         (
             {
                 'course_query': lms.model.courses.CourseQuery(name = 'Course 101'),
-                'user_query': lms.model.users.UserQuery(id = '6'),
+                'user_query': lms.model.users.UserQuery(id = '100050000'),
                 'assignment_queries': [
-                    lms.model.assignments.AssignmentQuery(id = '1'),
+                    lms.model.assignments.AssignmentQuery(id = '110000100'),
                 ],
             },
             [
@@ -56,7 +56,7 @@ def test_courses_users_scores_get_base(test: lms.backend.testing.BackendTest):
         # Queries
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '1'),
+                'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'user_query': lms.model.users.UserQuery(email = 'course-student@test.edulinq.org'),
                 'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(name = 'Homework 0'),

@@ -34,10 +34,8 @@ class TestBaseType(edq.testing.unittest.BaseTest):
                     'close_date': None,
                     'description': None,
                     'due_date': None,
-                    'group_id': None,
                     'open_date': None,
                     'points_possible': None,
-                    'position': None,
                 },
             ),
             (
@@ -175,8 +173,6 @@ class TestBaseType(edq.testing.unittest.BaseTest):
                     'close_date: ',
                     'due_date: ',
                     'points_possible: ',
-                    'position: ',
-                    'group_id: ',
                 ],
             ),
             (
@@ -273,8 +269,6 @@ class TestBaseType(edq.testing.unittest.BaseTest):
                 [[
                     '123',
                     'Assignment 1',
-                    '',
-                    '',
                     '',
                     '',
                     '',

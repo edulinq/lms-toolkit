@@ -1,7 +1,7 @@
 {
     "cli": "lms.cli.courses.assignments.scores.list",
     "arguments": [
-        "--course", "1",
+        "--course", "Course 101",
     ],
 }
 ---

@@ -9,8 +9,8 @@ def test_courses_groupsets_fetch_base(test: lms.backend.testing.BackendTest):
         # Base
         (
             {
-                'course_id': '3',
-                'groupset_id': '100',
+                'course_id': '130000000',
+                'groupset_id': '131010100',
             },
             lms.model.testdata.groupsets.COURSE_GROUPSETS['Extra Course']['Group Set 1'],
             None,
@@ -19,7 +19,7 @@ def test_courses_groupsets_fetch_base(test: lms.backend.testing.BackendTest):
         # Miss
         (
             {
-                'course_id': '1',
+                'course_id': '110000000',
                 'groupset_id': '999',
             },
             None,

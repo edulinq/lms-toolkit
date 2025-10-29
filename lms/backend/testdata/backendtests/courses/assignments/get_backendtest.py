@@ -10,7 +10,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         # Empty
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 1),
+                'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'assignment_queries': [],
             },
             [
@@ -47,9 +47,9 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         # Single
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 2),
+                'course_query': lms.model.courses.CourseQuery(id = '120000000'),
                 'assignment_queries': [
-                    lms.model.assignments.AssignmentQuery(id = '2'),
+                    lms.model.assignments.AssignmentQuery(id = '120000100'),
                 ],
             },
             [
@@ -61,10 +61,10 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         # Multiple
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 2),
+                'course_query': lms.model.courses.CourseQuery(id = '120000000'),
                 'assignment_queries': [
-                    lms.model.assignments.AssignmentQuery(id = '2'),
-                    lms.model.assignments.AssignmentQuery(id = '3'),
+                    lms.model.assignments.AssignmentQuery(id = '120000100'),
+                    lms.model.assignments.AssignmentQuery(id = '120000200'),
                 ],
             },
             [
@@ -77,7 +77,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         # Query - Name
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 2),
+                'course_query': lms.model.courses.CourseQuery(id = '120000000'),
                 'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(name = 'A Simple Bash Assignment'),
                 ],
@@ -91,9 +91,9 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         # Query - Label
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 2),
+                'course_query': lms.model.courses.CourseQuery(id = '120000000'),
                 'assignment_queries': [
-                    lms.model.assignments.AssignmentQuery(name = 'A Simple Bash Assignment', id = '2'),
+                    lms.model.assignments.AssignmentQuery(name = 'A Simple Bash Assignment', id = '120000100'),
                 ],
             },
             [
@@ -105,7 +105,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         # Miss - ID
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 2),
+                'course_query': lms.model.courses.CourseQuery(id = '120000000'),
                 'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(id = 999),
                 ],
@@ -118,7 +118,7 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         # Miss - Query
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 2),
+                'course_query': lms.model.courses.CourseQuery(id = '120000000'),
                 'assignment_queries': [
                     lms.model.assignments.AssignmentQuery(name = 'ZZZ'),
                 ],
@@ -131,9 +131,9 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         # Miss - Partial Match
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 2),
+                'course_query': lms.model.courses.CourseQuery(id = '120000000'),
                 'assignment_queries': [
-                    lms.model.assignments.AssignmentQuery(id = '2', name = 'ZZZ'),
+                    lms.model.assignments.AssignmentQuery(id = '120000100', name = 'ZZZ'),
                 ],
             },
             [
@@ -144,9 +144,9 @@ def test_courses_assignments_get_base(test: lms.backend.testing.BackendTest):
         # Multiple Match
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = 2),
+                'course_query': lms.model.courses.CourseQuery(id = '120000000'),
                 'assignment_queries': [
-                    lms.model.assignments.AssignmentQuery(id = '2'),
+                    lms.model.assignments.AssignmentQuery(id = '120000100'),
                     lms.model.assignments.AssignmentQuery(name = 'A Simple Bash Assignment'),
                 ],
             },

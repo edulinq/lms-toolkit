@@ -9,7 +9,7 @@ def test_courses_users_resolve_and_list_base(test: lms.backend.testing.BackendTe
     test_cases = [
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '1'),
+                'course_query': lms.model.courses.CourseQuery(id = '110000000'),
             },
             [
                 lms.model.testdata.users.COURSE_USERS['Course 101']['course-admin'],
@@ -22,7 +22,7 @@ def test_courses_users_resolve_and_list_base(test: lms.backend.testing.BackendTe
         ),
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '2'),
+                'course_query': lms.model.courses.CourseQuery(id = '120000000'),
             },
             [
                 lms.model.testdata.users.COURSE_USERS['Course 101']['course-admin'],
@@ -35,7 +35,7 @@ def test_courses_users_resolve_and_list_base(test: lms.backend.testing.BackendTe
         ),
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '3'),
+                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
             },
             [
                 lms.model.testdata.users.COURSE_USERS['Extra Course']['course-owner'],

@@ -10,9 +10,9 @@ def test_courses_gradebook_fetch_base(test: lms.backend.testing.BackendTest):
         # Base
         (
             {
-                'course_id': '1',
-                'assignment_ids': ['1'],
-                'user_ids': ['6'],
+                'course_id': '110000000',
+                'assignment_ids': ['110000100'],
+                'user_ids': ['100050000'],
             },
             lms.model.testdata.scores.COURSE_GRADEBOOKS_UNRESOLVED['Course 101'],
             None,
@@ -21,7 +21,7 @@ def test_courses_gradebook_fetch_base(test: lms.backend.testing.BackendTest):
         # Empty
         (
             {
-                'course_id': '1',
+                'course_id': '110000000',
                 'assignment_ids': [],
                 'user_ids': [],
             },

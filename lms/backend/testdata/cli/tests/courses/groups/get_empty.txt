@@ -1,9 +1,9 @@
 {
     "cli": "lms.cli.courses.groups.get",
     "arguments": [
-        '--course', '3',
-        '--groupset', '100',
-        '--format', 'json',
+        "--course", "Extra Course",
+        "--groupset", "Group Set 1",
+        "--format", "json",
     ],
 }
 ---

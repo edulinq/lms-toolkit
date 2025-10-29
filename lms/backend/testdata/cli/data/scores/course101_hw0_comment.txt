@@ -1,2 +1,2 @@
 User	Score	Comment
-6	1.0	foo
+course-student@test.edulinq.org	1.0	foo

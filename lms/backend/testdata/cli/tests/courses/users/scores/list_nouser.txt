@@ -1,7 +1,7 @@
 {
     "cli": "lms.cli.courses.users.scores.list",
     "arguments": [
-        '--course', '1',
+        "--course", "110000000",
     ],
 }
 ---

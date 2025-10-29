@@ -36,7 +36,7 @@ class Assignment(lms.model.base.BaseType):
     CORE_FIELDS = [
         'id', 'name', 'description',
         'open_date', 'close_date', 'due_date',
-        'points_possible', 'position', 'group_id',
+        'points_possible',
     ]
 
     def __init__(self,
@@ -47,8 +47,6 @@ class Assignment(lms.model.base.BaseType):
             close_date: typing.Union[edq.util.time.Timestamp, None] = None,
             due_date: typing.Union[edq.util.time.Timestamp, None] = None,
             points_possible: typing.Union[float, None] = None,
-            position: typing.Union[int, None] = None,
-            group_id: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
 
@@ -75,12 +73,6 @@ class Assignment(lms.model.base.BaseType):
 
         self.points_possible: typing.Union[float, None] = points_possible
         """ The maximum number of points possible for this assignment. """
-
-        self.position: typing.Union[int, None] = position
-        """ The order that this assignment should appear relative to other assignments. """
-
-        self.group_id: typing.Union[str, None] = group_id
-        """ The LMS's identifier for the group this assignment appears in. """
 
     def to_query(self) -> ResolvedAssignmentQuery:
         """ Get a query representation of this assignment. """

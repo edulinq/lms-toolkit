@@ -11,9 +11,9 @@ def test_courses_users_scores_fetch_base(test: lms.backend.testing.BackendTest):
         # Base
         (
             {
-                'course_id': '1',
-                'assignment_id': '1',
-                'user_id': '6',
+                'course_id': '110000000',
+                'assignment_id': '110000100',
+                'user_id': '100050000',
             },
             scores['Course 101']['Homework 0']['course-student'],
             None,
@@ -22,17 +22,17 @@ def test_courses_users_scores_fetch_base(test: lms.backend.testing.BackendTest):
         # Miss
         (
             {
-                'course_id': '1',
+                'course_id': '110000000',
                 'assignment_id': '999',
-                'user_id': '6',
+                'user_id': '100050000',
             },
             None,
             None,
         ),
         (
             {
-                'course_id': '1',
-                'assignment_id': '1',
+                'course_id': '110000000',
+                'assignment_id': '110000100',
                 'user_id': '999',
             },
             None,

@@ -8,7 +8,7 @@ def test_courses_groupsets_list_base(test: lms.backend.testing.BackendTest):
     test_cases = [
         (
             {
-                'course_id': '1',
+                'course_id': '110000000',
             },
             [
             ],
@@ -16,7 +16,7 @@ def test_courses_groupsets_list_base(test: lms.backend.testing.BackendTest):
         ),
         (
             {
-                'course_id': '2',
+                'course_id': '120000000',
             },
             [
             ],
@@ -24,7 +24,7 @@ def test_courses_groupsets_list_base(test: lms.backend.testing.BackendTest):
         ),
         (
             {
-                'course_id': '3',
+                'course_id': '130000000',
             },
             [
                 lms.model.testdata.groupsets.COURSE_GROUPSETS['Extra Course']['Group Set 1'],
