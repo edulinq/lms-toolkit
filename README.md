@@ -9,16 +9,30 @@ Links:
  - [API Reference](https://edulinq.github.io/lms-toolkit)
  - [Development Notes](docs/development.md)
  - [Installation](#installation)
- - [CLI Configuration](#cli-configuration)
  - [Usage Notes](#usage-notes)
-    - [Object Queries](#object-queries)
-    - [Output Formats](#output-formats)
-    - [Retrieval Operations](#retrieval-operations)
+   - [Authentication](#authentication)
+   - [Object Queries](#object-queries)
+   - [Output Formats](#output-formats)
+   - [Retrieval Operations](#retrieval-operations)
+   - [Groups vs Group Sets](#groups-vs-group-sets)
  - [CLI Tools](#cli-tools)
-      - [List Course Users](#list-course-users)
-      - [Get Course Users](#get-course-users)
-      - [List Assignments](#list-assignments)
-      - [Get Assignments](#get-assignments)
+   - Courses
+     - [Retrieve Courses](#retrieve-courses)
+     - Assignments
+       - [Retrieve Assignments](#retrieve-assignments)
+       - Scores
+         - [Retrieve Assignment Scores](#retrieve-assignment-scores)
+         - [Upload Assignment Scores](#upload-assignment-scores)
+     - Gradebook
+       - [Retrieve Gradebook](#retrieve-gradebook)
+       - [Upload Gradebook](#upload-gradebook)
+     - Groups
+       - [Retrieve Group(set)s](#retrieve-groupsets)
+       - [Retrieve Group(set) Memberships](#retrieve-groupset-memberships)
+     - Users
+       - [Retrieve Users](#retrieve-users)
+       - Scores
+         - [Retrieve User Scores](#retrieve-user-scores)
 - [LMS Coverage](#lms-coverage)
 
 ## Installation
@@ -49,6 +63,16 @@ git submodule update --init --recursive
 ```
 
 ## Usage Notes
+
+### Authentication
+
+Different LMSs may require different information for authentication.
+The below table lists what each LMS needs.
+Note that values only need to be provided once (in the config or CLI).
+
+| LMS    | Config Keys | CLI Options |
+|--------|-------------|-------------|
+| Canvas | `token`     | `--token`   |
 
 ### Object Queries
 
@@ -89,45 +113,170 @@ this project tends to use two different types of operations:
  - **list** -- List out all the available entries, e.g., list all the users in a course.
  - **get** -- Get a collection of entries by query, e.g., get several users by their email.
 
+### Groups vs Group Sets
+
+When dealing with groups, there are two structures you need to be familiar with: Groups and Group Sets.
+A group is a collection of students.
+A group set (sometimes denoted as "groupsset") is a collection of groups, often created for a single purpose
+(e.g., a set of groups created for a specific assignment).
+All groups must exist within a group set.
+
 ## CLI Tools
 
 All CLI tools can be invoked with `-h` / `--help` to see the full usage and all options.
 
-### List Course Users
+Examples listed here will assume that your authentication information is already defined in your global config file
+(use `--help` for more information on that).
 
-Course users can be listed using the `lms.cli.courses.users.list` tool.
-For example:
-```
-python3 -m lms.cli.courses.users.list
-```
+Examples listed here are not exhaustive in terms of the available tools or the full functionality of each comment.
 
-#### Get Course Users
+The data used in these examples are part of the official test data used for this repo (and other LMS test images).
 
-To get information about course users, use the `lms.cli.courses.users.get` tool.
-For example:
-```
-python3 -m lms.cli.courses.users.get sslug@test.edulinq.org
+### Retrieve Courses
+
+List all courses associated with a user with `lms.cli.courses.list`:
+```sh
+python3 -m lms.cli.courses.list
 ```
 
-Any number of user queries may be specified.
-
-#### List Assignments
-
-Course assignments can be listed using the `lms.cli.courses.assignments.list` tool.
-For example:
-```
-python3 -m lms.cli.courses.assignments.list
+You can get a single course with `lms.cli.courses.get`:
+```sh
+python3 -m lms.cli.courses.get 'Course 101'
 ```
 
-#### Get Assignments
+### Retrieve Assignments
 
-To get information about course assignments, use the `lms.cli.courses.assignments.get` tool.
-For example:
-```
-python3 -m lms.cli.courses.assignments.get 'Homework 1'
+List all assignments associated with a course with `lms.cli.assignments.list`:
+```sh
+python3 -m lms.cli.assignments.list --course 'Course 101'
 ```
 
-Any number of assignment queries may be specified.
+You can get a single assignment with `lms.cli.assignments.get`:
+```sh
+python3 -m lms.cli.assignments.get --course 'Course 101' 'Homework 0'
+```
+
+### Retrieve Assignment Scores
+
+List all student scores for an assignment with `lms.cli.assignments.scores.list`:
+```sh
+python3 -m lms.cli.assignments.scores.list --course 'Course 101' --assignment 'Homework 0'
+```
+
+The `table` format is especially useful for listing scores:
+```sh
+python3 -m lms.cli.assignments.scores.list --course 'Course 101' --assignment 'Homework 0' --format table
+```
+
+### Upload Assignment Scores
+
+Upload a single score for an assignment and user with `lms.cli.assignments.scores.upload-score`.
+For example, to upload a score of `1.0` for user `course-student` and assignment `Homework 0', use:
+```sh
+python3 -m lms.cli.assignments.scores.upload-score --course 'Course 101' --assignment 'Homework 0' --user 'course-student' 1.0
+```
+
+To upload multiple scores for a single assignment, use `lms.cli.assignments.scores.upload`.
+This tool takes a [TSV file](https://en.wikipedia.org/wiki/Tab-separated_values) (tab-separated) file as input.
+The file may have a header, which must be skipped using the `--skip-rows` option.
+Each data row can have two or three columns (different rows can have different number of columns).
+The values are as follows:
+ 1) User Query
+ 2) Numeric Score
+ 3) (**Optional**) Comment
+
+For example, assume we have a file `scores.txt` with the following contents:
+```
+User	Score	Comment
+extra-course-student-1@test.edulinq.org	1
+extra-course-student-2@test.edulinq.org	1.5
+extra-course-student-3@test.edulinq.org	2	foo
+extra-course-student-4@test.edulinq.org	2.5	foo
+```
+
+We can upload these scores for `Assignment 1` in the course `Extra Course` using:
+```sh
+python3 -m lms.cli.assignments.scores.upload --course 'Extra Course' --assignment 'Assignment 1' scores.txt
+```
+
+### Retrieve Gradebook
+
+List all gradebook entries associated with a course with `lms.cli.courses.gradebook.list`:
+```sh
+python3 -m lms.cli.courses.gradebook.list --course 'Course 101'
+```
+
+Gradebooks are always output as TSV tables.
+
+### Upload Gradebook
+
+Upload a gradebook with `lms.cli.courses.gradebook.upload`.
+The gradebook file must be the same format that is outputted by `lms.cli.courses.gradebook.list`.
+
+For example, assume we have a file `gradebook.txt` with the following contents:
+```
+User	Assignment 1 (130000100)	Assignment 2 (130000200)
+extra-course-student-1@test.edulinq.org (100060000)	1.0	1.0
+extra-course-student-2@test.edulinq.org (100070000)		0.5
+```
+
+We can upload these three scores to course `Extra Course` with:
+```sh
+python3 -m lms.cli.courses.gradebook.upload --course 'Extra Course' gradebook.txt
+```
+
+A gradebook does not need to represent all assignments or students in a course.
+Only the assignments and students of interest need to be included.
+An empty cell (missing score) will be ignored,
+but all rows must have the correct number of cells (tabs).
+
+### Retrieve Group(set)s
+
+List all groups sets in a course `lms.cli.courses.groupsets.list`:
+```sh
+python3 -m lms.cli.courses.groupsets.list --course 'Extra Course'
+```
+
+List all the groups for a group set with `lms.cli.courses.groups.list`:
+```sh
+python3 -m lms.cli.courses.groups.list --course 'Extra Course' --groupset 'Group Set 1'
+```
+
+### Retrieve Group(set) Memberships
+
+List all memberships in a group set with: `lms.cli.courses.groupsets.memberships.list`:
+```sh
+python3 -m lms.cli.courses.groupsets.memberships.list --course 'Course 101' --groupset 'Group Set 1'
+```
+
+List all memberships in a group with: `lms.cli.courses.groups.memberships.list`:
+```sh
+python3 -m lms.cli.courses.groups.memberships.list --course 'Course 101' --groupset 'Group Set 1' --group 'Group 1-1'
+```
+
+### Retrieve Users
+
+List all users associated with a course with `lms.cli.users.list`:
+```sh
+python3 -m lms.cli.users.list --course 'Course 101'
+```
+
+You can get a single user with `lms.cli.users.get`:
+```sh
+python3 -m lms.cli.users.get --course 'Course 101' 'course-student'
+```
+
+### Retrieve User Scores
+
+List all scores for a student with `lms.cli.users.scores.list`:
+```sh
+python3 -m lms.cli.users.scores.list --course 'Extra Course' --user 'extra-course-student-1'
+```
+
+The `table` format is especially useful for listing scores:
+```sh
+python3 -m lms.cli.users.scores.list --course 'Extra Course' --user 'extra-course-student-1' --format table
+```
 
 ## LMS Coverage
 
@@ -138,16 +287,27 @@ Legend:
  - `-` -- Not Yet Supported
  - `x` -- Support Impossible (See Notes)
 
-| Feature                                 | Canvas | Moodle |
-|-----------------------------------------|--------|--------|
-| lms.cli.courses.get                     | `+`    | `-`    |
-| lms.cli.courses.list                    | `+`    | `-`    |
-| lms.cli.courses.assignments.get         | `+`    | `-`    |
-| lms.cli.courses.assignments.list        | `+`    | `-`    |
-| lms.cli.courses.assignments.scores.get  | `+`    | `-`    |
-| lms.cli.courses.assignments.scores.list | `+`    | `-`    |
-| lms.cli.courses.users.get               | `+`    | `-`    |
-| lms.cli.courses.users.list              | `+`    | `-`    |
-| lms.cli.courses.users.scores.get        | `+`    | `-`    |
-| lms.cli.courses.users.scores.list       | `+`    | `-`    |
-| lms.cli.server.identify                 | `+`    | `+`    |
+| Tool                                            | Canvas | Moodle |
+|-------------------------------------------------|--------|--------|
+| lms.cli.courses.get                             | `+`    | `-`    |
+| lms.cli.courses.list                            | `+`    | `-`    |
+| lms.cli.courses.assignments.get                 | `+`    | `-`    |
+| lms.cli.courses.assignments.list                | `+`    | `-`    |
+| lms.cli.courses.assignments.scores.get          | `+`    | `-`    |
+| lms.cli.courses.assignments.scores.list         | `+`    | `-`    |
+| lms.cli.courses.assignments.scores.upload       | `+`    | `-`    |
+| lms.cli.courses.assignments.scores.upload-score | `+`    | `-`    |
+| lms.cli.courses.gradebook.get                   | `+`    | `-`    |
+| lms.cli.courses.gradebook.list                  | `+`    | `-`    |
+| lms.cli.courses.gradebook.upload                | `+`    | `-`    |
+| lms.cli.courses.groups.get                      | `+`    | `-`    |
+| lms.cli.courses.groups.list                     | `+`    | `-`    |
+| lms.cli.courses.groups.memberships.list         | `+`    | `-`    |
+| lms.cli.courses.groupsets.get                   | `+`    | `-`    |
+| lms.cli.courses.groupsets.list                  | `+`    | `-`    |
+| lms.cli.courses.groupsets.memberships.list      | `+`    | `-`    |
+| lms.cli.courses.users.get                       | `+`    | `-`    |
+| lms.cli.courses.users.list                      | `+`    | `-`    |
+| lms.cli.courses.users.scores.get                | `+`    | `-`    |
+| lms.cli.courses.users.scores.list               | `+`    | `-`    |
+| lms.cli.server.identify                         | `+`    | `+`    |
