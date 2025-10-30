@@ -64,6 +64,11 @@ class AssignmentScore(lms.model.base.BaseType):
         self.comment: typing.Union[str, None] = comment
         """ A comment attached to this score. """
 
+    def to_fragment(self) -> ScoreFragment:
+        """ Get a score fragment from this assignment score. """
+
+        return ScoreFragment(score = self.score, comment = self.comment)
+
 class Gradebook(lms.model.base.BaseType):
     """
     A gradebook that contains scores for a set of users and assignments.
@@ -118,6 +123,28 @@ class Gradebook(lms.model.base.BaseType):
             return None
 
         return self._entries.get(self._make_key(found_assignment, found_user), None)
+
+    def get_scores_by_assignment(self,
+            ) -> typing.Dict[
+                lms.model.assignments.AssignmentQuery,
+                typing.Dict[lms.model.users.UserQuery, AssignmentScore]]:
+        """ Get all entries indexed by assignment. """
+
+        results: typing.Dict[
+                lms.model.assignments.AssignmentQuery,
+                typing.Dict[lms.model.users.UserQuery, AssignmentScore]] = {}
+
+        for assignment in self.assignments:
+            results[assignment] = {}
+
+            for user in self.users:
+                key = self._make_key(assignment, user)
+                if (key not in self._entries):
+                    continue
+
+                results[assignment][user] = self._entries[key]
+
+        return results
 
     def add(self, score: AssignmentScore) -> None:
         """
@@ -246,3 +273,6 @@ class Gradebook(lms.model.base.BaseType):
             'users': self.users,
             'scores_assignment_user': scores,
         }
+
+    def __len__(self) -> int:
+        return len(self._entries)

@@ -1,0 +1,10 @@
+{
+    "cli": "lms.cli.courses.gradebook.upload",
+    "arguments": [
+        "--course", "Extra Course",
+        "__DATA_DIR__(gradebooks/extracourse_shortuser.txt)",
+    ],
+    error: true
+}
+---
+builtins.ValueError: File '__DATA_DIR__(gradebooks/extracourse_shortuser.txt)' line 2 has the incorrect number of values. Expecting 3, found 2.

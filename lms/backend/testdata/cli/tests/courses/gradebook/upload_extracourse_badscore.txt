@@ -1,0 +1,10 @@
+{
+    "cli": "lms.cli.courses.gradebook.upload",
+    "arguments": [
+        "--course", "Extra Course",
+        "__DATA_DIR__(gradebooks/extracourse_badscore.txt)",
+    ],
+    error: true
+}
+---
+builtins.ValueError: File '__DATA_DIR__(gradebooks/extracourse_badscore.txt)' line 2 has a score that cannot be converted to a number: 'ZZZ'.

@@ -1,0 +1,9 @@
+{
+    "cli": "lms.cli.courses.gradebook.upload",
+    "arguments": [
+        "--course", "Extra Course",
+        "__DATA_DIR__(gradebooks/extracourse_base.txt)",
+    ],
+}
+---
+Uploaded 4 Score(s)

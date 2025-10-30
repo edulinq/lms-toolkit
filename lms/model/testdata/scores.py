@@ -150,7 +150,7 @@ def _load_gradebooks(
         get_assignment_query: typing.Callable,
         get_user_query: typing.Callable,
         ) -> None:
-    """ Load unresolved gradebooks from scores. """
+    """ Load gradebooks from scores. """
 
     for course_name in lms.model.testdata.courses.COURSES.keys():
         assignments: typing.Any = lms.model.testdata.assignments.COURSE_ASSIGNMENTS[course_name].values()

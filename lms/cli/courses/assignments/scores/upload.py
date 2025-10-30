@@ -50,13 +50,16 @@ def _load_scores(
 
     with open(path, 'r', encoding = edq.util.dirent.DEFAULT_ENCODING) as file:
         lineno = 0
+        real_rows = 0
         for line in file:
+            lineno += 1
+
             if (line.strip() == ''):
                 continue
 
-            lineno += 1
+            real_rows += 1
 
-            if (lineno <= skip_rows):
+            if (real_rows <= skip_rows):
                 continue
 
             parts = [part.strip() for part in line.split("\t")]
@@ -91,11 +94,9 @@ def _get_parser() -> argparse.ArgumentParser:
 
     parser = lms.cli.parser.get_parser(__doc__.strip(),
             include_token = True,
-            include_output_format = True,
             include_course = True,
             include_assignment = True,
     )
-
 
     parser.add_argument('--skip-rows', dest = 'skip_rows',
         action = 'store', type = int, default = DEFAULT_SKIP_ROWS,

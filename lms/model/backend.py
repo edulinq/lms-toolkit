@@ -263,7 +263,7 @@ class APIBackend():
             scores: typing.Dict[lms.model.users.UserQuery, lms.model.scores.ScoreFragment],
             **kwargs: typing.Any) -> int:
         """
-        Resolve queries and upload assignment scores.
+        Resolve queries and upload assignment scores (indexed by user query).
         A None score (ScoreFragment.score) indicates that the score should be cleared.
         Return the number of scores sent to the LMS.
         """
@@ -303,7 +303,7 @@ class APIBackend():
         Return the number of scores sent to the LMS.
         """
 
-        raise NotImplementedError('courses_assignments_scores_resolve_and_upload')
+        raise NotImplementedError('courses_assignments_scores_upload')
 
     def courses_gradebook_get(self,
             course_query: lms.model.courses.CourseQuery,
@@ -361,6 +361,65 @@ class APIBackend():
 
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
         return self.courses_gradebook_list(resolved_course_query.get_id(), **kwargs)
+
+    def courses_gradebook_resolve_and_upload(self,
+            course_query: lms.model.courses.CourseQuery,
+            gradebook: lms.model.scores.Gradebook,
+            **kwargs: typing.Any) -> int:
+        """
+        Resolve queries and upload a gradebook.
+        Missing scores in the gradebook are skipped,
+        a None score (ScoreFragment.score) indicates that the score should be cleared.
+        Return the number of scores sent to the LMS.
+        """
+
+        if (len(gradebook) == 0):
+            return 0
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+
+        assignments = self.courses_assignments_list(resolved_course_query.get_id(), **kwargs)
+        users = self.courses_users_list(resolved_course_query.get_id(), **kwargs)
+
+        resolved_assignment_queries = [assignment.to_query() for assignment in assignments]
+        resolved_user_queries = [user.to_query() for user in users]
+
+        gradebook.update_queries(resolved_assignment_queries, resolved_user_queries)
+
+        return self.courses_gradebook_upload(
+                resolved_course_query.get_id(),
+                gradebook,
+                **kwargs)
+
+    def courses_gradebook_upload(self,
+            course_id: str,
+            gradebook: lms.model.scores.Gradebook,
+            **kwargs: typing.Any) -> int:
+        """
+        Upload a gradebook.
+        All queries in the gradebook must be resolved (or at least have an ID).
+        Missing scores in the gradebook are skipped,
+        a None score (ScoreFragment.score) indicates that the score should be cleared.
+        Return the number of scores sent to the LMS.
+        """
+
+        assignment_scores = gradebook.get_scores_by_assignment()
+
+        count = 0
+        for (assignment, user_scores) in assignment_scores.items():
+            if (assignment.id is None):
+                raise ValueError(f"Assignment query for gradebook upload ({assignment}) does not have an ID.")
+
+            upload_scores = {}
+            for (user, score) in user_scores.items():
+                if (user.id is None):
+                    raise ValueError(f"User query for gradebook upload ({user}) does not have an ID.")
+
+                upload_scores[user.id] = score.to_fragment()
+
+            count += self.courses_assignments_scores_upload(course_id, assignment.id, upload_scores, **kwargs)
+
+        return count
 
     def courses_groupsets_get(self,
             course_query: lms.model.courses.CourseQuery,
