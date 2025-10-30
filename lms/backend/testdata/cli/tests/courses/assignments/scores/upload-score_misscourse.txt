@@ -1,5 +1,5 @@
 {
-    "cli": "lms.cli.courses.assignments.scores.upload-single",
+    "cli": "lms.cli.courses.assignments.scores.upload-score",
     "arguments": [
         "--course", "999",
         "--assignment", "Homework 0",

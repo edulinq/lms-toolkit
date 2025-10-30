@@ -1,0 +1,9 @@
+{
+    "cli": "lms.cli.courses.gradebook.upload",
+    "arguments": [
+        "--course", "Extra Course",
+        "__DATA_DIR__(gradebooks/extracourse_missing.txt)",
+    ],
+}
+---
+Uploaded 2 Score(s)

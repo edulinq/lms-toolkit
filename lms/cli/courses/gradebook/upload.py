@@ -84,6 +84,10 @@ def _load_gradebook(
             parts = parts[1:]
 
             for (i, part) in enumerate(parts):
+                part = part.strip()
+                if (len(part) == 0):
+                    continue
+
                 try:
                     float_score = float(ast.literal_eval(part))
                 except Exception:
