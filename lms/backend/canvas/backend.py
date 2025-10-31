@@ -6,6 +6,7 @@ import lms.backend.canvas.courses.assignments.list
 import lms.backend.canvas.courses.assignments.scores.list
 import lms.backend.canvas.courses.assignments.scores.upload
 import lms.backend.canvas.courses.gradebook.fetch
+import lms.backend.canvas.courses.groupsets.create
 import lms.backend.canvas.courses.groupsets.list
 import lms.backend.canvas.courses.groupsets.memberships.list
 import lms.backend.canvas.courses.groups.list
@@ -87,6 +88,13 @@ class CanvasBackend(lms.model.backend.APIBackend):
         parsed_user_ids = [lms.util.parse.required_int(user_id, 'user_id') for user_id in user_ids]
 
         return lms.backend.canvas.courses.gradebook.fetch.request(self, parsed_course_id, parsed_assignment_ids, parsed_user_ids)
+
+    def courses_groupsets_create(self,
+            course_id: str,
+            name: str,
+            **kwargs: typing.Any) -> lms.model.groupsets.GroupSet:
+        parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
+        return lms.backend.canvas.courses.groupsets.create.request(self, parsed_course_id, name)
 
     def courses_groupsets_list(self,
             course_id: str,

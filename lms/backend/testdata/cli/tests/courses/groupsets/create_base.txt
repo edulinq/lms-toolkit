@@ -1,0 +1,11 @@
+{
+    "cli": "lms.cli.courses.groupsets.create",
+    "stdout_assertion_func": "lms.util.testing.cli_assert_normalize_ids",
+    "arguments": [
+        "--course", "Course 101",
+        "test_groupset_1",
+    ],
+}
+---
+id: <ID>
+name: test_groupset_1

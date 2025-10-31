@@ -421,6 +421,27 @@ class APIBackend():
 
         return count
 
+    def courses_groupsets_create(self,
+            course_id: str,
+            name: str,
+            **kwargs: typing.Any) -> lms.model.groupsets.GroupSet:
+        """
+        Create a group set.
+        """
+
+        raise NotImplementedError('courses_groupsets_create')
+
+    def courses_groupsets_resolve_and_create(self,
+            course_query: lms.model.courses.CourseQuery,
+            name: str,
+            **kwargs: typing.Any) -> lms.model.groupsets.GroupSet:
+        """
+        Resolve references and create a group set.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        return self.courses_groupsets_create(resolved_course_query.get_id(), name, **kwargs)
+
     def courses_groupsets_get(self,
             course_query: lms.model.courses.CourseQuery,
             groupset_queries: typing.List[lms.model.groupsets.GroupSetQuery],
