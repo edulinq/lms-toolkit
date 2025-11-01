@@ -18,7 +18,7 @@ def request(backend: typing.Any,
     url = backend.server + BASE_ENDPOINT.format(group_id = group_id, page_size = lms.backend.canvas.common.DEFAULT_PAGE_SIZE)
     headers = backend.get_standard_headers()
 
-    raw_objects = lms.backend.canvas.common.make_get_request_list(url, headers)
+    raw_objects = lms.backend.canvas.common.make_get_request_list(url, headers = headers)
     if (raw_objects is None):
         identifiers = {
             'course_id': course_id,

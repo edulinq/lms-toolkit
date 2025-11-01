@@ -17,7 +17,7 @@ def request(backend: typing.Any,
     if (include_role):
         url += '&include[]=enrollments'
 
-    raw_objects = lms.backend.canvas.common.make_get_request_list(url, headers)
+    raw_objects = lms.backend.canvas.common.make_get_request_list(url, headers = headers)
     if (raw_objects is None):
         identifiers = {
             'course_id': course_id,

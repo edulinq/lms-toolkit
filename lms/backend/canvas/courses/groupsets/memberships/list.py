@@ -16,7 +16,7 @@ def request(backend: typing.Any,
     url = backend.server + BASE_ENDPOINT.format(groupset_id = groupset_id)
     headers = backend.get_standard_headers()
 
-    raw_text = lms.backend.canvas.common.make_get_request(url, headers, json = False)
+    raw_text = lms.backend.canvas.common.make_get_request(url, headers = headers, json = False)
     if (raw_text is None):
         identifiers = {
             'course_id': course_id,

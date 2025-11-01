@@ -18,7 +18,7 @@ def request(backend: typing.Any,
         'student_ids[]': str(user_id),
     }
 
-    raw_objects = lms.backend.canvas.common.make_get_request_list(url, headers, data = data)
+    raw_objects = lms.backend.canvas.common.make_get_request_list(url, headers = headers, data = data)
     if (raw_objects is None):
         identifiers = {
             'course_id': course_id,

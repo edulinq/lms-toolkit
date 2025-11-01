@@ -1,0 +1,10 @@
+{
+    "cli": "lms.cli.courses.groupsets.delete",
+    "arguments": [
+        "--course", "Extra Course",
+        "--groupset", "ZZZ",
+    ],
+    "error": true,
+}
+---
+builtins.ValueError: Could not resolve group set query: 'ZZZ'.

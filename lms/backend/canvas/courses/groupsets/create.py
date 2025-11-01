@@ -21,7 +21,7 @@ def request(backend: typing.Any,
         'name': name,
     }
 
-    raw_object = lms.backend.canvas.common.make_post_request(url, headers, data = data)
+    raw_object = lms.backend.canvas.common.make_post_request(url, headers = headers, data = data)
     if (raw_object is None):
         identifiers = {
             'course_id': course_id,

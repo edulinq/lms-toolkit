@@ -35,17 +35,16 @@ def fetch_next_canvas_link(response: requests.Response) -> typing.Union[str, Non
 
     return None
 
-def make_get_request(
+def make_request(
+        method: str,
         url: str,
-        headers: typing.Dict[str, typing.Any],
-        data: typing.Union[typing.Dict[str, typing.Any], None] = None,
         raise_on_404: bool = False,
         json: bool = True,
-        ) -> typing.Union[typing.Any, None]:
-    """ Make a single Canvas GET request and return the decoded JSON body. """
+        **kwargs: typing.Any) -> typing.Union[typing.Any, None]:
+    """ Make a single Canvas request and return the decoded JSON body. """
 
     try:
-        _, body_text = edq.util.net.make_get(url, headers = headers, data = data)
+        _, body_text = edq.util.net.make_request(method, url, **kwargs)
     except requests.HTTPError as ex:
         if (raise_on_404 or (ex.response is None) or (ex.response.status_code != http.HTTPStatus.NOT_FOUND)):
             raise ex
@@ -56,6 +55,21 @@ def make_get_request(
         return body_text
 
     return edq.util.json.loads(body_text, strict = True)
+
+def make_get_request(url: str, **kwargs: typing.Any) -> typing.Union[typing.Any, None]:
+    """ Make a single Canvas GET request. """
+
+    return make_request('GET', url, **kwargs)
+
+def make_post_request(url: str, **kwargs: typing.Any) -> typing.Union[typing.Any, None]:
+    """ Make a single Canvas POST request. """
+
+    return make_request('POST', url, **kwargs)
+
+def make_delete_request(url: str, **kwargs: typing.Any) -> typing.Union[typing.Any, None]:
+    """ Make a single Canvas DELETE request. """
+
+    return make_request('DELETE', url, **kwargs)
 
 def make_get_request_list(
         url: str,
@@ -85,28 +99,6 @@ def make_get_request_list(
             output.append(new_result)
 
     return output
-
-def make_post_request(
-        url: str,
-        headers: typing.Dict[str, typing.Any],
-        data: typing.Union[typing.Dict[str, typing.Any], None] = None,
-        raise_on_404: bool = False,
-        json: bool = True,
-        ) -> typing.Union[typing.Any, None]:
-    """ Make a single Canvas POST request and return the decoded JSON body. """
-
-    try:
-        _, body_text = edq.util.net.make_post(url, headers = headers, data = data)
-    except requests.HTTPError as ex:
-        if (raise_on_404 or (ex.response is None) or (ex.response.status_code != http.HTTPStatus.NOT_FOUND)):
-            raise ex
-
-        return None
-
-    if (not json):
-        return body_text
-
-    return edq.util.json.loads(body_text, strict = True)
 
 def parse_timestamp(value: typing.Union[str, None]) -> typing.Union[edq.util.time.Timestamp, None]:
     """ Parse a Canvas-style timestamp into a common form. """

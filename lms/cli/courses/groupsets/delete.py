@@ -1,5 +1,5 @@
 """
-Create a group set.
+Delete a group set.
 """
 
 import argparse
@@ -21,16 +21,17 @@ def run_cli(args: argparse.Namespace) -> int:
     if (course_query is None):
         return 1
 
-    groupset = backend.courses_groupsets_resolve_and_create(course_query, args.name)
+    groupset_query = lms.cli.common.check_required_groupset(backend, config)
+    if (groupset_query is None):
+        return 2
 
-    output = lms.model.base.base_list_to_output_format([groupset], args.output_format,
-            skip_headers = args.skip_headers,
-            pretty_headers = args.pretty_headers,
-            include_extra_fields = args.include_extra_fields,
-    )
+    result = backend.courses_groupsets_resolve_and_delete(course_query, groupset_query)
 
-    print(output)
+    if (not result):
+        print(f"ERROR: Could not delete group set: '{groupset_query}'.")
+        return 3
 
+    print(f"Deleted group set: '{groupset_query}'.")
     return 0
 
 def main() -> int:
@@ -44,11 +45,8 @@ def _get_parser() -> argparse.ArgumentParser:
             include_token = True,
             include_output_format = True,
             include_course = True,
+            include_groupset = True,
     )
-
-    parser.add_argument('name', metavar = 'GROUP_SET_NAME',
-        type = str,
-        help = 'The name of the group set to create.')
 
     return parser
 

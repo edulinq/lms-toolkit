@@ -26,7 +26,7 @@ def request(backend: typing.Any,
     user_queries = [lms.model.users.UserQuery(id = id) for id in user_ids]
     gradebook = lms.model.scores.Gradebook(assignment_queries, user_queries)
 
-    raw_objects = lms.backend.canvas.common.make_get_request_list(url, headers, data = data)
+    raw_objects = lms.backend.canvas.common.make_get_request_list(url, headers = headers, data = data)
     if (raw_objects is None):
         identifiers = {
             'course_id': course_id,

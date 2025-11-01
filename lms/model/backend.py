@@ -442,6 +442,28 @@ class APIBackend():
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
         return self.courses_groupsets_create(resolved_course_query.get_id(), name, **kwargs)
 
+    def courses_groupsets_delete(self,
+            course_id: str,
+            groupset_id: str,
+            **kwargs: typing.Any) -> bool:
+        """
+        Delete a group set.
+        """
+
+        raise NotImplementedError('courses_groupsets_delete')
+
+    def courses_groupsets_resolve_and_delete(self,
+            course_query: lms.model.courses.CourseQuery,
+            groupset_query: lms.model.groupsets.GroupSetQuery,
+            **kwargs: typing.Any) -> bool:
+        """
+        Resolve references and create a group set.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_groupset_query = self.resolve_groupset_query(resolved_course_query.get_id(), groupset_query, **kwargs)
+        return self.courses_groupsets_delete(resolved_course_query.get_id(), resolved_groupset_query.get_id(), **kwargs)
+
     def courses_groupsets_get(self,
             course_query: lms.model.courses.CourseQuery,
             groupset_queries: typing.List[lms.model.groupsets.GroupSetQuery],

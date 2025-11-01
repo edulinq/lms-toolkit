@@ -33,7 +33,7 @@ def request(backend: typing.Any,
         if ((score.comment is not None) and (len(score.comment) > 0)):
             data[f"grade_data[{user_id}][text_comment]"] = score.comment
 
-    response = lms.backend.canvas.common.make_post_request(url, headers, data = data)
+    response = lms.backend.canvas.common.make_post_request(url, headers = headers, data = data)
     if (response is None):
         return 0
 
