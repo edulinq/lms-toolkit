@@ -2,7 +2,6 @@ import copy
 
 import lms.backend.testing
 import lms.model.groupsets
-import lms.model.testdata.groupsets
 
 DUMMY_ID: str = '123456789'
 

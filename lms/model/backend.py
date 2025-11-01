@@ -561,6 +561,55 @@ class APIBackend():
 
         return memberships
 
+    def courses_groups_create(self,
+            course_id: str,
+            groupset_id: str,
+            name: str,
+            **kwargs: typing.Any) -> lms.model.groups.Group:
+        """
+        Create a group.
+        """
+
+        raise NotImplementedError('courses_groups_create')
+
+    def courses_groups_resolve_and_create(self,
+            course_query: lms.model.courses.CourseQuery,
+            groupset_query: lms.model.groupsets.GroupSetQuery,
+            name: str,
+            **kwargs: typing.Any) -> lms.model.groups.Group:
+        """
+        Resolve references and create a group.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_groupset_query = self.resolve_groupset_query(resolved_course_query.get_id(), groupset_query, **kwargs)
+        return self.courses_groups_create(resolved_course_query.get_id(), resolved_groupset_query.get_id(), name, **kwargs)
+
+    def courses_groups_delete(self,
+            course_id: str,
+            groupset_id: str,
+            group_id: str,
+            **kwargs: typing.Any) -> bool:
+        """
+        Delete a group.
+        """
+
+        raise NotImplementedError('courses_groups_delete')
+
+    def courses_groups_resolve_and_delete(self,
+            course_query: lms.model.courses.CourseQuery,
+            groupset_query: lms.model.groupsets.GroupSetQuery,
+            group_query: lms.model.groups.GroupQuery,
+            **kwargs: typing.Any) -> bool:
+        """
+        Resolve references and create a group.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_groupset_query = self.resolve_groupset_query(resolved_course_query.get_id(), groupset_query, **kwargs)
+        resolved_group_query = self.resolve_group_query(resolved_course_query.get_id(), resolved_groupset_query.get_id(), group_query, **kwargs)
+        return self.courses_groups_delete(resolved_course_query.get_id(), resolved_groupset_query.get_id(), resolved_group_query.get_id(), **kwargs)
+
     def courses_groups_get(self,
             course_query: lms.model.courses.CourseQuery,
             groupset_query: lms.model.groupsets.GroupSetQuery,

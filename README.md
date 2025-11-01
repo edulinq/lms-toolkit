@@ -26,9 +26,19 @@ Links:
      - Gradebook
        - [Retrieve Gradebook](#retrieve-gradebook)
        - [Upload Gradebook](#upload-gradebook)
-     - Groups
-       - [Retrieve Group(set)s](#retrieve-groupsets)
-       - [Retrieve Group(set) Memberships](#retrieve-groupset-memberships)
+     - User Groupings
+       - Group Sets
+         - [Retrieve Group Sets](#retrieve-group-sets)
+         - [Create Group Sets](#create-group-sets)
+         - [Delete Group Sets](#delete-group-sets)
+         - Memberships
+           - [Retrieve Group Set Memberships](#retrieve-group-set-memberships)
+       - Groups
+         - [Retrieve Groups](#retrieve-groups)
+         - [Create Groups](#create-groups)
+         - [Delete Groups](#delete-groups)
+         - Memberships
+           - [Retrieve Group Memberships](#retrieve-group-memberships)
      - Users
        - [Retrieve Users](#retrieve-users)
        - Scores
@@ -230,28 +240,60 @@ Only the assignments and students of interest need to be included.
 An empty cell (missing score) will be ignored,
 but all rows must have the correct number of cells (tabs).
 
-### Retrieve Group(set)s
+### Retrieve Group Sets
 
 List all groups sets in a course `lms.cli.courses.groupsets.list`:
 ```sh
 python3 -m lms.cli.courses.groupsets.list --course 'Extra Course'
 ```
 
+### Create Group Sets
+
+Create a new group set with: `lms.cli.courses.groupsets.create`:
+```sh
+python3 -m lms.cli.courses.groupsets.create --course 'Extra Course' 'My New Group Set'
+```
+
+### Delete Group Sets
+
+Delete group sets with: `lms.cli.courses.groupsets.delete`:
+```sh
+python3 -m lms.cli.courses.groupsets.delete --course 'Extra Course' --groupset 'Group Set 1'
+```
+
+### Retrieve Group Set Memberships
+
+List all memberships in a group set with: `lms.cli.courses.groupsets.memberships.list`:
+```sh
+python3 -m lms.cli.courses.groupsets.memberships.list --course 'Extra Course' --groupset 'Group Set 1'
+```
+
+### Retrieve Groups
+
 List all the groups for a group set with `lms.cli.courses.groups.list`:
 ```sh
 python3 -m lms.cli.courses.groups.list --course 'Extra Course' --groupset 'Group Set 1'
 ```
 
-### Retrieve Group(set) Memberships
+### Create Groups
 
-List all memberships in a group set with: `lms.cli.courses.groupsets.memberships.list`:
+Create a new group with: `lms.cli.courses.groups.create`:
 ```sh
-python3 -m lms.cli.courses.groupsets.memberships.list --course 'Course 101' --groupset 'Group Set 1'
+python3 -m lms.cli.courses.groups.create --course 'Extra Course' --groupset 'Group Set 1' 'My New Group'
 ```
+
+### Delete Groups
+
+Delete groups with: `lms.cli.courses.groups.delete`:
+```sh
+python3 -m lms.cli.courses.groups.delete --course 'Extra Course' --groupset 'Group Set 1' --group 'Group 1-1'
+```
+
+### Retrieve Group Memberships
 
 List all memberships in a group with: `lms.cli.courses.groups.memberships.list`:
 ```sh
-python3 -m lms.cli.courses.groups.memberships.list --course 'Course 101' --groupset 'Group Set 1' --group 'Group 1-1'
+python3 -m lms.cli.courses.groups.memberships.list --course 'Extra Course' --groupset 'Group Set 1' --group 'Group 1-1'
 ```
 
 ### Retrieve Users

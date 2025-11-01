@@ -1,21 +1,22 @@
 import copy
 
 import lms.backend.testing
-import lms.model.groupsets
+import lms.model.groups
 
 DUMMY_ID: str = '123456789'
 
-def test_courses_groupsets_create_base(test: lms.backend.testing.BackendTest):
-    """ Test the base functionality of creating group sets. """
+def test_courses_groups_create_base(test: lms.backend.testing.BackendTest):
+    """ Test the base functionality of creating groups. """
 
     # [(kwargs (and overrides), expected, error substring), ...]
     test_cases = [
         (
             {
-                'course_id': '110000000',
-                'name': 'test_groupset_1',
+                'course_id': '130000000',
+                'groupset_id': '131010100',
+                'name': 'test_group_1',
             },
-            lms.model.groupsets.GroupSet(id = DUMMY_ID, name = 'test_groupset_1'),
+            lms.model.groups.Group(id = DUMMY_ID, name = 'test_group_1'),
             None,
         ),
     ]
@@ -27,5 +28,5 @@ def test_courses_groupsets_create_base(test: lms.backend.testing.BackendTest):
 
         return result
 
-    test.base_request_test(test.backend.courses_groupsets_create, test_cases,
+    test.base_request_test(test.backend.courses_groups_create, test_cases,
             actual_clean_func = _clean_result)

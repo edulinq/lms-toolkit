@@ -1,0 +1,10 @@
+{
+    "cli": "lms.cli.courses.groups.delete",
+    "arguments": [
+        "--course", "Extra Course",
+        "--groupset", "Group Set 1",
+        "--group", "Group 1-1",
+    ],
+}
+---
+Deleted group: 'Group 1-1'.
