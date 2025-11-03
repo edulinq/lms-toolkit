@@ -26,8 +26,8 @@ def test_courses_groupsets_memberships_resolve_and_list_base(test: lms.backend.t
         ),
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131010100'),
+                'course_query': lms.model.courses.CourseQuery(name = 'Extra Course'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(name = 'Group Set 1'),
             },
             [
                 lms.model.testdata.groups.COURSE_GROUP_MEMBERSHIPS['Extra Course']['Group Set 1']['extra-course-student-1'],
@@ -39,14 +39,23 @@ def test_courses_groupsets_memberships_resolve_and_list_base(test: lms.backend.t
         ),
         (
             {
-                'course_query': lms.model.courses.CourseQuery(id = '130000000'),
-                'groupset_query': lms.model.groupsets.GroupSetQuery(id = '131020200'),
+                'course_query': lms.model.courses.CourseQuery(name = 'Extra Course'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(name = 'Group Set 2'),
             },
             [
                 lms.model.testdata.groups.COURSE_GROUP_MEMBERSHIPS['Extra Course']['Group Set 2']['extra-course-student-1'],
                 lms.model.testdata.groups.COURSE_GROUP_MEMBERSHIPS['Extra Course']['Group Set 2']['extra-course-student-2'],
                 lms.model.testdata.groups.COURSE_GROUP_MEMBERSHIPS['Extra Course']['Group Set 2']['extra-course-student-3'],
                 lms.model.testdata.groups.COURSE_GROUP_MEMBERSHIPS['Extra Course']['Group Set 2']['extra-course-student-4'],
+            ],
+            None,
+        ),
+        (
+            {
+                'course_query': lms.model.courses.CourseQuery(name = 'Extra Course'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(name = 'Group Set 3'),
+            },
+            [
             ],
             None,
         ),

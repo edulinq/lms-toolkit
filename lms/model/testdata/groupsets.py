@@ -14,4 +14,8 @@ COURSE_GROUPSETS['Extra Course'] = {
         id = '131020200',
         name = 'Group Set 2',
     ),
+    'Group Set 3': lms.model.groupsets.GroupSet(
+        id = '131030300',
+        name = 'Group Set 3',
+    ),
 }

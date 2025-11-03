@@ -47,6 +47,16 @@ def test_courses_groups_list_base(test: lms.backend.testing.BackendTest):
             ],
             None,
         ),
+        (
+            {
+                'course_id': '130000000',
+                'groupset_id': '131030300',
+            },
+            [
+                lms.model.testdata.groups.COURSE_GROUPS['Extra Course']['Group 3-1'],
+            ],
+            None,
+        ),
     ]
 
     test.base_request_test(test.backend.courses_groups_list, test_cases)

@@ -24,6 +24,10 @@ COURSE_GROUPS['Extra Course'] = {
         id = '131020202',
         name = 'Group 2-2',
     ),
+    'Group 3-1': lms.model.groups.Group(
+        id = '131030301',
+        name = 'Group 3-1',
+    ),
 }
 
 # {course_name: {groupset_name: {user name: membership, ...}, ...}, ...}

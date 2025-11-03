@@ -52,6 +52,15 @@ def test_courses_groupsets_memberships_list_base(test: lms.backend.testing.Backe
             ],
             None,
         ),
+        (
+            {
+                'course_id': '130000000',
+                'groupset_id': '131030300',
+            },
+            [
+            ],
+            None,
+        ),
     ]
 
     # Strip down the queries (which may be partially resolved).

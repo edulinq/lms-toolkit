@@ -15,9 +15,11 @@ CANVAS_CLEAN_REMOVE_CONTENT_KEYS: typing.List[str] = [
     'ics',
     'last_activity_at',
     'lti_context_id',
+    'preview_url',
     'secure_params',
     'total_activity_time',
     'updated_at',
+    'url',
     'uuid',
 ]
 """ Keys to remove from Canvas content. """
@@ -74,7 +76,6 @@ def clean_canvas_response(response: requests.Response, body: str) -> str:
 
     if ('submissions/update_grades' in response.request.url):
         data.pop('id', None)
-        data.pop('url', None)
 
     # Convert body back to a string.
     body = edq.util.json.dumps(data)

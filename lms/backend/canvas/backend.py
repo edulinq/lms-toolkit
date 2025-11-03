@@ -13,6 +13,7 @@ import lms.backend.canvas.courses.groupsets.memberships.list
 import lms.backend.canvas.courses.groups.create
 import lms.backend.canvas.courses.groups.delete
 import lms.backend.canvas.courses.groups.list
+import lms.backend.canvas.courses.groups.memberships.add
 import lms.backend.canvas.courses.groups.memberships.list
 import lms.backend.canvas.courses.list
 import lms.backend.canvas.courses.users.list
@@ -147,6 +148,18 @@ class CanvasBackend(lms.model.backend.APIBackend):
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         parsed_groupset_id = lms.util.parse.required_int(groupset_id, 'groupset_id')
         return lms.backend.canvas.courses.groups.list.request(self, parsed_course_id, parsed_groupset_id)
+
+    def courses_groups_memberships_add(self,
+            course_id: str,
+            groupset_id: str,
+            group_id: str,
+            user_ids: typing.List[str],
+            **kwargs: typing.Any) -> int:
+        parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
+        parsed_groupset_id = lms.util.parse.required_int(groupset_id, 'groupset_id')
+        parsed_group_id = lms.util.parse.required_int(group_id, 'group_id')
+        parsed_user_ids = [lms.util.parse.required_int(user_id, 'user_id') for user_id in user_ids]
+        return lms.backend.canvas.courses.groups.memberships.add.request(self, parsed_course_id, parsed_groupset_id, parsed_group_id, parsed_user_ids)
 
     def courses_groups_memberships_list(self,
             course_id: str,

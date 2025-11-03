@@ -32,6 +32,10 @@ def request(backend: typing.Any,
 
     memberships = []
     for raw_object in raw_objects:
+        # Canvas includes unassigned users.
+        if (raw_object.get('canvas_group_id', None) is None):
+            continue
+
         user_query = lms.model.users.UserQuery(
             id = raw_object.get('canvas_user_id', None),
             name = raw_object.get('name', None),

@@ -37,7 +37,6 @@ def test_courses_groups_resolve_and_list_base(test: lms.backend.testing.BackendT
             ],
             None,
         ),
-
         (
             {
                 'course_query': lms.model.courses.CourseQuery(name = 'Extra Course'),
@@ -46,6 +45,16 @@ def test_courses_groups_resolve_and_list_base(test: lms.backend.testing.BackendT
             [
                 lms.model.testdata.groups.COURSE_GROUPS['Extra Course']['Group 2-1'],
                 lms.model.testdata.groups.COURSE_GROUPS['Extra Course']['Group 2-2'],
+            ],
+            None,
+        ),
+        (
+            {
+                'course_query': lms.model.courses.CourseQuery(name = 'Extra Course'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(name = 'Group Set 3'),
+            },
+            [
+                lms.model.testdata.groups.COURSE_GROUPS['Extra Course']['Group 3-1'],
             ],
             None,
         ),

@@ -29,6 +29,7 @@ def test_courses_groupsets_list_base(test: lms.backend.testing.BackendTest):
             [
                 lms.model.testdata.groupsets.COURSE_GROUPSETS['Extra Course']['Group Set 1'],
                 lms.model.testdata.groupsets.COURSE_GROUPSETS['Extra Course']['Group Set 2'],
+                lms.model.testdata.groupsets.COURSE_GROUPSETS['Extra Course']['Group Set 3'],
             ],
             None,
         ),
