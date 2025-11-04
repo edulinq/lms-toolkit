@@ -41,6 +41,7 @@ Links:
            - [Retrieve Group Memberships](#retrieve-group-memberships)
            - [Add Users to a Group](#add-users-to-a-group)
            - [Subtract Users from a Group](#subtract-users-from-a-group)
+           - [Set Users for a Group](#set-users-for-a-group)
      - Users
        - [Retrieve Users](#retrieve-users)
        - Scores
@@ -316,6 +317,15 @@ python3 -m lms.cli.courses.groups.memberships.subtract --course 'Extra Course' -
 
 You can specify as many users as you want.
 
+### Set Users for a Group
+
+Set the users in a group with: `lms.cli.courses.groups.memberships.set`:
+```sh
+python3 -m lms.cli.courses.groups.memberships.set --course 'Extra Course' --groupset 'Group Set 1' --group 'Group 1-1' extra-course-student-2 extra-course-student-3
+```
+
+This operation will add and subtract any users necessary to make the group have exactly the users specified.
+
 ### Retrieve Users
 
 List all users associated with a course with `lms.cli.users.list`:
@@ -366,6 +376,7 @@ Legend:
 | lms.cli.courses.groups.list                     | `+`    | `-`    |
 | lms.cli.courses.groups.memberships.add          | `+`    | `-`    |
 | lms.cli.courses.groups.memberships.list         | `+`    | `-`    |
+| lms.cli.courses.groups.memberships.set          | `+`    | `-`    |
 | lms.cli.courses.groups.memberships.subtract     | `+`    | `-`    |
 | lms.cli.courses.groupsets.get                   | `+`    | `-`    |
 | lms.cli.courses.groupsets.list                  | `+`    | `-`    |

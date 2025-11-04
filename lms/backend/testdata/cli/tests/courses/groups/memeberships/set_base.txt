@@ -1,0 +1,12 @@
+{
+    "cli": "lms.cli.courses.groups.memberships.set",
+    "arguments": [
+        "--course", "Extra Course",
+        "--groupset", "Group Set 3",
+        "--group", "Group 3-1",
+        "extra-course-student-1",
+    ],
+}
+---
+Added 1 users to group Group 3-1.
+Subtracted 0 users from group Group 3-1.

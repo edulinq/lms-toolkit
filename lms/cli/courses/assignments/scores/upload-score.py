@@ -37,7 +37,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
     count = backend.courses_assignments_scores_resolve_and_upload(course_query, assignment_query, scores)
 
-    print(f"Uploaded {count} Score(s)")
+    print(f"Uploaded {count} Scores")
 
     return 0
 

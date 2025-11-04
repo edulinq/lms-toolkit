@@ -8,7 +8,7 @@
     ],
 }
 ---
-Uploaded 0 Score(s)
+Uploaded 0 Scores
 
 +++
 <LOG_PREFIX> -- Could not resolve user query '999'.

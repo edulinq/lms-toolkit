@@ -711,7 +711,7 @@ class APIBackend():
                 resolved_group_query.get_id(),
                 **kwargs)
 
-        group_user_ids = {membership.user.id for membership in group_memberships}
+        group_user_ids = {membership.user.id for membership in group_memberships if membership.user.id is not None}
 
         # Filter out users already in the group.
         user_ids = []
@@ -779,6 +779,67 @@ class APIBackend():
 
         return memberships
 
+    def courses_groups_memberships_resolve_and_set(self,
+            course_query: lms.model.courses.CourseQuery,
+            groupset_query: lms.model.groupsets.GroupSetQuery,
+            group_query: lms.model.groups.GroupQuery,
+            user_queries: typing.List[lms.model.users.UserQuery],
+            **kwargs: typing.Any) -> typing.Tuple[int, int]:
+        """
+        Resolve queries and set the specified users for the group.
+        This method can both add and subtract users from the group.
+        Returns the number of users added and subtracted.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_groupset_query = self.resolve_groupset_query(resolved_course_query.get_id(), groupset_query, **kwargs)
+        resolved_group_query = self.resolve_group_query(resolved_course_query.get_id(), resolved_groupset_query.get_id(), group_query, **kwargs)
+        resolved_user_queries = self.resolve_user_queries(resolved_course_query.get_id(), user_queries, warn_on_miss = True, **kwargs)
+
+        # Get users already in this group.
+        group_memberships = self.courses_groups_memberships_list(
+                resolved_course_query.get_id(),
+                resolved_groupset_query.get_id(),
+                resolved_group_query.get_id(),
+                **kwargs)
+
+        group_user_ids = {membership.user.id for membership in group_memberships if membership.user.id is not None}
+        query_user_ids = {resolved_user_query.get_id() for resolved_user_query in resolved_user_queries}
+
+        # Collect users that need to be added.
+        add_user_ids = []
+        for query_user_id in query_user_ids:
+            if (query_user_id not in group_user_ids):
+                add_user_ids.append(query_user_id)
+
+        # Collect users that need to be subtracted.
+        sub_user_ids = []
+        for group_user_id in group_user_ids:
+            if (group_user_id not in query_user_ids):
+                sub_user_ids.append(group_user_id)
+
+        # Update the group.
+
+        add_count = 0
+        if (len(add_user_ids) != 0):
+            add_count = self.courses_groups_memberships_add(
+                    resolved_course_query.get_id(),
+                    resolved_groupset_query.get_id(),
+                    resolved_group_query.get_id(),
+                    add_user_ids,
+                    **kwargs)
+
+        sub_count = 0
+        if (len(sub_user_ids) != 0):
+            sub_count = self.courses_groups_memberships_subtract(
+                    resolved_course_query.get_id(),
+                    resolved_groupset_query.get_id(),
+                    resolved_group_query.get_id(),
+                    sub_user_ids,
+                    **kwargs)
+
+        return add_count, sub_count
+
     def courses_groups_memberships_subtract(self,
             course_id: str,
             groupset_id: str,
@@ -813,7 +874,7 @@ class APIBackend():
                 resolved_group_query.get_id(),
                 **kwargs)
 
-        group_user_ids = {membership.user.id for membership in group_memberships}
+        group_user_ids = {membership.user.id for membership in group_memberships if membership.user.id is not None}
 
         # Filter out users not in the group.
         user_ids = []

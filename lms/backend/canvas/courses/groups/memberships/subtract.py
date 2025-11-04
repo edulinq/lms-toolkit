@@ -19,7 +19,7 @@ def request(backend: typing.Any,
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
     data = {
-        'user_ids[]': user_ids,
+        'user_ids[]': sorted(user_ids),
     }
 
     raw_object = lms.backend.canvas.common.make_delete_request(url, headers = headers, data = data)

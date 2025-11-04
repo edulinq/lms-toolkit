@@ -29,7 +29,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
     count = backend.courses_gradebook_resolve_and_upload(course_query, gradebook)
 
-    print(f"Uploaded {count} Score(s)")
+    print(f"Uploaded {count} Scores")
 
     return 0
 
