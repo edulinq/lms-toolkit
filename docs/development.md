@@ -22,6 +22,42 @@ At the developer level, a backend typically exposes three or four retrieval oper
 Most of these operations will be implemented by the base backend,
 and only `list` will need to be implemented by the child backend.
 
+## Adding Functionality
+
+When adding new functionality there are several parts of the project (and related projects) that you need to work with.
+This can be a bit overwhelming at first, but the steps should be straightforward once laid out.
+Here is a suggested order for handling things.
+
+ - Common Backend
+   - Add the methods (abstract and concrete) you need to the common API base class: `lms/model/backend.py`.
+ - Specific Backend
+   - Add the appropriate implementations of abstract methods from the base class.
+     For example, the Canvas backend uses the interface method as a light wrapper and then dispatches to another file.
+ - CLI Frontend
+   - Implement the CLI frontend for your functionality.
+     You want to implement this early so that you can easily generate test data.
+     Once implemented, try running a few commands against your LMS server.
+ - Backend Test
+   - Create your backend tests.
+     Note that these tests will probably not run yet (we don't have test data), but creating tests early can help you think them through.
+   - If necessary, you may need to create test model data in `lms/model/testdata`.
+     This is usually only required if you added test data to the LMS image.
+ - Generate Temp Test Data
+   - Use the CLI to generate test data with the `--http-exchanges-out-dir` option.
+     For example, Canvas will use `--http-exchanges-out-dir testdata/lms-docker-canvas-testdata/testdata/http`.
+     Note that we are directly placing the test data in our submodule, but we will replace it later.
+ - CLI Test
+   - It should now be straightforward to make CLI tests.
+     You can probably use the same data used in your backend tests, so you may not need to generate more test data.
+ - Generate Real Test Data
+  - Now that everything passes and looks good, generate the real test data in your LMS docker repo.
+    The specific repo should have instructions, but it will usually be a script like 'scripts/generate-test-data.py'.
+    Once the data is generated, I like to test one more time by copying the data over to this repo and running the tests again.
+    After the data is generated and verified, commit/push the new data.
+    Now you can update the submodule (which will include the new test data).
+ - Update Docs
+  - Update the documentation (e.g. README) to include the new functionality.
+
 ## Test Data
 
 The majority of the data needed for testing takes the form of

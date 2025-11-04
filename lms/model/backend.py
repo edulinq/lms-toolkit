@@ -779,6 +779,61 @@ class APIBackend():
 
         return memberships
 
+    def courses_groups_memberships_subtract(self,
+            course_id: str,
+            groupset_id: str,
+            group_id: str,
+            user_ids: typing.List[str],
+            **kwargs: typing.Any) -> int:
+        """
+        Subtract the specified users from the group.
+        """
+
+        raise NotImplementedError('courses_groups_memberships_subtract')
+
+    def courses_groups_memberships_resolve_and_subtract(self,
+            course_query: lms.model.courses.CourseQuery,
+            groupset_query: lms.model.groupsets.GroupSetQuery,
+            group_query: lms.model.groups.GroupQuery,
+            user_queries: typing.List[lms.model.users.UserQuery],
+            **kwargs: typing.Any) -> int:
+        """
+        Resolve queries and subtract the specified users from the group.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_groupset_query = self.resolve_groupset_query(resolved_course_query.get_id(), groupset_query, **kwargs)
+        resolved_group_query = self.resolve_group_query(resolved_course_query.get_id(), resolved_groupset_query.get_id(), group_query, **kwargs)
+        resolved_user_queries = self.resolve_user_queries(resolved_course_query.get_id(), user_queries, warn_on_miss = True, **kwargs)
+
+        # Get users already in this group.
+        group_memberships = self.courses_groups_memberships_list(
+                resolved_course_query.get_id(),
+                resolved_groupset_query.get_id(),
+                resolved_group_query.get_id(),
+                **kwargs)
+
+        group_user_ids = {membership.user.id for membership in group_memberships}
+
+        # Filter out users not in the group.
+        user_ids = []
+        for query in resolved_user_queries:
+            if (query.get_id() not in group_user_ids):
+                logging.warning("User '%s' is not in group '%s'.", query, resolved_group_query)
+                continue
+
+            user_ids.append(query.get_id())
+
+        if (len(user_ids) == 0):
+            return 0
+
+        return self.courses_groups_memberships_subtract(
+                resolved_course_query.get_id(),
+                resolved_groupset_query.get_id(),
+                resolved_group_query.get_id(),
+                user_ids,
+                **kwargs)
+
     def courses_users_get(self,
             course_query: lms.model.courses.CourseQuery,
             user_queries: typing.List[lms.model.users.UserQuery],

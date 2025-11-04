@@ -39,6 +39,8 @@ Links:
          - [Delete Groups](#delete-groups)
          - Memberships
            - [Retrieve Group Memberships](#retrieve-group-memberships)
+           - [Add Users to a Group](#add-users-to-a-group)
+           - [Subtract Users from a Group](#subtract-users-from-a-group)
      - Users
        - [Retrieve Users](#retrieve-users)
        - Scores
@@ -296,6 +298,24 @@ List all memberships in a group with: `lms.cli.courses.groups.memberships.list`:
 python3 -m lms.cli.courses.groups.memberships.list --course 'Extra Course' --groupset 'Group Set 1' --group 'Group 1-1'
 ```
 
+### Add Users to a Group
+
+Add users to a group with: `lms.cli.courses.groups.memberships.add`:
+```sh
+python3 -m lms.cli.courses.groups.memberships.add --course 'Extra Course' --groupset 'Group Set 3' --group 'Group 3-1' extra-course-student-1
+```
+
+You can specify as many users as you want.
+
+### Subtract Users from a Group
+
+Subtract users from a group with: `lms.cli.courses.groups.memberships.subtract`:
+```sh
+python3 -m lms.cli.courses.groups.memberships.subtract --course 'Extra Course' --groupset 'Group Set 1' --group 'Group 1-1' extra-course-student-1
+```
+
+You can specify as many users as you want.
+
 ### Retrieve Users
 
 List all users associated with a course with `lms.cli.users.list`:
@@ -344,7 +364,9 @@ Legend:
 | lms.cli.courses.gradebook.upload                | `+`    | `-`    |
 | lms.cli.courses.groups.get                      | `+`    | `-`    |
 | lms.cli.courses.groups.list                     | `+`    | `-`    |
+| lms.cli.courses.groups.memberships.add          | `+`    | `-`    |
 | lms.cli.courses.groups.memberships.list         | `+`    | `-`    |
+| lms.cli.courses.groups.memberships.subtract     | `+`    | `-`    |
 | lms.cli.courses.groupsets.get                   | `+`    | `-`    |
 | lms.cli.courses.groupsets.list                  | `+`    | `-`    |
 | lms.cli.courses.groupsets.memberships.list      | `+`    | `-`    |
