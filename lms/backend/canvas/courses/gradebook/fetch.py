@@ -19,7 +19,7 @@ def request(backend: typing.Any,
     data = {
         'per_page': lms.backend.canvas.common.DEFAULT_PAGE_SIZE,
         'assignment_ids[]': [str(assignment_id) for assignment_id in assignment_ids],
-        'student_ids[]': [str(user_id) for user_id in user_ids],
+        'student_ids[]': 'all',
     }
 
     assignment_queries = [lms.model.assignments.AssignmentQuery(id = id) for id in assignment_ids]
@@ -40,6 +40,10 @@ def request(backend: typing.Any,
     for raw_object in raw_objects:
         # Check if this is an actual submission and not just a placeholder.
         if (raw_object.get('workflow_state', None) == 'unsubmitted'):
+            continue
+
+        user_id = int(raw_object.get('user_id', -1))
+        if ((len(user_ids) != 0) and (user_id not in user_ids)):
             continue
 
         gradebook.add(lms.backend.canvas.model.scores.AssignmentScore(**raw_object))
