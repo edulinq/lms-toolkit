@@ -16,8 +16,6 @@ import lms.model.backend
 import lms.model.scores
 import lms.model.users
 
-DEFAULT_SKIP_ROWS = 0
-
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
@@ -96,11 +94,8 @@ def _get_parser() -> argparse.ArgumentParser:
             include_token = True,
             include_course = True,
             include_assignment = True,
+            include_skip_rows = True,
     )
-
-    parser.add_argument('--skip-rows', dest = 'skip_rows',
-        action = 'store', type = int, default = DEFAULT_SKIP_ROWS,
-        help = 'The number of header rows to skip (default: %(default)s).')
 
     parser.add_argument('path', metavar = 'PATH',
         action = 'store', type = str,

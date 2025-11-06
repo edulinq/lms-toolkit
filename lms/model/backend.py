@@ -571,78 +571,40 @@ class APIBackend():
 
         return (created_groups, counts)
 
-    def _resolve_group_memberships(self,
-            course_id: str,
-            groupset_id: str,
+    def courses_groupsets_memberships_resolve_and_subtract(self,
+            course_query: lms.model.courses.CourseQuery,
+            groupset_query: lms.model.groupsets.GroupSetQuery,
             memberships: typing.List[lms.model.groups.GroupMembership],
-            **kwargs: typing.Any) -> typing.Tuple[
-                typing.Dict[lms.model.groups.ResolvedGroupQuery, typing.List[lms.model.users.ResolvedUserQuery]],
-                typing.Dict[str, typing.List[lms.model.users.ResolvedUserQuery]],
-                typing.List[lms.model.groups.ResolvedGroupQuery]]:
+            **kwargs: typing.Any) -> typing.Dict[lms.model.groups.ResolvedGroupQuery, int]:
         """
-        Resolve a list of group memberships.
-        This method will resolved each query and split up the memberships by the appropriate group.
-        If a group does not exist, the memberships will be split by apparent group name.
+        Resolve queries and subtract the specified users to the specified groups.
+        This will not delete any groups.
 
-        Returns:
-         - Memberships in Found Groups (keyed by resolved group query)
-         - Memberships in Missing Groups (keyed by apparent group name)
-         - Groups not involved in any of the returned memberships.
-
-        The returned dicts will be the found groups (keyed by resolved query) and then the missing groups (keyed by apparent group name).
+        Return:
+         - Group Subtraction Counts
         """
 
-        found_group_memberships: typing.Dict[lms.model.groups.ResolvedGroupQuery, typing.List[lms.model.users.ResolvedUserQuery]] = {}
-        missing_group_memberships: typing.Dict[str, typing.List[lms.model.users.ResolvedUserQuery]] = {}
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_groupset_query = self.resolve_groupset_query(resolved_course_query.get_id(), groupset_query, **kwargs)
 
-        users = self.courses_users_list(course_id, **kwargs)
-        resolved_user_queries = [user.to_query() for user in users]
+        found_group_memberships, missing_group_memberships, _ = self._resolve_group_memberships(
+                resolved_course_query.get_id(), resolved_groupset_query.get_id(), memberships, **kwargs)
 
-        groups = self.courses_groups_list(course_id, groupset_id, **kwargs)
-        resolved_group_queries = [group.to_query() for group in groups]
+        # Warn about missing groups.
+        for name in list(sorted(missing_group_memberships.keys())):
+            logging.warning("Group does not exist: '%s'.", name)
 
-        for (i, membership) in enumerate(memberships):
-            # Resolve user.
+        # Subtract memberships.
+        counts = {}
+        for (resolved_group_query, resolved_user_queries) in found_group_memberships.items():
+            count = self.courses_groups_memberships_resolve_and_subtract(
+                    resolved_course_query, resolved_groupset_query, resolved_group_query,
+                    resolved_user_queries,  # type: ignore[arg-type]
+                    **kwargs)
 
-            resolved_user_query = None
-            for possible_user_query in resolved_user_queries:
-                if (membership.user.match(possible_user_query)):
-                    resolved_user_query = possible_user_query
-                    break
+            counts[resolved_group_query] = count
 
-            if (resolved_user_query is None):
-                logging.warning("Could not resolve user '%s' for membership entry at index %d.", membership.user, i)
-                continue
-
-            # Resolve group.
-
-            resolved_group_query = None
-            for possible_group_query in resolved_group_queries:
-                if (membership.group.match(possible_group_query)):
-                    resolved_group_query = possible_group_query
-                    break
-
-            # Add to the correct collection.
-
-            if (resolved_group_query is None):
-                if ((membership.group.name is None) or (len(membership.group.name) == 0)):
-                    logging.warning(("Membership entry at index %d has a group with no name."
-                        + " Ensure that non-existent groups all have names."), i)
-                    continue
-
-                if (membership.group.name not in missing_group_memberships):
-                    missing_group_memberships[membership.group.name] = []
-
-                missing_group_memberships[membership.group.name].append(resolved_user_query)
-            else:
-                if (resolved_group_query not in found_group_memberships):
-                    found_group_memberships[resolved_group_query] = []
-
-                found_group_memberships[resolved_group_query].append(resolved_user_query)
-
-        unused_groups = sorted(list(set(resolved_group_queries) - set(found_group_memberships.keys())))
-
-        return (found_group_memberships, missing_group_memberships, unused_groups)
+        return counts
 
     def courses_groupsets_memberships_list(self,
             course_id: str,
@@ -1482,3 +1444,76 @@ class APIBackend():
                 logging.warning("Could not resolve %s query '%s'.", label, query)
 
         return list(sorted(set(matched_queries)))
+
+    def _resolve_group_memberships(self,
+            course_id: str,
+            groupset_id: str,
+            memberships: typing.List[lms.model.groups.GroupMembership],
+            **kwargs: typing.Any) -> typing.Tuple[
+                typing.Dict[lms.model.groups.ResolvedGroupQuery, typing.List[lms.model.users.ResolvedUserQuery]],
+                typing.Dict[str, typing.List[lms.model.users.ResolvedUserQuery]],
+                typing.List[lms.model.groups.ResolvedGroupQuery]]:
+        """
+        Resolve a list of group memberships.
+        This method will resolved each query and split up the memberships by the appropriate group.
+        If a group does not exist, the memberships will be split by apparent group name.
+
+        Returns:
+         - Memberships in Found Groups (keyed by resolved group query)
+         - Memberships in Missing Groups (keyed by apparent group name)
+         - Groups not involved in any of the returned memberships.
+
+        The returned dicts will be the found groups (keyed by resolved query) and then the missing groups (keyed by apparent group name).
+        """
+
+        found_group_memberships: typing.Dict[lms.model.groups.ResolvedGroupQuery, typing.List[lms.model.users.ResolvedUserQuery]] = {}
+        missing_group_memberships: typing.Dict[str, typing.List[lms.model.users.ResolvedUserQuery]] = {}
+
+        users = self.courses_users_list(course_id, **kwargs)
+        resolved_user_queries = [user.to_query() for user in users]
+
+        groups = self.courses_groups_list(course_id, groupset_id, **kwargs)
+        resolved_group_queries = [group.to_query() for group in groups]
+
+        for (i, membership) in enumerate(memberships):
+            # Resolve user.
+
+            resolved_user_query = None
+            for possible_user_query in resolved_user_queries:
+                if (membership.user.match(possible_user_query)):
+                    resolved_user_query = possible_user_query
+                    break
+
+            if (resolved_user_query is None):
+                logging.warning("Could not resolve user '%s' for membership entry at index %d.", membership.user, i)
+                continue
+
+            # Resolve group.
+
+            resolved_group_query = None
+            for possible_group_query in resolved_group_queries:
+                if (membership.group.match(possible_group_query)):
+                    resolved_group_query = possible_group_query
+                    break
+
+            # Add to the correct collection.
+
+            if (resolved_group_query is None):
+                if ((membership.group.name is None) or (len(membership.group.name) == 0)):
+                    logging.warning(("Membership entry at index %d has a group with no name."
+                        + " Ensure that non-existent groups all have names."), i)
+                    continue
+
+                if (membership.group.name not in missing_group_memberships):
+                    missing_group_memberships[membership.group.name] = []
+
+                missing_group_memberships[membership.group.name].append(resolved_user_query)
+            else:
+                if (resolved_group_query not in found_group_memberships):
+                    found_group_memberships[resolved_group_query] = []
+
+                found_group_memberships[resolved_group_query].append(resolved_user_query)
+
+        unused_groups = sorted(list(set(resolved_group_queries) - set(found_group_memberships.keys())))
+
+        return (found_group_memberships, missing_group_memberships, unused_groups)

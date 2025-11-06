@@ -1,0 +1,15 @@
+{
+    "cli": "lms.cli.courses.groupsets.memberships.subtract",
+    "arguments": [
+        "--course", "Extra Course",
+        "--groupset", "Group Set 1",
+        "--skip-rows", "1",
+        "__DATA_DIR__(groups/groupsets_subtract_base.txt)",
+    ],
+}
+---
+Subtracted 1 users from group Group 1-1 (131010101).
+Subtracted 0 users from group Group 1-2 (131010102).
+
++++
+<LOG_PREFIX> -- User 'extra-course-student-1@test.edulinq.org (100060000)' is not in group 'Group 1-2 (131010102)'.

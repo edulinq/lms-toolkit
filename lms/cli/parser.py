@@ -15,6 +15,8 @@ import lms.util.net
 
 CONFIG_FILENAME: str = 'edq-lms.json'
 
+DEFAULT_SKIP_ROWS: int = 0
+
 _set_exchanges_clean_func: bool = True  # pylint: disable=invalid-name
 
 def get_parser(description: str,
@@ -27,6 +29,7 @@ def get_parser(description: str,
         include_groupset: bool = False,
         include_group: bool = False,
         include_net: bool = True,
+        include_skip_rows: bool = False,
         ) -> argparse.ArgumentParser:
     """
     Get an argument parser specialized for LMS Toolkit.
@@ -115,5 +118,10 @@ def get_parser(description: str,
         parser.add_argument('--include-extra-fields', dest = 'include_extra_fields',
             action = 'store_true', default = False,
             help = 'Include non-common (usually LMS-specific) fields in results (default: %(default)s).')
+
+    if (include_skip_rows):
+        parser.add_argument('--skip-rows', dest = 'skip_rows',
+            action = 'store', type = int, default = DEFAULT_SKIP_ROWS,
+            help = 'The number of header rows to skip (default: %(default)s).')
 
     return typing.cast(argparse.ArgumentParser, parser)

@@ -1,5 +1,5 @@
 """
-Add users to a group set.
+Subtract users from a group set.
 """
 
 import argparse
@@ -28,14 +28,10 @@ def run_cli(args: argparse.Namespace) -> int:
 
     memberships = lms.cli.courses.groupsets.memberships.common.load_group_memberships(backend, args.path, args.skip_rows)
 
-    created_groups, counts = backend.courses_groupsets_memberships_resolve_and_add(course_query, groupset_query, memberships)
-
-    if (len(created_groups) > 0):
-        display_groups = [str(group.to_query()) for group in created_groups]
-        print(f"Created {len(created_groups)} groups: {display_groups}.")
+    counts = backend.courses_groupsets_memberships_resolve_and_subtract(course_query, groupset_query, memberships)
 
     for (group_query, count) in counts.items():
-        print(f"Added {count} users to group {group_query}.")
+        print(f"Subtracted {count} users from group {group_query}.")
 
     return 0
 

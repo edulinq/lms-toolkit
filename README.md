@@ -34,6 +34,7 @@ Links:
          - Memberships
            - [Retrieve Group Set Memberships](#retrieve-group-set-memberships)
            - [Add Users to a Group Set](#add-users-to-a-group-set)
+           - [Subtract Users from a Group Set](#subtract-users-from-a-group-set)
        - Groups
          - [Retrieve Groups](#retrieve-groups)
          - [Create Groups](#create-groups)
@@ -131,9 +132,16 @@ this project tends to use two different types of operations:
 
 When dealing with groups, there are two structures you need to be familiar with: Groups and Group Sets.
 A group is a collection of students.
-A group set (sometimes denoted as "groupsset") is a collection of groups, often created for a single purpose
+A group set (sometimes denoted as "groupset") is a collection of groups, often created for a single purpose
 (e.g., a set of groups created for a specific assignment).
 All groups must exist within a group set.
+
+### TSV Files
+
+Various operations may require [TSV files](https://en.wikipedia.org/wiki/Tab-separated_values) (tab-separated) files as input.
+When used, they are usually paired with a `--skip-rows` option to allow you to skip the desired number of header rows
+(the default value is generally 0).
+Empty lines are ignored, and will not be counted against the `--skip-rows` count.
 
 ## CLI Tools
 
@@ -191,8 +199,7 @@ python3 -m lms.cli.assignments.scores.upload-score --course 'Course 101' --assig
 ```
 
 To upload multiple scores for a single assignment, use `lms.cli.assignments.scores.upload`.
-This tool takes a [TSV file](https://en.wikipedia.org/wiki/Tab-separated_values) (tab-separated) file as input.
-The file may have a header, which must be skipped using the `--skip-rows` option.
+This tool takes a TSV file as input.
 Each data row can have two or three columns (different rows can have different number of columns).
 The values are as follows:
  1) User Query
@@ -275,9 +282,8 @@ python3 -m lms.cli.courses.groupsets.memberships.list --course 'Extra Course' --
 ### Add Users to a Group Set
 
 Add users to a group set with: `lms.cli.courses.groupsets.memberships.add`.
-This tool takes a [TSV file](https://en.wikipedia.org/wiki/Tab-separated_values) (tab-separated) file as input.
-The file may have a header, which must be skipped using the `--skip-rows` option.
-Each data row can have two columns: group query and user query.
+This tool takes a TSV file as input.
+Each data row must have two columns: group query and user query.
 If a group does not exist, it will be created.
 
 For example, assume we have a file `groupset-members.txt` with the following contents:
@@ -292,6 +298,24 @@ My New Group 2	extra-course-student-4@test.edulinq.org
 We can add these user to the specified groups using:
 ```sh
 python3 -m lms.cli.courses.groupsets.memberships.add --course 'Extra Course' --groupset 'Group Set 3' groupset-members.txt
+```
+
+### Subtract Users from a Group Set
+
+Add users to a group set with: `lms.cli.courses.groupsets.memberships.subtract`.
+This tool takes a TSV file as input.
+Each data row must have two columns: group query and user query.
+
+For example, assume we have a file `groupset-members.txt` with the following contents:
+```
+Group	User
+Group 1-1	extra-course-student-1@test.edulinq.org
+Group 1-2	extra-course-student-3@test.edulinq.org
+```
+
+We can subtract these users from the specified groups using:
+```sh
+python3 -m lms.cli.courses.groupsets.memberships.subtract --course 'Extra Course' --groupset 'Group Set 1' groupset-members.txt
 ```
 
 ### Retrieve Groups
@@ -405,6 +429,7 @@ Legend:
 | lms.cli.courses.groupsets.list                  | `+`    | `-`    |
 | lms.cli.courses.groupsets.memberships.add       | `+`    | `-`    |
 | lms.cli.courses.groupsets.memberships.list      | `+`    | `-`    |
+| lms.cli.courses.groupsets.memberships.subtract  | `+`    | `-`    |
 | lms.cli.courses.users.get                       | `+`    | `-`    |
 | lms.cli.courses.users.list                      | `+`    | `-`    |
 | lms.cli.courses.users.scores.get                | `+`    | `-`    |
