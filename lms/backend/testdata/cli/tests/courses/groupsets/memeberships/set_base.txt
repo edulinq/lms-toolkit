@@ -1,0 +1,15 @@
+{
+    "cli": "lms.cli.courses.groupsets.memberships.set",
+    "stdout_assertion_func": "lms.util.testing.cli_assert_normalize_ids",
+    /* The logs include IDs for created objects. */
+    "split_stdout_stderr": true,
+    "arguments": [
+        "--course", "Extra Course",
+        "--groupset", "Group Set 1",
+        "--skip-rows", "1",
+        "__DATA_DIR__(groups/groupsets_set_base.txt)",
+    ],
+}
+---
+Added 0 and subtracted 0 users to/from group Group 1-1 (131010101).
+Added 0 and subtracted 0 users to/from group Group 1-2 (131010102).

@@ -21,9 +21,10 @@ def test_courses_groups_memberships_resolve_and_subtract_base(test: lms.backend.
                     lms.model.users.UserQuery(name = 'extra-course-student-1'),
                 ],
             },
-            1,
+            (1, False),
             None,
         ),
+
         (
             {
                 'course_query': lms.model.courses.CourseQuery(name = 'Extra Course'),
@@ -34,7 +35,23 @@ def test_courses_groups_memberships_resolve_and_subtract_base(test: lms.backend.
                     lms.model.users.UserQuery(name = 'extra-course-student-2'),
                 ],
             },
-            2,
+            (2, False),
+            None,
+        ),
+
+        # Delete Empty
+        (
+            {
+                'course_query': lms.model.courses.CourseQuery(name = 'Extra Course'),
+                'groupset_query': lms.model.groupsets.GroupSetQuery(name = 'Group Set 1'),
+                'group_query': lms.model.groups.GroupQuery(name = 'Group 1-1'),
+                'delete_empty': True,
+                'user_queries': [
+                    lms.model.users.UserQuery(name = 'extra-course-student-1'),
+                    lms.model.users.UserQuery(name = 'extra-course-student-2'),
+                ],
+            },
+            (2, True),
             None,
         ),
     ]

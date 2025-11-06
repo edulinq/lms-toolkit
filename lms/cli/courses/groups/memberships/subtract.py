@@ -31,7 +31,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
     user_queries = backend.parse_user_queries(args.users)
 
-    count = backend.courses_groups_memberships_resolve_and_subtract(course_query, groupset_query, group_query, user_queries)
+    count, _ = backend.courses_groups_memberships_resolve_and_subtract(course_query, groupset_query, group_query, user_queries)
 
     print(f"Subtracted {count} users from group {group_query}.")
 

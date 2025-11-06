@@ -35,6 +35,7 @@ Links:
            - [Retrieve Group Set Memberships](#retrieve-group-set-memberships)
            - [Add Users to a Group Set](#add-users-to-a-group-set)
            - [Subtract Users from a Group Set](#subtract-users-from-a-group-set)
+           - [Set Memberships for a Group Set](#set-memberships-for-a-group-set)
        - Groups
          - [Retrieve Groups](#retrieve-groups)
          - [Create Groups](#create-groups)
@@ -318,6 +319,34 @@ We can subtract these users from the specified groups using:
 python3 -m lms.cli.courses.groupsets.memberships.subtract --course 'Extra Course' --groupset 'Group Set 1' groupset-members.txt
 ```
 
+### Set Memberships for a Group Set
+
+Set the memberships for an entire group set with: `lms.cli.courses.groupsets.memberships.set`.
+This tool takes a TSV file as input.
+Each data row must have two columns: group query and user query.
+The group set will be modfied to match your file exactly.
+This may involve creating or deleting groups.
+
+For example, assume we have a file `groupset-members.txt` with the following contents:
+```
+Group	User
+New Group 1	extra-course-student-1@test.edulinq.org
+New Group 2	extra-course-student-2@test.edulinq.org
+New Group 3	extra-course-student-3@test.edulinq.org
+New Group 4	extra-course-student-4@test.edulinq.org
+```
+
+We can use this file to set the group set memberships with:
+```sh
+python3 -m lms.cli.courses.groupsets.memberships.set --course 'Extra Course' --groupset 'Group Set 1' groupset-members.txt
+```
+
+This command will do several things in this case:
+ - Create new groups.
+ - Remove users from their current groups.
+ - Add users to their new groups.
+ - Delete old (now empty) groups.
+
 ### Retrieve Groups
 
 List all the groups for a group set with `lms.cli.courses.groups.list`:
@@ -429,6 +458,7 @@ Legend:
 | lms.cli.courses.groupsets.list                  | `+`    | `-`    |
 | lms.cli.courses.groupsets.memberships.add       | `+`    | `-`    |
 | lms.cli.courses.groupsets.memberships.list      | `+`    | `-`    |
+| lms.cli.courses.groupsets.memberships.set       | `+`    | `-`    |
 | lms.cli.courses.groupsets.memberships.subtract  | `+`    | `-`    |
 | lms.cli.courses.users.get                       | `+`    | `-`    |
 | lms.cli.courses.users.list                      | `+`    | `-`    |

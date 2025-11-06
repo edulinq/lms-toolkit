@@ -1,0 +1,5 @@
+Group	User
+Group 1-1	extra-course-student-1
+Group 1-1	extra-course-student-2
+Group 1-2	extra-course-student-3
+Group 1-2	extra-course-student-4

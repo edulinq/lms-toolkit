@@ -529,7 +529,10 @@ class APIBackend():
             course_query: lms.model.courses.CourseQuery,
             groupset_query: lms.model.groupsets.GroupSetQuery,
             memberships: typing.List[lms.model.groups.GroupMembership],
-            **kwargs: typing.Any) -> typing.Tuple[typing.List[lms.model.groups.Group], typing.Dict[lms.model.groups.ResolvedGroupQuery, int]]:
+            **kwargs: typing.Any) -> typing.Tuple[
+                    typing.List[lms.model.groups.Group],
+                    typing.Dict[lms.model.groups.ResolvedGroupQuery, int]
+            ]:
         """
         Resolve queries and add the specified users to the specified groups.
         This may create groups.
@@ -571,6 +574,72 @@ class APIBackend():
 
         return (created_groups, counts)
 
+    def courses_groupsets_memberships_resolve_and_set(self,
+            course_query: lms.model.courses.CourseQuery,
+            groupset_query: lms.model.groupsets.GroupSetQuery,
+            memberships: typing.List[lms.model.groups.GroupMembership],
+            **kwargs: typing.Any) -> typing.Tuple[
+                    typing.List[lms.model.groups.Group],
+                    typing.List[lms.model.groups.ResolvedGroupQuery],
+                    typing.Dict[lms.model.groups.ResolvedGroupQuery, int],
+                    typing.Dict[lms.model.groups.ResolvedGroupQuery, int],
+            ]:
+        """
+        Resolve queries and set the specified group memberships.
+        This may create and delete groups.
+
+        Return:
+         - Created Groups
+         - Deleted Groups
+         - Group Addition Counts
+         - Group Subtraction Counts
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_groupset_query = self.resolve_groupset_query(resolved_course_query.get_id(), groupset_query, **kwargs)
+
+        found_group_memberships, missing_group_memberships, unused_groups = self._resolve_group_memberships(
+                resolved_course_query.get_id(), resolved_groupset_query.get_id(), memberships, **kwargs)
+
+        # Delete unused groups.
+        deleted_groups = []
+        for group_query in unused_groups:
+            result = self.courses_groups_delete(resolved_course_query.get_id(), resolved_groupset_query.get_id(), group_query.get_id(), **kwargs)
+            if (result):
+                deleted_groups.append(group_query)
+
+        # Create missing groups.
+        created_groups = []
+        for name in list(sorted(missing_group_memberships.keys())):
+            group = self.courses_groups_create(resolved_course_query.get_id(), resolved_groupset_query.get_id(), name, **kwargs)
+            created_groups.append(group)
+
+            # Merge in new group with existing structure.
+            query = group.to_query()
+            if (query not in found_group_memberships):
+                found_group_memberships[query] = []
+
+            found_group_memberships[query] += missing_group_memberships[name]
+            found_group_memberships[query].sort()
+
+        # Set memberships.
+        add_counts = {}
+        sub_counts = {}
+        for (resolved_group_query, resolved_user_queries) in found_group_memberships.items():
+            (add_count, sub_count, deleted) = self.courses_groups_memberships_resolve_and_set(
+                    resolved_course_query, resolved_groupset_query, resolved_group_query,
+                    resolved_user_queries,  # type: ignore[arg-type]
+                    delete_empty = True,
+                    **kwargs)
+
+            if (deleted):
+                deleted_groups.append(resolved_group_query)
+
+            add_counts[resolved_group_query] = add_count
+            sub_counts[resolved_group_query] = sub_count
+
+        return (list(sorted(created_groups)), list(sorted(deleted_groups)), add_counts, sub_counts)
+
     def courses_groupsets_memberships_resolve_and_subtract(self,
             course_query: lms.model.courses.CourseQuery,
             groupset_query: lms.model.groupsets.GroupSetQuery,
@@ -597,9 +666,10 @@ class APIBackend():
         # Subtract memberships.
         counts = {}
         for (resolved_group_query, resolved_user_queries) in found_group_memberships.items():
-            count = self.courses_groups_memberships_resolve_and_subtract(
+            (count, _) = self.courses_groups_memberships_resolve_and_subtract(
                     resolved_course_query, resolved_groupset_query, resolved_group_query,
                     resolved_user_queries,  # type: ignore[arg-type]
+                    delete_empty = False,
                     **kwargs)
 
             counts[resolved_group_query] = count
@@ -865,11 +935,16 @@ class APIBackend():
             groupset_query: lms.model.groupsets.GroupSetQuery,
             group_query: lms.model.groups.GroupQuery,
             user_queries: typing.List[lms.model.users.UserQuery],
-            **kwargs: typing.Any) -> typing.Tuple[int, int]:
+            delete_empty: bool = False,
+            **kwargs: typing.Any) -> typing.Tuple[int, int, bool]:
         """
         Resolve queries and set the specified users for the group.
         This method can both add and subtract users from the group.
-        Returns the number of users added and subtracted.
+
+        Returns:
+         - The count of users added.
+         - The count of users subtracted.
+         - If this group was deleted.
         """
 
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
@@ -884,6 +959,7 @@ class APIBackend():
                 resolved_group_query.get_id(),
                 **kwargs)
 
+        group_user_queries = {membership.user for membership in group_memberships if membership.user is not None}
         group_user_ids = {membership.user.id for membership in group_memberships if membership.user.id is not None}
         query_user_ids = {resolved_user_query.get_id() for resolved_user_query in resolved_user_queries}
 
@@ -894,15 +970,15 @@ class APIBackend():
                 add_user_ids.append(query_user_id)
 
         # Collect users that need to be subtracted.
-        sub_user_ids = []
-        for group_user_id in group_user_ids:
-            if (group_user_id not in query_user_ids):
-                sub_user_ids.append(group_user_id)
+        sub_user_queries = []
+        for group_user_query in group_user_queries:
+            if (group_user_query not in resolved_user_queries):
+                sub_user_queries.append(group_user_query)
 
         # Update the group.
 
         add_count = 0
-        if (len(add_user_ids) != 0):
+        if (len(add_user_ids) > 0):
             add_count = self.courses_groups_memberships_add(
                     resolved_course_query.get_id(),
                     resolved_groupset_query.get_id(),
@@ -911,15 +987,17 @@ class APIBackend():
                     **kwargs)
 
         sub_count = 0
-        if (len(sub_user_ids) != 0):
-            sub_count = self.courses_groups_memberships_subtract(
-                    resolved_course_query.get_id(),
-                    resolved_groupset_query.get_id(),
-                    resolved_group_query.get_id(),
-                    sub_user_ids,
+        deleted = False
+        if (len(sub_user_queries) > 0):
+            sub_count, deleted = self.courses_groups_memberships_resolve_and_subtract(
+                    resolved_course_query,
+                    resolved_groupset_query,
+                    resolved_group_query,
+                    sub_user_queries,
+                    delete_empty = delete_empty,
                     **kwargs)
 
-        return add_count, sub_count
+        return add_count, sub_count, deleted
 
     def courses_groups_memberships_subtract(self,
             course_id: str,
@@ -938,9 +1016,13 @@ class APIBackend():
             groupset_query: lms.model.groupsets.GroupSetQuery,
             group_query: lms.model.groups.GroupQuery,
             user_queries: typing.List[lms.model.users.UserQuery],
-            **kwargs: typing.Any) -> int:
+            delete_empty: bool = False,
+            **kwargs: typing.Any) -> typing.Tuple[int, bool]:
         """
         Resolve queries and subtract the specified users from the group.
+        Return:
+            - The number of users deleted.
+            - If this group was deleted.
         """
 
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
@@ -966,15 +1048,33 @@ class APIBackend():
 
             user_ids.append(query.get_id())
 
-        if (len(user_ids) == 0):
-            return 0
+        if (delete_empty and len(group_memberships) == 0):
+            deleted = self.courses_groups_delete(
+                resolved_course_query.get_id(),
+                resolved_groupset_query.get_id(),
+                resolved_group_query.get_id(),
+                **kwargs)
+            return 0, deleted
 
-        return self.courses_groups_memberships_subtract(
+        if (len(user_ids) == 0):
+            return 0, False
+
+        count = self.courses_groups_memberships_subtract(
                 resolved_course_query.get_id(),
                 resolved_groupset_query.get_id(),
                 resolved_group_query.get_id(),
                 user_ids,
                 **kwargs)
+
+        deleted = False
+        if (delete_empty and (count == len(group_memberships))):
+            deleted = self.courses_groups_delete(
+                resolved_course_query.get_id(),
+                resolved_groupset_query.get_id(),
+                resolved_group_query.get_id(),
+                **kwargs)
+
+        return count, deleted
 
     def courses_users_get(self,
             course_query: lms.model.courses.CourseQuery,
