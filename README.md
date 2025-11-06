@@ -448,12 +448,16 @@ Legend:
 | lms.cli.courses.gradebook.get                   | `+`    | `-`    |
 | lms.cli.courses.gradebook.list                  | `+`    | `-`    |
 | lms.cli.courses.gradebook.upload                | `+`    | `-`    |
+| lms.cli.courses.groups.create                   | `+`    | `-`    |
+| lms.cli.courses.groups.delete                   | `+`    | `-`    |
 | lms.cli.courses.groups.get                      | `+`    | `-`    |
 | lms.cli.courses.groups.list                     | `+`    | `-`    |
 | lms.cli.courses.groups.memberships.add          | `+`    | `-`    |
 | lms.cli.courses.groups.memberships.list         | `+`    | `-`    |
 | lms.cli.courses.groups.memberships.set          | `+`    | `-`    |
 | lms.cli.courses.groups.memberships.subtract     | `+`    | `-`    |
+| lms.cli.courses.groupsets.create                | `+`    | `-`    |
+| lms.cli.courses.groupsets.delete                | `+`    | `-`    |
 | lms.cli.courses.groupsets.get                   | `+`    | `-`    |
 | lms.cli.courses.groupsets.list                  | `+`    | `-`    |
 | lms.cli.courses.groupsets.memberships.add       | `+`    | `-`    |
