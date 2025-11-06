@@ -30,7 +30,7 @@ def request(backend: typing.Any,
             'group_id': group_id,
             'user_ids': user_ids,
         }
-        backend.not_found('subtract group membership', identifiers)
+        backend.not_found('subtract group memberships', identifiers)
 
         return 0
 

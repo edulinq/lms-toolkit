@@ -43,7 +43,7 @@ def request(backend: typing.Any,
             'group_id': group_id,
             'user_ids': user_ids,
         }
-        backend.not_found('add group membership', identifiers)
+        backend.not_found('add group memberships', identifiers)
 
         return 0
 

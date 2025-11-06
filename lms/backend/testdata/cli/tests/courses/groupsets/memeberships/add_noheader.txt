@@ -1,0 +1,15 @@
+{
+    "cli": "lms.cli.courses.groupsets.memberships.add",
+    "stdout_assertion_func": "lms.util.testing.cli_assert_normalize_ids",
+    /* The logs include IDs for created objects. */
+    "split_stdout_stderr": true,
+    "arguments": [
+        "--course", "Extra Course",
+        "--groupset", "Group Set 1",
+        "__DATA_DIR__(groups/groupsets_add_noheader.txt)",
+    ],
+}
+---
+Created 1 groups: ['test_group_1 (<ID>)'].
+Added 1 users to group Group 1-1 (131010101).
+Added 1 users to group test_group_1 (<ID>).

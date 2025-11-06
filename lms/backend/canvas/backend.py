@@ -118,7 +118,7 @@ class CanvasBackend(lms.model.backend.APIBackend):
     def courses_groupsets_memberships_list(self,
             course_id: str,
             groupset_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.GroupMembership]:
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSetMembership]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         parsed_groupset_id = lms.util.parse.required_int(groupset_id, 'groupset_id')
         return lms.backend.canvas.courses.groupsets.memberships.list.request(self, parsed_course_id, parsed_groupset_id)
@@ -166,7 +166,7 @@ class CanvasBackend(lms.model.backend.APIBackend):
             course_id: str,
             groupset_id: str,
             group_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.GroupMembership]:
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSetMembership]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         parsed_groupset_id = lms.util.parse.required_int(groupset_id, 'groupset_id')
         parsed_group_id = lms.util.parse.required_int(group_id, 'group_id')

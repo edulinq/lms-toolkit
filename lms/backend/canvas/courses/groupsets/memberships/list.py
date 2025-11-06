@@ -10,7 +10,7 @@ BASE_ENDPOINT = "/api/v1/group_categories/{groupset_id}/export"
 def request(backend: typing.Any,
         course_id: int,
         groupset_id: int,
-        ) -> typing.List[lms.model.groups.GroupMembership]:
+        ) -> typing.List[lms.model.groupsets.GroupSetMembership]:
     """ List group set memberships. """
 
     url = backend.server + BASE_ENDPOINT.format(groupset_id = groupset_id)
@@ -22,7 +22,7 @@ def request(backend: typing.Any,
             'course_id': course_id,
             'groupset_id': groupset_id,
         }
-        backend.not_found('group set memberships', identifiers)
+        backend.not_found('list group set memberships', identifiers)
 
         return []
 
@@ -46,7 +46,7 @@ def request(backend: typing.Any,
             name = raw_object.get('group_name', None),
         )
 
-        membership = lms.model.groups.GroupMembership(user = user_query, groupset = groupset_query, group = group_query)
+        membership = lms.model.groupsets.GroupSetMembership(user = user_query, groupset = groupset_query, group = group_query)
         memberships.append(membership)
 
     return memberships

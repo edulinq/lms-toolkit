@@ -1,7 +1,9 @@
 import typing
 
 import lms.model.base
+import lms.model.groups
 import lms.model.query
+import lms.model.users
 
 class GroupSetQuery(lms.model.query.BaseQuery):
     """
@@ -55,3 +57,47 @@ class GroupSet(lms.model.base.BaseType):
         """ Get a query representation of this group set. """
 
         return ResolvedGroupSetQuery(self)
+
+class GroupSetMembership(lms.model.base.BaseType):
+    """
+    An instance of a user being in a group set.
+    """
+
+    CORE_FIELDS = [
+        'groupset', 'group', 'user',
+    ]
+
+    def __init__(self,
+            user: lms.model.users.UserQuery,
+            groupset: GroupSetQuery,
+            group: lms.model.groups.GroupQuery,
+            **kwargs: typing.Any) -> None:
+        super().__init__(**kwargs)
+
+        self.groupset: GroupSetQuery = groupset
+        """ The group set the group belongs to. """
+
+        self.group: lms.model.groups.GroupQuery = group
+        """ The group the user belongs to. """
+
+        self.user: lms.model.users.UserQuery = user
+        """ The user in a group. """
+
+    def update_queries(self,
+            groupset: typing.Union[ResolvedGroupSetQuery, None] = None,
+            users: typing.Union[typing.Dict[str, lms.model.users.ResolvedUserQuery], None] = None,
+            groups: typing.Union[typing.Dict[str, lms.model.groups.ResolvedGroupQuery], None] = None,
+            ) -> None:
+        """
+        Update the queries with resolved variants.
+        The maps should be keyed by respective ids.
+        """
+
+        if (groupset is not None):
+            self.groupset = groupset
+
+        if ((users is not None) and (self.user.id in users)):
+            self.user = users[self.user.id]
+
+        if ((groups is not None) and (self.group.id in groups)):
+            self.group = groups[self.group.id]

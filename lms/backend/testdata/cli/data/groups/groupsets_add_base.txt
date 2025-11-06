@@ -1,0 +1,4 @@
+Group	User
+test_group_1	extra-course-student-1
+Group 1-1	extra-course-student-1
+Group 1-1	extra-course-student-3

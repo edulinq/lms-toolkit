@@ -12,7 +12,7 @@ def request(backend: typing.Any,
         course_id: int,
         groupset_id: int,
         group_id: int,
-        ) -> typing.List[lms.model.groups.GroupMembership]:
+        ) -> typing.List[lms.model.groupsets.GroupSetMembership]:
     """ List a group memberships. """
 
     url = backend.server + BASE_ENDPOINT.format(group_id = group_id, page_size = lms.backend.canvas.common.DEFAULT_PAGE_SIZE)
@@ -25,7 +25,7 @@ def request(backend: typing.Any,
             'groupset_id': groupset_id,
             'group_id': group_id,
         }
-        backend.not_found('group memberships', identifiers)
+        backend.not_found('list group memberships', identifiers)
 
         return []
 
@@ -35,7 +35,7 @@ def request(backend: typing.Any,
     memberships = []
     for raw_object in raw_objects:
         user = lms.backend.canvas.model.users.CourseUser(**raw_object)
-        membership = lms.model.groups.GroupMembership(user = user.to_query(), groupset = groupset_query, group = group_query)
+        membership = lms.model.groupsets.GroupSetMembership(user = user.to_query(), groupset = groupset_query, group = group_query)
         memberships.append(membership)
 
     return memberships

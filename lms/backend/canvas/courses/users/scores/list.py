@@ -24,7 +24,7 @@ def request(backend: typing.Any,
             'course_id': course_id,
             'user_id': user_id,
         }
-        backend.not_found('user scores', identifiers)
+        backend.not_found('list user scores', identifiers)
 
         return []
 

@@ -14,7 +14,7 @@ def request(backend: typing.Any,
 
     raw_objects = lms.backend.canvas.common.make_get_request_list(url, headers = headers)
     if (raw_objects is None):
-        backend.not_found('courses', {})
+        backend.not_found('list courses', {})
 
         return []
 

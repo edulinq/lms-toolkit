@@ -18,7 +18,7 @@ def request(backend: typing.Any,
         identifiers = {
             'course_id': course_id,
         }
-        backend.not_found('group sets', identifiers)
+        backend.not_found('list group sets', identifiers)
 
         return []
 

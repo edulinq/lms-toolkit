@@ -46,7 +46,7 @@ class APIBackend():
             lms.model.constants.HEADER_KEY_WRITE: 'false',
         }
 
-    def not_found(self, label: str, identifiers: typing.Dict[str, typing.Any]) -> None:
+    def not_found(self, operation: str, identifiers: typing.Dict[str, typing.Any]) -> None:
         """
         Called when the backend was unable to find some object.
         This will only be called when a requested object is not found,
@@ -55,7 +55,7 @@ class APIBackend():
         or when a query does not match any items.
         """
 
-        logging.warning("Object not found: '%s'. Identifiers: %s.", label, identifiers)
+        logging.warning("Object not found during operation: '%s'. Identifiers: %s.", operation, identifiers)
 
     # API Methods
 
@@ -525,10 +525,129 @@ class APIBackend():
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
         return self.courses_groupsets_list(resolved_course_query.get_id(), **kwargs)
 
+    def courses_groupsets_memberships_resolve_and_add(self,
+            course_query: lms.model.courses.CourseQuery,
+            groupset_query: lms.model.groupsets.GroupSetQuery,
+            memberships: typing.List[lms.model.groups.GroupMembership],
+            **kwargs: typing.Any) -> typing.Tuple[typing.List[lms.model.groups.Group], typing.Dict[lms.model.groups.ResolvedGroupQuery, int]]:
+        """
+        Resolve queries and add the specified users to the specified groups.
+        This may create groups.
+
+        Return:
+         - Created Groups
+         - Group Addition Counts
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_groupset_query = self.resolve_groupset_query(resolved_course_query.get_id(), groupset_query, **kwargs)
+
+        found_group_memberships, missing_group_memberships, _ = self._resolve_group_memberships(
+                resolved_course_query.get_id(), resolved_groupset_query.get_id(), memberships, **kwargs)
+
+        # Create missing groups.
+        created_groups = []
+        for name in list(sorted(missing_group_memberships.keys())):
+            group = self.courses_groups_create(resolved_course_query.get_id(), resolved_groupset_query.get_id(), name, **kwargs)
+            created_groups.append(group)
+
+            # Merge in new group with existing structure.
+            query = group.to_query()
+            if (query not in found_group_memberships):
+                found_group_memberships[query] = []
+
+            found_group_memberships[query] += missing_group_memberships[name]
+            found_group_memberships[query].sort()
+
+        # Add memberships.
+        counts = {}
+        for (resolved_group_query, resolved_user_queries) in found_group_memberships.items():
+            count = self.courses_groups_memberships_resolve_and_add(
+                    resolved_course_query, resolved_groupset_query, resolved_group_query,
+                    resolved_user_queries,  # type: ignore[arg-type]
+                    **kwargs)
+
+            counts[resolved_group_query] = count
+
+        return (created_groups, counts)
+
+    def _resolve_group_memberships(self,
+            course_id: str,
+            groupset_id: str,
+            memberships: typing.List[lms.model.groups.GroupMembership],
+            **kwargs: typing.Any) -> typing.Tuple[
+                typing.Dict[lms.model.groups.ResolvedGroupQuery, typing.List[lms.model.users.ResolvedUserQuery]],
+                typing.Dict[str, typing.List[lms.model.users.ResolvedUserQuery]],
+                typing.List[lms.model.groups.ResolvedGroupQuery]]:
+        """
+        Resolve a list of group memberships.
+        This method will resolved each query and split up the memberships by the appropriate group.
+        If a group does not exist, the memberships will be split by apparent group name.
+
+        Returns:
+         - Memberships in Found Groups (keyed by resolved group query)
+         - Memberships in Missing Groups (keyed by apparent group name)
+         - Groups not involved in any of the returned memberships.
+
+        The returned dicts will be the found groups (keyed by resolved query) and then the missing groups (keyed by apparent group name).
+        """
+
+        found_group_memberships: typing.Dict[lms.model.groups.ResolvedGroupQuery, typing.List[lms.model.users.ResolvedUserQuery]] = {}
+        missing_group_memberships: typing.Dict[str, typing.List[lms.model.users.ResolvedUserQuery]] = {}
+
+        users = self.courses_users_list(course_id, **kwargs)
+        resolved_user_queries = [user.to_query() for user in users]
+
+        groups = self.courses_groups_list(course_id, groupset_id, **kwargs)
+        resolved_group_queries = [group.to_query() for group in groups]
+
+        for (i, membership) in enumerate(memberships):
+            # Resolve user.
+
+            resolved_user_query = None
+            for possible_user_query in resolved_user_queries:
+                if (membership.user.match(possible_user_query)):
+                    resolved_user_query = possible_user_query
+                    break
+
+            if (resolved_user_query is None):
+                logging.warning("Could not resolve user '%s' for membership entry at index %d.", membership.user, i)
+                continue
+
+            # Resolve group.
+
+            resolved_group_query = None
+            for possible_group_query in resolved_group_queries:
+                if (membership.group.match(possible_group_query)):
+                    resolved_group_query = possible_group_query
+                    break
+
+            # Add to the correct collection.
+
+            if (resolved_group_query is None):
+                if ((membership.group.name is None) or (len(membership.group.name) == 0)):
+                    logging.warning(("Membership entry at index %d has a group with no name."
+                        + " Ensure that non-existent groups all have names."), i)
+                    continue
+
+                if (membership.group.name not in missing_group_memberships):
+                    missing_group_memberships[membership.group.name] = []
+
+                missing_group_memberships[membership.group.name].append(resolved_user_query)
+            else:
+                if (resolved_group_query not in found_group_memberships):
+                    found_group_memberships[resolved_group_query] = []
+
+                found_group_memberships[resolved_group_query].append(resolved_user_query)
+
+        unused_groups = sorted(list(set(resolved_group_queries) - set(found_group_memberships.keys())))
+
+        return (found_group_memberships, missing_group_memberships, unused_groups)
+
     def courses_groupsets_memberships_list(self,
             course_id: str,
             groupset_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.GroupMembership]:
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSetMembership]:
         """
         List the membership of the group sets associated with the given course.
         """
@@ -538,7 +657,7 @@ class APIBackend():
     def courses_groupsets_memberships_resolve_and_list(self,
             course_query: lms.model.courses.CourseQuery,
             groupset_query: lms.model.groupsets.GroupSetQuery,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.GroupMembership]:
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSetMembership]:
         """
         List the membership of the group sets associated with the given course.
         """
@@ -736,7 +855,7 @@ class APIBackend():
             course_id: str,
             groupset_id: str,
             group_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.GroupMembership]:
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSetMembership]:
         """
         List the membership of the group associated with the given group set.
         """
@@ -747,7 +866,7 @@ class APIBackend():
             course_query: lms.model.courses.CourseQuery,
             groupset_query: lms.model.groupsets.GroupSetQuery,
             group_query: lms.model.groups.GroupQuery,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.GroupMembership]:
+            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSetMembership]:
         """
         List the membership of the group associated with the given group set.
         """

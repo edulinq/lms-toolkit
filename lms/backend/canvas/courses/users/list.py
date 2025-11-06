@@ -22,7 +22,7 @@ def request(backend: typing.Any,
         identifiers = {
             'course_id': course_id,
         }
-        backend.not_found('users', identifiers)
+        backend.not_found('list users', identifiers)
 
         return []
 

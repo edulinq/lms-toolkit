@@ -33,6 +33,7 @@ Links:
          - [Delete Group Sets](#delete-group-sets)
          - Memberships
            - [Retrieve Group Set Memberships](#retrieve-group-set-memberships)
+           - [Add Users to a Group Set](#add-users-to-a-group-set)
        - Groups
          - [Retrieve Groups](#retrieve-groups)
          - [Create Groups](#create-groups)
@@ -271,6 +272,28 @@ List all memberships in a group set with: `lms.cli.courses.groupsets.memberships
 python3 -m lms.cli.courses.groupsets.memberships.list --course 'Extra Course' --groupset 'Group Set 1'
 ```
 
+### Add Users to a Group Set
+
+Add users to a group set with: `lms.cli.courses.groupsets.memberships.add`.
+This tool takes a [TSV file](https://en.wikipedia.org/wiki/Tab-separated_values) (tab-separated) file as input.
+The file may have a header, which must be skipped using the `--skip-rows` option.
+Each data row can have two columns: group query and user query.
+If a group does not exist, it will be created.
+
+For example, assume we have a file `groupset-members.txt` with the following contents:
+```
+Group	User
+My New Group 1	extra-course-student-1@test.edulinq.org
+My New Group 1	extra-course-student-2@test.edulinq.org
+My New Group 2	extra-course-student-3@test.edulinq.org
+My New Group 2	extra-course-student-4@test.edulinq.org
+```
+
+We can add these user to the specified groups using:
+```sh
+python3 -m lms.cli.courses.groupsets.memberships.add --course 'Extra Course' --groupset 'Group Set 3' groupset-members.txt
+```
+
 ### Retrieve Groups
 
 List all the groups for a group set with `lms.cli.courses.groups.list`:
@@ -380,6 +403,7 @@ Legend:
 | lms.cli.courses.groups.memberships.subtract     | `+`    | `-`    |
 | lms.cli.courses.groupsets.get                   | `+`    | `-`    |
 | lms.cli.courses.groupsets.list                  | `+`    | `-`    |
+| lms.cli.courses.groupsets.memberships.add       | `+`    | `-`    |
 | lms.cli.courses.groupsets.memberships.list      | `+`    | `-`    |
 | lms.cli.courses.users.get                       | `+`    | `-`    |
 | lms.cli.courses.users.list                      | `+`    | `-`    |

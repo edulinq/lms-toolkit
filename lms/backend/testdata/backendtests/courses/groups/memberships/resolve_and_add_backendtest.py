@@ -1,5 +1,3 @@
-import copy
-
 import lms.backend.testing
 import lms.model.courses
 import lms.model.groups

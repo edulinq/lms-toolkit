@@ -146,6 +146,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
             stop_on_notimplemented: bool = True,
             actual_clean_func: typing.Union[typing.Callable, None] = None,
             expected_clean_func: typing.Union[typing.Callable, None] = None,
+            assertion_func: typing.Union[typing.Callable, None] = None,
             ) -> None:
         """
         A common test for the base request functionality.
@@ -207,7 +208,9 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
                     expected_value = expected[i]
                     actual_value = actual[i]
 
-                    if (isinstance(expected_value, lms.model.base.BaseType)):
+                    if (assertion_func is not None):
+                        assertion_func(expected_value, actual_value)
+                    elif (isinstance(expected_value, lms.model.base.BaseType)):
                         self.assertJSONEqual(expected_value, actual_value)
                     elif (isinstance(expected_value, dict)):
                         self.assertJSONDictEqual(expected_value, actual_value)

@@ -20,7 +20,7 @@ def request(backend: typing.Any,
             'course_id': course_id,
             'assignment_id': assignment_id,
         }
-        backend.not_found('assignment scores', identifiers)
+        backend.not_found('list assignment scores', identifiers)
 
         return []
 

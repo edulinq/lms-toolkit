@@ -20,7 +20,7 @@ def request(backend: typing.Any,
             'course_id': course_id,
             'groupset_id': groupset_id,
         }
-        backend.not_found('groups', identifiers)
+        backend.not_found('list groups', identifiers)
 
         return []
 

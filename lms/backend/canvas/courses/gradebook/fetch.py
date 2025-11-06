@@ -33,7 +33,7 @@ def request(backend: typing.Any,
             'assignment_ids': assignment_ids,
             'user_ids': user_ids,
         }
-        backend.not_found('gradebook', identifiers)
+        backend.not_found('fetch gradebook', identifiers)
 
         return gradebook
 
