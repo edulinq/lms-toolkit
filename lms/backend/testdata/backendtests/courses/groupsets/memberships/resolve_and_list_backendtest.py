@@ -43,9 +43,10 @@ def test_courses_groupsets_memberships_resolve_and_list_base(test: lms.backend.t
                 'groupset_query': lms.model.groupsets.GroupSetQuery(name = 'Group Set 2'),
             },
             [
+                # Note the ordering by group then user.
                 lms.model.testdata.groups.COURSE_GROUP_MEMBERSHIPS['Extra Course']['Group Set 2']['extra-course-student-1'],
-                lms.model.testdata.groups.COURSE_GROUP_MEMBERSHIPS['Extra Course']['Group Set 2']['extra-course-student-2'],
                 lms.model.testdata.groups.COURSE_GROUP_MEMBERSHIPS['Extra Course']['Group Set 2']['extra-course-student-3'],
+                lms.model.testdata.groups.COURSE_GROUP_MEMBERSHIPS['Extra Course']['Group Set 2']['extra-course-student-2'],
                 lms.model.testdata.groups.COURSE_GROUP_MEMBERSHIPS['Extra Course']['Group Set 2']['extra-course-student-4'],
             ],
             None,

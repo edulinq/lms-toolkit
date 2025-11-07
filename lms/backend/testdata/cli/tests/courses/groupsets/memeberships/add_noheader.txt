@@ -11,5 +11,5 @@
 }
 ---
 Created 1 groups: ['test_group_1 (<ID>)'].
-Added 1 users to group Group 1-1 (131010101).
 Added 1 users to group test_group_1 (<ID>).
+Added 1 users to group Group 1-1 (131010101).

@@ -60,8 +60,8 @@ class APIBackend():
     # API Methods
 
     def courses_get(self,
-            course_queries: typing.List[lms.model.courses.CourseQuery],
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.courses.Course]:
+            course_queries: typing.Collection[lms.model.courses.CourseQuery],
+            **kwargs: typing.Any) -> typing.List[lms.model.courses.Course]:
         """
         Get the specified courses associated with the given course.
         """
@@ -72,13 +72,13 @@ class APIBackend():
         courses = self.courses_list(**kwargs)
 
         matches = []
-        for course in courses:
+        for course in sorted(courses):
             for query in course_queries:
                 if (query.match(course)):
                     matches.append(course)
                     break
 
-        return matches
+        return sorted(matches)
 
     def courses_fetch(self,
             course_id: str,
@@ -99,7 +99,7 @@ class APIBackend():
         return None
 
     def courses_list(self,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.courses.Course]:
+            **kwargs: typing.Any) -> typing.List[lms.model.courses.Course]:
         """
         List the courses associated with the context user.
         """
@@ -108,8 +108,8 @@ class APIBackend():
 
     def courses_assignments_get(self,
             course_query: lms.model.courses.CourseQuery,
-            assignment_queries: typing.List[lms.model.assignments.AssignmentQuery],
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
+            assignment_queries: typing.Collection[lms.model.assignments.AssignmentQuery],
+            **kwargs: typing.Any) -> typing.List[lms.model.assignments.Assignment]:
         """
         Get the specified assignments associated with the given course.
         """
@@ -119,7 +119,8 @@ class APIBackend():
 
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
 
-        assignments = self.courses_assignments_list(resolved_course_query.get_id(), **kwargs)
+        assignments = sorted(self.courses_assignments_list(resolved_course_query.get_id(), **kwargs))
+        assignment_queries = sorted(assignment_queries)
 
         matches = []
         for assignment in assignments:
@@ -143,7 +144,7 @@ class APIBackend():
         """
 
         assignments = self.courses_assignments_list(course_id, **kwargs)
-        for assignment in assignments:
+        for assignment in sorted(assignments):
             if (assignment.id == assignment_id):
                 return assignment
 
@@ -151,7 +152,7 @@ class APIBackend():
 
     def courses_assignments_list(self,
             course_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
+            **kwargs: typing.Any) -> typing.List[lms.model.assignments.Assignment]:
         """
         List the assignments associated with the given course.
         """
@@ -160,19 +161,19 @@ class APIBackend():
 
     def courses_assignments_resolve_and_list(self,
             course_query: lms.model.courses.CourseQuery,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
+            **kwargs: typing.Any) -> typing.List[lms.model.assignments.Assignment]:
         """
         List the assignments associated with the given course.
         """
 
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
-        return self.courses_assignments_list(resolved_course_query.get_id(), **kwargs)
+        return sorted(self.courses_assignments_list(resolved_course_query.get_id(), **kwargs))
 
     def courses_assignments_scores_get(self,
             course_query: lms.model.courses.CourseQuery,
             assignment_query: lms.model.assignments.AssignmentQuery,
-            user_queries: typing.List[lms.model.users.UserQuery],
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+            user_queries: typing.Collection[lms.model.users.UserQuery],
+            **kwargs: typing.Any) -> typing.List[lms.model.scores.AssignmentScore]:
         """
         Get the scores associated with the given assignment query and user queries.
         """
@@ -188,7 +189,7 @@ class APIBackend():
                 if (user_query.match(score.user_query)):
                     matches.append(score)
 
-        return matches
+        return sorted(matches)
 
     def courses_assignments_scores_fetch(self,
             course_id: str,
@@ -212,7 +213,7 @@ class APIBackend():
     def courses_assignments_scores_list(self,
             course_id: str,
             assignment_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+            **kwargs: typing.Any) -> typing.List[lms.model.scores.AssignmentScore]:
         """
         List the scores associated with the given assignment.
         """
@@ -222,7 +223,7 @@ class APIBackend():
     def courses_assignments_scores_resolve_and_list(self,
             course_query: lms.model.courses.CourseQuery,
             assignment_query: lms.model.assignments.AssignmentQuery,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+            **kwargs: typing.Any) -> typing.List[lms.model.scores.AssignmentScore]:
         """
         List the scores associated with the given assignment query.
         In addition to resolving the assignment query,
@@ -255,7 +256,7 @@ class APIBackend():
             if ((score.user_query is not None) and (score.user_query.id in users_map)):
                 score.user_query = users_map[score.user_query.id].to_query()
 
-        return scores
+        return sorted(scores)
 
     def courses_assignments_scores_resolve_and_upload(self,
             course_query: lms.model.courses.CourseQuery,
@@ -307,8 +308,8 @@ class APIBackend():
 
     def courses_gradebook_get(self,
             course_query: lms.model.courses.CourseQuery,
-            assignment_queries: typing.List[lms.model.assignments.AssignmentQuery],
-            user_queries: typing.List[lms.model.users.UserQuery],
+            assignment_queries: typing.Collection[lms.model.assignments.AssignmentQuery],
+            user_queries: typing.Collection[lms.model.users.UserQuery],
             **kwargs: typing.Any) -> lms.model.scores.Gradebook:
         """
         Get a gradebook with the specified users and assignments.
@@ -333,8 +334,8 @@ class APIBackend():
 
     def courses_gradebook_fetch(self,
             course_id: str,
-            assignment_ids: typing.List[str],
-            user_ids: typing.List[str],
+            assignment_ids: typing.Collection[str],
+            user_ids: typing.Collection[str],
             **kwargs: typing.Any) -> lms.model.scores.Gradebook:
         """
         Get a gradebook with the specified users and assignments.
@@ -466,8 +467,8 @@ class APIBackend():
 
     def courses_groupsets_get(self,
             course_query: lms.model.courses.CourseQuery,
-            groupset_queries: typing.List[lms.model.groupsets.GroupSetQuery],
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSet]:
+            groupset_queries: typing.Collection[lms.model.groupsets.GroupSetQuery],
+            **kwargs: typing.Any) -> typing.List[lms.model.groupsets.GroupSet]:
         """
         Get the specified group sets associated with the given course.
         """
@@ -476,7 +477,8 @@ class APIBackend():
             return []
 
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
-        groupsets = self.courses_groupsets_list(resolved_course_query.get_id(), **kwargs)
+        groupset_queries = sorted(groupset_queries)
+        groupsets = sorted(self.courses_groupsets_list(resolved_course_query.get_id(), **kwargs))
 
         matches = []
         for groupset in groupsets:
@@ -508,7 +510,7 @@ class APIBackend():
 
     def courses_groupsets_list(self,
             course_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSet]:
+            **kwargs: typing.Any) -> typing.List[lms.model.groupsets.GroupSet]:
         """
         List the group sets associated with the given course.
         """
@@ -517,18 +519,18 @@ class APIBackend():
 
     def courses_groupsets_resolve_and_list(self,
             course_query: lms.model.courses.CourseQuery,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSet]:
+            **kwargs: typing.Any) -> typing.List[lms.model.groupsets.GroupSet]:
         """
         List the group sets associated with the given course.
         """
 
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
-        return self.courses_groupsets_list(resolved_course_query.get_id(), **kwargs)
+        return sorted(self.courses_groupsets_list(resolved_course_query.get_id(), **kwargs))
 
     def courses_groupsets_memberships_resolve_and_add(self,
             course_query: lms.model.courses.CourseQuery,
             groupset_query: lms.model.groupsets.GroupSetQuery,
-            memberships: typing.List[lms.model.groups.GroupMembership],
+            memberships: typing.Collection[lms.model.groups.GroupMembership],
             **kwargs: typing.Any) -> typing.Tuple[
                     typing.List[lms.model.groups.Group],
                     typing.Dict[lms.model.groups.ResolvedGroupQuery, int]
@@ -550,7 +552,7 @@ class APIBackend():
 
         # Create missing groups.
         created_groups = []
-        for name in list(sorted(missing_group_memberships.keys())):
+        for name in sorted(missing_group_memberships.keys()):
             group = self.courses_groups_create(resolved_course_query.get_id(), resolved_groupset_query.get_id(), name, **kwargs)
             created_groups.append(group)
 
@@ -560,14 +562,15 @@ class APIBackend():
                 found_group_memberships[query] = []
 
             found_group_memberships[query] += missing_group_memberships[name]
-            found_group_memberships[query].sort()
 
         # Add memberships.
         counts = {}
-        for (resolved_group_query, resolved_user_queries) in found_group_memberships.items():
+        for resolved_group_query in sorted(found_group_memberships.keys()):
+            resolved_user_queries = found_group_memberships[resolved_group_query]
+
             count = self.courses_groups_memberships_resolve_and_add(
                     resolved_course_query, resolved_groupset_query, resolved_group_query,
-                    resolved_user_queries,  # type: ignore[arg-type]
+                    resolved_user_queries,
                     **kwargs)
 
             counts[resolved_group_query] = count
@@ -577,7 +580,7 @@ class APIBackend():
     def courses_groupsets_memberships_resolve_and_set(self,
             course_query: lms.model.courses.CourseQuery,
             groupset_query: lms.model.groupsets.GroupSetQuery,
-            memberships: typing.List[lms.model.groups.GroupMembership],
+            memberships: typing.Collection[lms.model.groups.GroupMembership],
             **kwargs: typing.Any) -> typing.Tuple[
                     typing.List[lms.model.groups.Group],
                     typing.List[lms.model.groups.ResolvedGroupQuery],
@@ -603,14 +606,14 @@ class APIBackend():
 
         # Delete unused groups.
         deleted_groups = []
-        for group_query in unused_groups:
+        for group_query in sorted(unused_groups):
             result = self.courses_groups_delete(resolved_course_query.get_id(), resolved_groupset_query.get_id(), group_query.get_id(), **kwargs)
             if (result):
                 deleted_groups.append(group_query)
 
         # Create missing groups.
         created_groups = []
-        for name in list(sorted(missing_group_memberships.keys())):
+        for name in sorted(missing_group_memberships.keys()):
             group = self.courses_groups_create(resolved_course_query.get_id(), resolved_groupset_query.get_id(), name, **kwargs)
             created_groups.append(group)
 
@@ -620,15 +623,16 @@ class APIBackend():
                 found_group_memberships[query] = []
 
             found_group_memberships[query] += missing_group_memberships[name]
-            found_group_memberships[query].sort()
 
         # Set memberships.
         add_counts = {}
         sub_counts = {}
-        for (resolved_group_query, resolved_user_queries) in found_group_memberships.items():
+        for resolved_group_query in sorted(found_group_memberships.keys()):
+            resolved_user_queries = found_group_memberships[resolved_group_query]
+
             (add_count, sub_count, deleted) = self.courses_groups_memberships_resolve_and_set(
                     resolved_course_query, resolved_groupset_query, resolved_group_query,
-                    resolved_user_queries,  # type: ignore[arg-type]
+                    resolved_user_queries,
                     delete_empty = True,
                     **kwargs)
 
@@ -638,12 +642,12 @@ class APIBackend():
             add_counts[resolved_group_query] = add_count
             sub_counts[resolved_group_query] = sub_count
 
-        return (list(sorted(created_groups)), list(sorted(deleted_groups)), add_counts, sub_counts)
+        return (created_groups, deleted_groups, add_counts, sub_counts)
 
     def courses_groupsets_memberships_resolve_and_subtract(self,
             course_query: lms.model.courses.CourseQuery,
             groupset_query: lms.model.groupsets.GroupSetQuery,
-            memberships: typing.List[lms.model.groups.GroupMembership],
+            memberships: typing.Collection[lms.model.groups.GroupMembership],
             **kwargs: typing.Any) -> typing.Dict[lms.model.groups.ResolvedGroupQuery, int]:
         """
         Resolve queries and subtract the specified users to the specified groups.
@@ -660,15 +664,17 @@ class APIBackend():
                 resolved_course_query.get_id(), resolved_groupset_query.get_id(), memberships, **kwargs)
 
         # Warn about missing groups.
-        for name in list(sorted(missing_group_memberships.keys())):
+        for name in sorted(missing_group_memberships.keys()):
             logging.warning("Group does not exist: '%s'.", name)
 
         # Subtract memberships.
         counts = {}
-        for (resolved_group_query, resolved_user_queries) in found_group_memberships.items():
+        for resolved_group_query in sorted(found_group_memberships.keys()):
+            resolved_user_queries = found_group_memberships[resolved_group_query]
+
             (count, _) = self.courses_groups_memberships_resolve_and_subtract(
                     resolved_course_query, resolved_groupset_query, resolved_group_query,
-                    resolved_user_queries,  # type: ignore[arg-type]
+                    resolved_user_queries,
                     delete_empty = False,
                     **kwargs)
 
@@ -679,7 +685,7 @@ class APIBackend():
     def courses_groupsets_memberships_list(self,
             course_id: str,
             groupset_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSetMembership]:
+            **kwargs: typing.Any) -> typing.List[lms.model.groupsets.GroupSetMembership]:
         """
         List the membership of the group sets associated with the given course.
         """
@@ -689,7 +695,7 @@ class APIBackend():
     def courses_groupsets_memberships_resolve_and_list(self,
             course_query: lms.model.courses.CourseQuery,
             groupset_query: lms.model.groupsets.GroupSetQuery,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSetMembership]:
+            **kwargs: typing.Any) -> typing.List[lms.model.groupsets.GroupSetMembership]:
         """
         List the membership of the group sets associated with the given course.
         """
@@ -710,7 +716,7 @@ class APIBackend():
         for membership in memberships:
             membership.update_queries(resolved_groupset_query, users = users_map, groups = groups_map)
 
-        return memberships
+        return sorted(memberships)
 
     def courses_groups_create(self,
             course_id: str,
@@ -764,8 +770,8 @@ class APIBackend():
     def courses_groups_get(self,
             course_query: lms.model.courses.CourseQuery,
             groupset_query: lms.model.groupsets.GroupSetQuery,
-            group_queries: typing.List[lms.model.groups.GroupQuery],
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.Group]:
+            group_queries: typing.Collection[lms.model.groups.GroupQuery],
+            **kwargs: typing.Any) -> typing.List[lms.model.groups.Group]:
         """
         Get the specified groups associated with the given course.
         """
@@ -776,6 +782,9 @@ class APIBackend():
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
         resolved_groupset_query = self.resolve_groupset_query(resolved_course_query.get_id(), groupset_query, **kwargs)
         groups = self.courses_groups_list(resolved_course_query.get_id(), resolved_groupset_query.get_id(), **kwargs)
+
+        group_queries = sorted(group_queries)
+        groups = sorted(groups)
 
         matches = []
         for group in groups:
@@ -809,7 +818,7 @@ class APIBackend():
     def courses_groups_list(self,
             course_id: str,
             groupset_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.Group]:
+            **kwargs: typing.Any) -> typing.List[lms.model.groups.Group]:
         """
         List the groups associated with the given course.
         """
@@ -819,7 +828,7 @@ class APIBackend():
     def courses_groups_resolve_and_list(self,
             course_query: lms.model.courses.CourseQuery,
             groupset_query: lms.model.groupsets.GroupSetQuery,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.Group]:
+            **kwargs: typing.Any) -> typing.List[lms.model.groups.Group]:
         """
         List the groups associated with the given course.
         """
@@ -832,7 +841,7 @@ class APIBackend():
             course_id: str,
             groupset_id: str,
             group_id: str,
-            user_ids: typing.List[str],
+            user_ids: typing.Collection[str],
             **kwargs: typing.Any) -> int:
         """
         Add the specified users to the group.
@@ -844,7 +853,7 @@ class APIBackend():
             course_query: lms.model.courses.CourseQuery,
             groupset_query: lms.model.groupsets.GroupSetQuery,
             group_query: lms.model.groups.GroupQuery,
-            user_queries: typing.List[lms.model.users.UserQuery],
+            user_queries: typing.Collection[lms.model.users.UserQuery],
             **kwargs: typing.Any) -> int:
         """
         Resolve queries and add the specified users to the group.
@@ -866,7 +875,7 @@ class APIBackend():
 
         # Filter out users already in the group.
         user_ids = []
-        for query in resolved_user_queries:
+        for query in sorted(resolved_user_queries):
             if (query.get_id() in group_user_ids):
                 logging.warning("User '%s' already in group '%s'.", query, resolved_group_query)
                 continue
@@ -887,7 +896,7 @@ class APIBackend():
             course_id: str,
             groupset_id: str,
             group_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSetMembership]:
+            **kwargs: typing.Any) -> typing.List[lms.model.groupsets.GroupSetMembership]:
         """
         List the membership of the group associated with the given group set.
         """
@@ -898,7 +907,7 @@ class APIBackend():
             course_query: lms.model.courses.CourseQuery,
             groupset_query: lms.model.groupsets.GroupSetQuery,
             group_query: lms.model.groups.GroupQuery,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSetMembership]:
+            **kwargs: typing.Any) -> typing.List[lms.model.groupsets.GroupSetMembership]:
         """
         List the membership of the group associated with the given group set.
         """
@@ -928,13 +937,13 @@ class APIBackend():
         for membership in memberships:
             membership.update_queries(resolved_groupset_query, users = users_map, groups = groups_map)
 
-        return memberships
+        return sorted(memberships)
 
     def courses_groups_memberships_resolve_and_set(self,
             course_query: lms.model.courses.CourseQuery,
             groupset_query: lms.model.groupsets.GroupSetQuery,
             group_query: lms.model.groups.GroupQuery,
-            user_queries: typing.List[lms.model.users.UserQuery],
+            user_queries: typing.Collection[lms.model.users.UserQuery],
             delete_empty: bool = False,
             **kwargs: typing.Any) -> typing.Tuple[int, int, bool]:
         """
@@ -1003,7 +1012,7 @@ class APIBackend():
             course_id: str,
             groupset_id: str,
             group_id: str,
-            user_ids: typing.List[str],
+            user_ids: typing.Collection[str],
             **kwargs: typing.Any) -> int:
         """
         Subtract the specified users from the group.
@@ -1015,7 +1024,7 @@ class APIBackend():
             course_query: lms.model.courses.CourseQuery,
             groupset_query: lms.model.groupsets.GroupSetQuery,
             group_query: lms.model.groups.GroupQuery,
-            user_queries: typing.List[lms.model.users.UserQuery],
+            user_queries: typing.Collection[lms.model.users.UserQuery],
             delete_empty: bool = False,
             **kwargs: typing.Any) -> typing.Tuple[int, bool]:
         """
@@ -1078,8 +1087,8 @@ class APIBackend():
 
     def courses_users_get(self,
             course_query: lms.model.courses.CourseQuery,
-            user_queries: typing.List[lms.model.users.UserQuery],
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.users.CourseUser]:
+            user_queries: typing.Collection[lms.model.users.UserQuery],
+            **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
         """
         Get the specified users associated with the given course.
         """
@@ -1089,6 +1098,9 @@ class APIBackend():
 
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
         users = self.courses_users_list(resolved_course_query.get_id(), **kwargs)
+
+        user_queries = sorted(user_queries)
+        users = sorted(users)
 
         matches = []
         for user in users:
@@ -1112,7 +1124,7 @@ class APIBackend():
         """
 
         users = self.courses_users_list(course_id, **kwargs)
-        for user in users:
+        for user in sorted(users):
             if (user.id == user_id):
                 return user
 
@@ -1120,7 +1132,7 @@ class APIBackend():
 
     def courses_users_list(self,
             course_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.users.CourseUser]:
+            **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
         """
         List the users associated with the given course.
         """
@@ -1129,19 +1141,19 @@ class APIBackend():
 
     def courses_users_resolve_and_list(self,
             course_query: lms.model.courses.CourseQuery,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.users.CourseUser]:
+            **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
         """
         List the users associated with the given course.
         """
 
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
-        return self.courses_users_list(resolved_course_query.get_id(), **kwargs)
+        return list(sorted(self.courses_users_list(resolved_course_query.get_id(), **kwargs)))
 
     def courses_users_scores_get(self,
             course_query: lms.model.courses.CourseQuery,
             user_query: lms.model.users.UserQuery,
-            assignment_queries: typing.List[lms.model.assignments.AssignmentQuery],
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+            assignment_queries: typing.Collection[lms.model.assignments.AssignmentQuery],
+            **kwargs: typing.Any) -> typing.List[lms.model.scores.AssignmentScore]:
         """
         Get the scores associated with the given user query and assignment queries.
         """
@@ -1150,6 +1162,9 @@ class APIBackend():
             return []
 
         scores = self.courses_users_scores_resolve_and_list(course_query, user_query, **kwargs)
+
+        scores = sorted(scores)
+        assignment_queries = sorted(assignment_queries)
 
         matches = []
         for score in scores:
@@ -1177,7 +1192,7 @@ class APIBackend():
     def courses_users_scores_list(self,
             course_id: str,
             user_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+            **kwargs: typing.Any) -> typing.List[lms.model.scores.AssignmentScore]:
         """
         List the scores associated with the given user.
         """
@@ -1187,7 +1202,7 @@ class APIBackend():
     def courses_users_scores_resolve_and_list(self,
             course_query: lms.model.courses.CourseQuery,
             user_query: lms.model.users.UserQuery,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+            **kwargs: typing.Any) -> typing.List[lms.model.scores.AssignmentScore]:
         """
         List the scores associated with the given user query.
         In addition to resolving the user query,
@@ -1220,7 +1235,7 @@ class APIBackend():
             if ((score.assignment_query is not None) and (score.assignment_query.id in assignments_map)):
                 score.assignment_query = assignments_map[score.assignment_query.id].to_query()
 
-        return scores
+        return sorted(scores)
 
     # Utility Methods
 
@@ -1236,7 +1251,7 @@ class APIBackend():
 
         return lms.model.query.parse_int_query(lms.model.assignments.AssignmentQuery, text, check_email = False)
 
-    def parse_assignment_queries(self, texts: typing.List[typing.Union[str, None]]) -> typing.List[lms.model.assignments.AssignmentQuery]:
+    def parse_assignment_queries(self, texts: typing.Collection[typing.Union[str, None]]) -> typing.List[lms.model.assignments.AssignmentQuery]:
         """ Parse a list of assignment queries. """
 
         queries = []
@@ -1259,7 +1274,7 @@ class APIBackend():
 
         return lms.model.query.parse_int_query(lms.model.courses.CourseQuery, text, check_email = False)
 
-    def parse_course_queries(self, texts: typing.List[typing.Union[str, None]]) -> typing.List[lms.model.courses.CourseQuery]:
+    def parse_course_queries(self, texts: typing.Collection[typing.Union[str, None]]) -> typing.List[lms.model.courses.CourseQuery]:
         """ Parse a list of course queries. """
 
         queries = []
@@ -1282,7 +1297,7 @@ class APIBackend():
 
         return lms.model.query.parse_int_query(lms.model.groupsets.GroupSetQuery, text, check_email = False)
 
-    def parse_groupset_queries(self, texts: typing.List[typing.Union[str, None]]) -> typing.List[lms.model.groupsets.GroupSetQuery]:
+    def parse_groupset_queries(self, texts: typing.Collection[typing.Union[str, None]]) -> typing.List[lms.model.groupsets.GroupSetQuery]:
         """ Parse a list of group set queries. """
 
         queries = []
@@ -1305,7 +1320,7 @@ class APIBackend():
 
         return lms.model.query.parse_int_query(lms.model.groups.GroupQuery, text, check_email = False)
 
-    def parse_group_queries(self, texts: typing.List[typing.Union[str, None]]) -> typing.List[lms.model.groups.GroupQuery]:
+    def parse_group_queries(self, texts: typing.Collection[typing.Union[str, None]]) -> typing.List[lms.model.groups.GroupQuery]:
         """ Parse a list of group queries. """
 
         queries = []
@@ -1328,7 +1343,7 @@ class APIBackend():
 
         return lms.model.query.parse_int_query(lms.model.users.UserQuery, text, check_email = True)
 
-    def parse_user_queries(self, texts: typing.List[typing.Union[str, None]]) -> typing.List[lms.model.users.UserQuery]:
+    def parse_user_queries(self, texts: typing.Collection[typing.Union[str, None]]) -> typing.List[lms.model.users.UserQuery]:
         """ Parse a list of user queries. """
 
         queries = []
@@ -1357,7 +1372,7 @@ class APIBackend():
 
     def resolve_assignment_queries(self,
             course_id: str,
-            queries: typing.List[lms.model.assignments.AssignmentQuery],
+            queries: typing.Collection[lms.model.assignments.AssignmentQuery],
             **kwargs: typing.Any) -> typing.List[lms.model.assignments.ResolvedAssignmentQuery]:
         """
         Resolve a list of assignment queries into a list of resolved assignment queries.
@@ -1389,7 +1404,7 @@ class APIBackend():
         return results[0]
 
     def resolve_course_queries(self,
-            queries: typing.List[lms.model.courses.CourseQuery],
+            queries: typing.Collection[lms.model.courses.CourseQuery],
             **kwargs: typing.Any) -> typing.List[lms.model.courses.ResolvedCourseQuery]:
         """
         Resolve a list of course queries into a list of resolved course queries.
@@ -1408,7 +1423,7 @@ class APIBackend():
     def resolve_group_queries(self,
             course_id: str,
             groupset_id: str,
-            queries: typing.List[lms.model.groups.GroupQuery],
+            queries: typing.Collection[lms.model.groups.GroupQuery],
             **kwargs: typing.Any) -> typing.List[lms.model.groups.ResolvedGroupQuery]:
         """
         Resolve a list of group queries into a list of resolved group queries.
@@ -1443,7 +1458,7 @@ class APIBackend():
 
     def resolve_groupset_queries(self,
             course_id: str,
-            queries: typing.List[lms.model.groupsets.GroupSetQuery],
+            queries: typing.Collection[lms.model.groupsets.GroupSetQuery],
             **kwargs: typing.Any) -> typing.List[lms.model.groupsets.ResolvedGroupSetQuery]:
         """
         Resolve a list of group set queries into a list of resolved group set queries.
@@ -1477,7 +1492,7 @@ class APIBackend():
 
     def resolve_user_queries(self,
             course_id: str,
-            queries: typing.List[lms.model.users.UserQuery],
+            queries: typing.Collection[lms.model.users.UserQuery],
             only_students: bool = False,
             **kwargs: typing.Any) -> typing.List[lms.model.users.ResolvedUserQuery]:
         """
@@ -1500,9 +1515,9 @@ class APIBackend():
         return typing.cast(typing.List[lms.model.users.ResolvedUserQuery], results)
 
     def _resolve_queries(self,
-            queries: typing.Sequence[lms.model.query.BaseQuery],
+            queries: typing.Collection[lms.model.query.BaseQuery],
             label: str,
-            items: typing.Sequence,
+            items: typing.Collection,
             resolved_query_class: typing.Type,
             empty_all: bool = False,
             warn_on_miss: bool = False,
@@ -1548,7 +1563,7 @@ class APIBackend():
     def _resolve_group_memberships(self,
             course_id: str,
             groupset_id: str,
-            memberships: typing.List[lms.model.groups.GroupMembership],
+            memberships: typing.Collection[lms.model.groups.GroupMembership],
             **kwargs: typing.Any) -> typing.Tuple[
                 typing.Dict[lms.model.groups.ResolvedGroupQuery, typing.List[lms.model.users.ResolvedUserQuery]],
                 typing.Dict[str, typing.List[lms.model.users.ResolvedUserQuery]],
@@ -1570,10 +1585,10 @@ class APIBackend():
         missing_group_memberships: typing.Dict[str, typing.List[lms.model.users.ResolvedUserQuery]] = {}
 
         users = self.courses_users_list(course_id, **kwargs)
-        resolved_user_queries = [user.to_query() for user in users]
+        resolved_user_queries = [user.to_query() for user in sorted(users)]
 
         groups = self.courses_groups_list(course_id, groupset_id, **kwargs)
-        resolved_group_queries = [group.to_query() for group in groups]
+        resolved_group_queries = [group.to_query() for group in sorted(groups)]
 
         for (i, membership) in enumerate(memberships):
             # Resolve user.

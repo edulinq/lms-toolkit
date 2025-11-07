@@ -1,12 +1,9 @@
-# TEST
-
 import typing
 
 import edq.util.dirent
 
 import lms.model.backend
 import lms.model.groups
-import lms.model.users
 
 def load_group_memberships(
         backend: lms.model.backend.APIBackend,

@@ -51,19 +51,19 @@ class CanvasBackend(lms.model.backend.APIBackend):
         return headers
 
     def courses_list(self,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.courses.Course]:
+            **kwargs: typing.Any) -> typing.List[lms.model.courses.Course]:
         return lms.backend.canvas.courses.list.request(self)
 
     def courses_assignments_list(self,
             course_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.assignments.Assignment]:
+            **kwargs: typing.Any) -> typing.List[lms.model.assignments.Assignment]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         return lms.backend.canvas.courses.assignments.list.request(self, parsed_course_id)
 
     def courses_assignments_scores_list(self,
             course_id: str,
             assignment_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+            **kwargs: typing.Any) -> typing.List[lms.model.scores.AssignmentScore]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         parsed_assignment_id = lms.util.parse.required_int(assignment_id, 'assignment_id')
         return lms.backend.canvas.courses.assignments.scores.list.request(self, parsed_course_id, parsed_assignment_id)
@@ -80,8 +80,8 @@ class CanvasBackend(lms.model.backend.APIBackend):
 
     def courses_gradebook_fetch(self,
             course_id: str,
-            assignment_ids: typing.List[str],
-            user_ids: typing.List[str],
+            assignment_ids: typing.Collection[str],
+            user_ids: typing.Collection[str],
             **kwargs: typing.Any) -> lms.model.scores.Gradebook:
         if ((len(assignment_ids) == 0) or (len(user_ids) == 0)):
             assignment_queries = [lms.model.assignments.AssignmentQuery(id = id) for id in assignment_ids]
@@ -111,14 +111,14 @@ class CanvasBackend(lms.model.backend.APIBackend):
 
     def courses_groupsets_list(self,
             course_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSet]:
+            **kwargs: typing.Any) -> typing.List[lms.model.groupsets.GroupSet]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         return lms.backend.canvas.courses.groupsets.list.request(self, parsed_course_id)
 
     def courses_groupsets_memberships_list(self,
             course_id: str,
             groupset_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSetMembership]:
+            **kwargs: typing.Any) -> typing.List[lms.model.groupsets.GroupSetMembership]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         parsed_groupset_id = lms.util.parse.required_int(groupset_id, 'groupset_id')
         return lms.backend.canvas.courses.groupsets.memberships.list.request(self, parsed_course_id, parsed_groupset_id)
@@ -145,7 +145,7 @@ class CanvasBackend(lms.model.backend.APIBackend):
     def courses_groups_list(self,
             course_id: str,
             groupset_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groups.Group]:
+            **kwargs: typing.Any) -> typing.List[lms.model.groups.Group]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         parsed_groupset_id = lms.util.parse.required_int(groupset_id, 'groupset_id')
         return lms.backend.canvas.courses.groups.list.request(self, parsed_course_id, parsed_groupset_id)
@@ -154,7 +154,7 @@ class CanvasBackend(lms.model.backend.APIBackend):
             course_id: str,
             groupset_id: str,
             group_id: str,
-            user_ids: typing.List[str],
+            user_ids: typing.Collection[str],
             **kwargs: typing.Any) -> int:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         parsed_groupset_id = lms.util.parse.required_int(groupset_id, 'groupset_id')
@@ -166,7 +166,7 @@ class CanvasBackend(lms.model.backend.APIBackend):
             course_id: str,
             groupset_id: str,
             group_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.groupsets.GroupSetMembership]:
+            **kwargs: typing.Any) -> typing.List[lms.model.groupsets.GroupSetMembership]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         parsed_groupset_id = lms.util.parse.required_int(groupset_id, 'groupset_id')
         parsed_group_id = lms.util.parse.required_int(group_id, 'group_id')
@@ -176,7 +176,7 @@ class CanvasBackend(lms.model.backend.APIBackend):
             course_id: str,
             groupset_id: str,
             group_id: str,
-            user_ids: typing.List[str],
+            user_ids: typing.Collection[str],
             **kwargs: typing.Any) -> int:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         parsed_groupset_id = lms.util.parse.required_int(groupset_id, 'groupset_id')
@@ -187,14 +187,14 @@ class CanvasBackend(lms.model.backend.APIBackend):
 
     def courses_users_list(self,
             course_id: typing.Union[str, None] = None,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.users.CourseUser]:
+            **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         return lms.backend.canvas.courses.users.list.request(self, parsed_course_id)
 
     def courses_users_scores_list(self,
             course_id: str,
             user_id: str,
-            **kwargs: typing.Any) -> typing.Sequence[lms.model.scores.AssignmentScore]:
+            **kwargs: typing.Any) -> typing.List[lms.model.scores.AssignmentScore]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         parsed_user_id = lms.util.parse.required_int(user_id, 'user_id')
         return lms.backend.canvas.courses.users.scores.list.request(self, parsed_course_id, parsed_user_id)
