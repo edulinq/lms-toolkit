@@ -1,8 +1,10 @@
 import typing
 
 import lms.backend.canvas.common
-import lms.backend.canvas.model.scores
+import lms.backend.canvas.model
+import lms.model.assignments
 import lms.model.scores
+import lms.model.users
 
 BASE_ENDPOINT = "/api/v1/courses/{course_id}/students/submissions"
 
@@ -46,6 +48,6 @@ def request(backend: typing.Any,
         if ((len(user_ids) != 0) and (user_id not in user_ids)):
             continue
 
-        gradebook.add(lms.backend.canvas.model.scores.AssignmentScore(**raw_object))
+        gradebook.add(lms.backend.canvas.model.assignment_score(raw_object))
 
     return gradebook

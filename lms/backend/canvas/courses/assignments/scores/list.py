@@ -1,14 +1,15 @@
 import typing
 
 import lms.backend.canvas.common
-import lms.backend.canvas.model.scores
+import lms.backend.canvas.model
+import lms.model.scores
 
 BASE_ENDPOINT = "/api/v1/courses/{course_id}/assignments/{assignment_id}/submissions"
 
 def request(backend: typing.Any,
         course_id: int,
         assignment_id: int,
-        ) -> typing.List[lms.backend.canvas.model.scores.AssignmentScore]:
+        ) -> typing.List[lms.model.scores.AssignmentScore]:
     """ List assignment scores. """
 
     url = backend.server + BASE_ENDPOINT.format(course_id = course_id, assignment_id = assignment_id)
@@ -30,6 +31,6 @@ def request(backend: typing.Any,
         if (raw_object.get('workflow_state', None) == 'unsubmitted'):
             continue
 
-        scores.append(lms.backend.canvas.model.scores.AssignmentScore(**raw_object))
+        scores.append(lms.backend.canvas.model.assignment_score(raw_object))
 
     return scores

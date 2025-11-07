@@ -1,12 +1,13 @@
 import typing
 
 import lms.backend.canvas.common
-import lms.backend.canvas.model.courses
+import lms.backend.canvas.model
+import lms.model.courses
 
 BASE_ENDPOINT = "/api/v1/courses?per_page={page_size}"
 
 def request(backend: typing.Any,
-        ) -> typing.List[lms.backend.canvas.model.courses.Course]:
+        ) -> typing.List[lms.model.courses.Course]:
     """ List courses. """
 
     url = backend.server + BASE_ENDPOINT.format(page_size = lms.backend.canvas.common.DEFAULT_PAGE_SIZE)
@@ -18,4 +19,4 @@ def request(backend: typing.Any,
 
         return []
 
-    return [lms.backend.canvas.model.courses.Course(**raw_object) for raw_object in raw_objects]
+    return [lms.backend.canvas.model.course(raw_object) for raw_object in raw_objects]

@@ -1,14 +1,15 @@
 import typing
 
 import lms.backend.canvas.common
-import lms.backend.canvas.model.groups
+import lms.backend.canvas.model
+import lms.model.groups
 
 BASE_ENDPOINT = "/api/v1/group_categories/{groupset_id}/groups?per_page={page_size}"
 
 def request(backend: typing.Any,
         course_id: int,
         groupset_id: int,
-        ) -> typing.List[lms.backend.canvas.model.groups.Group]:
+        ) -> typing.List[lms.model.groups.Group]:
     """ List a group set's groups. """
 
     url = backend.server + BASE_ENDPOINT.format(groupset_id = groupset_id, page_size = lms.backend.canvas.common.DEFAULT_PAGE_SIZE)
@@ -24,4 +25,4 @@ def request(backend: typing.Any,
 
         return []
 
-    return [lms.backend.canvas.model.groups.Group(**raw_object) for raw_object in raw_objects]
+    return [lms.backend.canvas.model.group(raw_object) for raw_object in raw_objects]

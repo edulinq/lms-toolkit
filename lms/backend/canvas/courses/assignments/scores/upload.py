@@ -1,7 +1,6 @@
 import typing
 
 import lms.backend.canvas.common
-import lms.backend.canvas.model.scores
 import lms.model.constants
 import lms.model.scores
 

@@ -1,7 +1,7 @@
 import typing
 
 import lms.backend.canvas.common
-import lms.backend.canvas.model.users
+import lms.backend.canvas.model
 import lms.model.groups
 import lms.model.groupsets
 import lms.model.users
@@ -34,7 +34,7 @@ def request(backend: typing.Any,
 
     memberships = []
     for raw_object in raw_objects:
-        user = lms.backend.canvas.model.users.CourseUser(**raw_object)
+        user = lms.backend.canvas.model.course_user(raw_object)
         membership = lms.model.groupsets.GroupSetMembership(user = user.to_query(), groupset = groupset_query, group = group_query)
         memberships.append(membership)
 

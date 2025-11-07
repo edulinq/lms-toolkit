@@ -1,15 +1,16 @@
 import typing
 
 import lms.backend.canvas.common
-import lms.backend.canvas.model.groupsets
+import lms.backend.canvas.model
 import lms.model.constants
+import lms.model.groupsets
 
 BASE_ENDPOINT = "/api/v1/courses/{course_id}/group_categories"
 
 def request(backend: typing.Any,
         course_id: int,
         name: str,
-        ) -> lms.backend.canvas.model.groupsets.GroupSet:
+        ) -> lms.model.groupsets.GroupSet:
     """ Create a group set. """
 
     url = backend.server + BASE_ENDPOINT.format(course_id = course_id)
@@ -30,4 +31,4 @@ def request(backend: typing.Any,
 
         raise ValueError(f"Unable to create group set '{name}' for course '{course_id}'.")
 
-    return lms.backend.canvas.model.groupsets.GroupSet(**raw_object)
+    return lms.backend.canvas.model.group_set(raw_object)
