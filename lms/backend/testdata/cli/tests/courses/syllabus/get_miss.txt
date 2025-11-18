@@ -1,0 +1,9 @@
+{
+    "cli": "lms.cli.courses.syllabus.get",
+    "arguments": [
+        "--course", "ZZZ"
+    ],
+    "error": true
+}
+---
+builtins.ValueError: Could not resolve course query: 'ZZZ'.

@@ -1,0 +1,8 @@
+{
+    "cli": "lms.cli.courses.syllabus.get",
+    "arguments": [
+        "--course", "Course 101"
+    ],
+}
+---
+A sample course syllabus.

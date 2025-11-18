@@ -1,0 +1,9 @@
+{
+    "cli": "lms.cli.courses.syllabus.get",
+    "split_stdout_stderr": true,
+    "arguments": [
+        "--course", "Course Using Different Languages"
+    ],
+}
+---
+<No syllabus found for course: 'Course Using Different Languages'.>

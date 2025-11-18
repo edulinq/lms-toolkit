@@ -26,6 +26,8 @@ Links:
      - Gradebook
        - [Retrieve Gradebook](#retrieve-gradebook)
        - [Upload Gradebook](#upload-gradebook)
+     - Syllabus
+       - [Retrieve Syllabus](#retrieve-syllabus)
      - User Groupings
        - Group Sets
          - [Retrieve Group Sets](#retrieve-group-sets)
@@ -252,6 +254,18 @@ Only the assignments and students of interest need to be included.
 An empty cell (missing score) will be ignored,
 but all rows must have the correct number of cells (tabs).
 
+### Retrieve Syllabus
+
+Get a course's syllabus with `lms.cli.courses.syllabus.get`:
+```sh
+python3 -m lms.cli.courses.syllabus.get --course 'Course 101'
+```
+
+If a course has no syllbus, a message like the following will be output:
+```
+<No syllabus found for course: 'Course 101'.>
+```
+
 ### Retrieve Group Sets
 
 List all groups sets in a course `lms.cli.courses.groupsets.list`:
@@ -464,6 +478,7 @@ Legend:
 | lms.cli.courses.groupsets.memberships.list      | `+`    | `-`    |
 | lms.cli.courses.groupsets.memberships.set       | `+`    | `-`    |
 | lms.cli.courses.groupsets.memberships.subtract  | `+`    | `-`    |
+| lms.cli.courses.syllabus.get                    | `+`    | `-`    |
 | lms.cli.courses.users.get                       | `+`    | `-`    |
 | lms.cli.courses.users.list                      | `+`    | `-`    |
 | lms.cli.courses.users.scores.get                | `+`    | `-`    |

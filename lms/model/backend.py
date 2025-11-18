@@ -1085,6 +1085,26 @@ class APIBackend():
 
         return count, deleted
 
+    def courses_syllabus_fetch(self,
+            course_id: str,
+            **kwargs: typing.Any) -> typing.Union[str, None]:
+        """
+        Get the syllabus for a course, or None if no syllabus exists.
+        """
+
+        raise NotImplementedError('courses_syllabus_fetch')
+
+    def courses_syllabus_get(self,
+            course_query: lms.model.courses.CourseQuery,
+            **kwargs: typing.Any) -> typing.Union[str, None]:
+        """
+        Get the syllabus for a course query, or None if no syllabus exists.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+
+        return self.courses_syllabus_fetch(resolved_course_query.get_id(), **kwargs)
+
     def courses_users_get(self,
             course_query: lms.model.courses.CourseQuery,
             user_queries: typing.Collection[lms.model.users.UserQuery],
