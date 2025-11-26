@@ -35,19 +35,19 @@ class CanvasBackend(lms.model.backend.APIBackend):
 
     def __init__(self,
             server: str,
-            token: typing.Union[str, None] = None,
+            auth_token: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
         super().__init__(server, lms.model.constants.BACKEND_TYPE_CANVAS, **kwargs)
 
-        if (token is None):
+        if (auth_token is None):
             raise ValueError("Canvas backends require a token.")
 
-        self.token: str = token
+        self.auth_token: str = auth_token
 
     def get_standard_headers(self) -> typing.Dict[str, str]:
         headers = super().get_standard_headers()
 
-        headers['Authorization'] = f"Bearer {self.token}"
+        headers['Authorization'] = f"Bearer {self.auth_token}"
 
         return headers
 

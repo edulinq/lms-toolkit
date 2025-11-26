@@ -26,6 +26,7 @@ def _get_parser() -> argparse.ArgumentParser:
 
     parser = lms.cli.parser.get_parser(__doc__.strip(),
             include_server = False,
+            include_auth = False,
     )
 
     edq.cli.config.list.modify_parser(parser)

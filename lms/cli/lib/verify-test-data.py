@@ -23,7 +23,10 @@ def main() -> int:
 def _get_parser() -> argparse.ArgumentParser:
     """ Get the parser. """
 
-    parser = lms.cli.parser.get_parser(__doc__.strip())
+    parser = lms.cli.parser.get_parser(__doc__.strip(),
+            include_server = False,
+            include_auth = False,
+    )
 
     lms.procedure.server.modify_parser(parser)
 

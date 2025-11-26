@@ -37,7 +37,6 @@ def _get_parser() -> argparse.ArgumentParser:
     """ Get the parser. """
 
     parser = lms.cli.parser.get_parser(__doc__.strip(),
-            include_token = True,
             include_course = True,
     )
 

@@ -43,7 +43,7 @@ class CanvasBackendTest(lms.backend.testing.BackendTest):
         cls.exchanges_dir = CANVAS_TEST_EXCHANGES_DIR
 
         cls.backend_args.update({
-            'token': DEFAULT_TOKEN,
+            'auth_token': DEFAULT_TOKEN,
         })
 
         cls.params_to_skip += [
@@ -57,20 +57,20 @@ class CanvasBackendTest(lms.backend.testing.BackendTest):
         super().modify_cli_test_info(test_info)
 
         test_info.arguments += [
-            '--token', self.backend.token,
+            '--auth-token', self.backend.auth_token,
         ]
 
     def set_user(self, email: str) -> None:
         super().set_user(email)
 
         # Update the token the backend is using.
-        self.backend.token = USER_TOKENS[email]
+        self.backend.auth_token = USER_TOKENS[email]
 
     def clear_user(self) -> None:
         super().clear_user()
 
         # Switch back to the default token.
-        self.backend.token = DEFAULT_TOKEN
+        self.backend.auth_token = DEFAULT_TOKEN
 
 # Attatch tests to this class.
 lms.backend.testing.attach_test_cases(CanvasBackendTest)

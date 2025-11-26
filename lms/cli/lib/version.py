@@ -24,6 +24,7 @@ def _get_parser() -> argparse.ArgumentParser:
 
     return lms.cli.parser.get_parser(__doc__.strip(),
             include_server = False,
+            include_auth = False,
     )
 
 if (__name__ == '__main__'):

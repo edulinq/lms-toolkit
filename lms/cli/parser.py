@@ -21,7 +21,7 @@ _set_exchanges_clean_func: bool = True  # pylint: disable=invalid-name
 
 def get_parser(description: str,
         include_server: bool = True,
-        include_token: bool = False,
+        include_auth: bool = True,
         include_output_format: bool = False,
         include_course: bool = False,
         include_assignment: bool = False,
@@ -40,12 +40,14 @@ def get_parser(description: str,
         'cli_arg_config_map': {
             'server': 'server',
             'backend_type': 'backend_type',
-            'token': 'token',
+            'auth_user': 'auth_user',
+            'auth_password': 'auth_password',
+            'auth_token': 'auth_token',
             'course': 'course',
             'assignment': 'assignment',
             'user': 'user',
-            'groupset': 'groupset',
             'group': 'group',
+            'groupset': 'groupset',
         },
     }
 
@@ -71,8 +73,16 @@ def get_parser(description: str,
             default = None, choices = lms.model.constants.BACKEND_TYPES,
             help = 'The type of LMS being connected to (this can normally be guessed from the server address).')
 
-    if (include_token):
-        parser.add_argument('--token', dest = 'token',
+    if (include_auth):
+        parser.add_argument('--auth-user', dest = 'auth_user',
+            action = 'store', type = str, default = None,
+            help = 'The user to authenticate with.')
+
+        parser.add_argument('--auth-password', dest = 'auth_password',
+            action = 'store', type = str, default = None,
+            help = 'The password to authenticate with.')
+
+        parser.add_argument('--auth-token', dest = 'auth_token',
             action = 'store', type = str, default = None,
             help = 'The token to authenticate with.')
 
