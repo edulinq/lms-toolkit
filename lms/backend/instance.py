@@ -3,6 +3,7 @@ import typing
 import edq.util.net
 import requests
 
+import lms.backend.blackboard.backend
 import lms.backend.canvas.backend
 import lms.backend.moodle.backend
 import lms.model.constants
@@ -34,6 +35,12 @@ def get_backend(
 
     if (backend_type == lms.model.constants.BACKEND_TYPE_MOODLE):
         return lms.backend.moodle.backend.MoodleBackend(server, **kwargs)
+
+    if (backend_type == lms.model.constants.BACKEND_TYPE_BLACKBOARD):
+        return lms.backend.blackboard.backend.BlackboardBackend(server, **kwargs)
+
+    if (backend_type in lms.model.constants.BACKEND_TYPES):
+        raise ValueError(f"Instance creation not yet supported for backend type: '{backend_type}'.")
 
     raise ValueError(f"Unknown backend type: '{backend_type}'. Known backend types: {lms.model.constants.BACKEND_TYPES}.")
 
@@ -84,8 +91,13 @@ def guess_backend_type_from_request(server: str, timeout_secs: float = edq.util.
     except requests.exceptions.Timeout:
         return None
 
-    # Canvas sends a special header.
     header_keys = [key.lower() for key in response.headers.keys()]
+
+    # Blackboard sends a special header.
+    if ('x-blackboard-product' in header_keys):
+        return lms.model.constants.BACKEND_TYPE_BLACKBOARD
+
+    # Canvas sends a special header.
     if ('x-canvas-meta' in header_keys):
         return lms.model.constants.BACKEND_TYPE_CANVAS
 

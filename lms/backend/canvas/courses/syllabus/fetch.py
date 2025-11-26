@@ -25,4 +25,8 @@ def request(backend: typing.Any,
 
         return None
 
-    return raw_object.get('syllabus_body', None)
+    result = raw_object.get('syllabus_body', None)
+    if (result is None):
+        return None
+
+    return str(result)
