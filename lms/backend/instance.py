@@ -125,4 +125,7 @@ def guess_backend_type_from_url(server: str) -> typing.Union[str, None]:
     if ('moodle' in server):
         return lms.model.constants.BACKEND_TYPE_MOODLE
 
+    if ('blackboard' in server):
+        return lms.model.constants.BACKEND_TYPE_BLACKBOARD
+
     return None

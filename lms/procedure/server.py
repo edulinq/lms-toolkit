@@ -25,8 +25,8 @@ SERVER_STARTUP_INITIAL_WAIT_SECS: float = 0.2
 DEFAULT_STARTUP_WAIT_SECS: float = 10.0
 SERVER_STOP_WAIT_SECS: float = 5.00
 
-IDENTIFY_MAX_ATTEMPTS: int = 100
-IDENTIFY_WAIT_SECS: float = 0.25
+DEFAULT_IDENTIFY_MAX_ATTEMPTS: int = 100
+DEFAULT_IDENTIFY_WAIT_SECS: float = 0.25
 
 BACKEND_REQUEST_CLEANING_FUNCS: typing.Dict[str, typing.Callable] = {
     lms.model.constants.BACKEND_TYPE_CANVAS: lms.util.net.clean_canvas_response,
@@ -47,6 +47,8 @@ class ServerRunner():
             server_output_path: typing.Union[str, None] = None,
             startup_wait_secs: typing.Union[float, None] = None,
             startup_skip_identify: typing.Union[bool, None] = False,
+            identify_max_attempts: int = DEFAULT_IDENTIFY_MAX_ATTEMPTS,
+            identify_wait_secs: float = DEFAULT_IDENTIFY_WAIT_SECS,
             **kwargs: typing.Any) -> None:
         if (server is None):
             raise ValueError('No server specified.')
@@ -97,6 +99,12 @@ class ServerRunner():
         This acts as a way to have a variable wait for the server to start.
         When not used, self.startup_wait_secs is the only way to wait for the server to start.
         """
+
+        self.identify_max_attempts: int = identify_max_attempts
+        """ The maximum number of times to try an identity check before starting the server. """
+
+        self.identify_wait_secs: float = identify_wait_secs
+        """ The number of seconds each identify request will wait for the server to respond. """
 
         self._old_exchanges_out_dir: typing.Union[str, None] = None
         """
@@ -155,6 +163,8 @@ class ServerRunner():
 
         self._start_server()
 
+        logging.info("Server is started up.")
+
         # Resolve the backend type.
         self.backend_type = lms.backend.instance.guess_backend_type(self.server, backend_type = self.backend_type)
         if (self.backend_type is None):
@@ -200,13 +210,13 @@ class ServerRunner():
 
         # Ping the server to check if it has started.
         if (not self.startup_skip_identify):
-            for _ in range(IDENTIFY_MAX_ATTEMPTS):
-                backend_type = lms.backend.instance.guess_backend_type_from_request(self.server, timeout_secs = IDENTIFY_WAIT_SECS)
+            for _ in range(self.identify_max_attempts):
+                backend_type = lms.backend.instance.guess_backend_type_from_request(self.server, timeout_secs = self.identify_wait_secs)
                 if (backend_type is not None):
                     # The server is running and responding, exit early.
                     return
 
-                time.sleep(IDENTIFY_WAIT_SECS)
+                time.sleep(self.identify_wait_secs)
 
         status = None
         try:

@@ -43,6 +43,7 @@ class CanvasBackend(lms.model.backend.APIBackend):
             raise ValueError("Canvas backends require a token.")
 
         self.auth_token: str = auth_token
+        """ The token to authenticate with. """
 
     def get_standard_headers(self) -> typing.Dict[str, str]:
         headers = super().get_standard_headers()

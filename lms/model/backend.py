@@ -1,6 +1,8 @@
 import logging
 import typing
 
+import edq.util.parse
+
 import lms.model.assignments
 import lms.model.constants
 import lms.model.courses
@@ -20,9 +22,13 @@ class APIBackend():
     while still leaving gaps where they are incomplete or impossible.
     """
 
+    _testing: bool = False
+    """ Testing infrastructure may set this to true during tests. """
+
     def __init__(self,
             server: str,
             backend_type: str,
+            testing: typing.Union[bool, str] = _testing,
             **kwargs: typing.Any) -> None:
         self.server: str = server
         """ The server this backend will connect to. """
@@ -32,6 +38,9 @@ class APIBackend():
         The type for this backend.
         Should be set by the child class.
         """
+
+        self.testing: bool = edq.util.parse.boolean(testing)
+        """ True if the backend is being used for a test. """
 
     # Core Methods
 

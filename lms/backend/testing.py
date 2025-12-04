@@ -59,7 +59,9 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
     Will be created during setup_server().
     """
 
-    backend_args: typing.Dict[str, typing.Any] = {}
+    backend_args: typing.Dict[str, typing.Any] = {
+        'testing': True,
+    }
     """ Any additional arguments to send to get_backend(). """
 
     skip_base_request_test: bool = False
@@ -73,6 +75,8 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
 
     def __init__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
         super().__init__(*args, **kwargs)
+
+        lms.model.backend.APIBackend._testing = True
 
         self._user_email: typing.Union[str, None] = None
         """
@@ -229,6 +233,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
             '--config-global', CLI_GLOBAL_CONFG_PATH,
             '--server', self.get_server_url(),
             '--server-type', str(self.backend_type),
+            '--config', 'testing=true',
         ]
 
         # Mark this CLI test for skipping based on the backend filter.

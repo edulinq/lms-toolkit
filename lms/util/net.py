@@ -24,6 +24,27 @@ CANVAS_CLEAN_REMOVE_CONTENT_KEYS: typing.List[str] = [
 ]
 """ Keys to remove from Canvas content. """
 
+BLACKBOARD_CLEAN_REMOVE_CONTENT_KEYS: typing.List[str] = [
+    'created',
+    'modified',
+]
+""" Keys to remove from Blackboard content. """
+
+BLACKBOARD_CLEAN_REMOVE_HEADERS: typing.Set[str] = {
+    'access-control-allow-origin',
+    'content-encoding',
+    'content-language',
+    'expires',
+    'last-modified',
+    'p3p',
+    'pragma',
+    'strict-transport-security',
+    'transfer-encoding',
+    'vary',
+    'x-blackboard-xsrf',
+}
+""" Keys to remove from Blackboard content. """
+
 def clean_lms_response(response: requests.Response, body: str) -> str:
     """
     A ResponseModifierFunction that attempt to identify
@@ -44,11 +65,45 @@ def clean_lms_response(response: requests.Response, body: str) -> str:
     for key in response.headers:
         key = key.lower().strip()
 
+        if ('blackboard' in key):
+            return clean_blackboard_response(response, body)
+
         if ('canvas' in key):
             return clean_canvas_response(response, body)
 
         if ('moodle' in key):
             return clean_moodle_response(response, body)
+
+    return body
+
+def clean_blackboard_response(response: requests.Response, body: str) -> str:
+    """
+    See clean_lms_response(), but specifically for the Blackboard LMS.
+    This function will:
+     - Call _clean_base_response().
+     - Remove specific headers.
+    """
+
+    body = _clean_base_response(response, body)
+
+    # Work on both request and response headers.
+    for headers in [response.headers, response.request.headers]:
+        for key in list(headers.keys()):
+            if (key.strip().lower() in BLACKBOARD_CLEAN_REMOVE_HEADERS):
+                headers.pop(key, None)
+
+    # Most blackboard responses are JSON.
+    try:
+        data = edq.util.json.loads(body, strict = True)
+    except Exception:
+        # Response is not JSON.
+        return body
+
+    # Remove any content keys.
+    _recursive_remove_keys(data, set(BLACKBOARD_CLEAN_REMOVE_CONTENT_KEYS))
+
+    # Convert body back to a string.
+    body = edq.util.json.dumps(data)
 
     return body
 
@@ -93,7 +148,8 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
 
     return body
 
-def _clean_base_response(response: requests.Response, body: str) -> str:
+def _clean_base_response(response: requests.Response, body: str,
+        keep_headers: typing.Union[typing.List[str], None] = None) -> str:
     """
     Do response cleaning that is common amongst all backend types.
     This function will:
@@ -106,7 +162,11 @@ def _clean_base_response(response: requests.Response, body: str) -> str:
         body = ''
 
     for key in list(response.headers.keys()):
-        if (key.strip().lower().startswith('x-')):
+        key = key.strip().lower()
+        if ((keep_headers is not None) and (key in keep_headers)):
+            continue
+
+        if (key.startswith('x-')):
             response.headers.pop(key, None)
 
     return body
