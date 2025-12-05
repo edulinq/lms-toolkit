@@ -194,7 +194,7 @@ class CanvasBackend(lms.model.backend.APIBackend):
         return lms.backend.canvas.courses.syllabus.fetch.request(self, parsed_course_id)
 
     def courses_users_list(self,
-            course_id: typing.Union[str, None] = None,
+            course_id: str,
             **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         return lms.backend.canvas.courses.users.list.request(self, parsed_course_id)

@@ -10,6 +10,7 @@ import typing
 import edq.testing.run
 
 import lms.backend.testing
+import lms.model.backend
 import lms.procedure.server
 
 THIS_DIR: str = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
@@ -33,6 +34,7 @@ def run(args: typing.Union[argparse.Namespace, typing.Dict[str, typing.Any]]) ->
     lms.backend.testing.BackendTest.allowed_backend = server_runner.backend_type
     lms.backend.testing.BackendTest.skip_test_exchanges_base = True
     lms.backend.testing.BackendTest.override_server_url = server_runner.server
+    lms.model.backend.APIBackend._testing_override = False
 
     # Run the tests (which generate the data).
     test_args = {

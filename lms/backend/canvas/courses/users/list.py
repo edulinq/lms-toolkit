@@ -2,11 +2,12 @@ import typing
 
 import lms.backend.canvas.common
 import lms.backend.canvas.model
+import lms.model.backend
 import lms.model.users
 
 BASE_ENDPOINT = "/api/v1/courses/{course_id}/users?per_page={page_size}"
 
-def request(backend: typing.Any,
+def request(backend: lms.model.backend.APIBackend,
         course_id: int,
         include_role: bool = True,
         ) -> typing.List[lms.model.users.CourseUser]:
@@ -27,4 +28,4 @@ def request(backend: typing.Any,
 
         return []
 
-    return [lms.backend.canvas.model.course_user(raw_object) for raw_object in raw_objects]
+    return [lms.backend.canvas.model.course_user(backend, raw_object) for raw_object in raw_objects]

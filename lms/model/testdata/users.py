@@ -10,7 +10,7 @@ COURSE_USERS['Course 101'] = {
         email = 'course-admin@test.edulinq.org',
         id = '100010000',
         name = 'course-admin',
-        role = lms.model.users.CourseRole.GRADER,
+        role = lms.model.users.CourseRole.ADMIN,
     ),
     'course-grader': lms.model.users.CourseUser(
         email = 'course-grader@test.edulinq.org',

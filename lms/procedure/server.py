@@ -21,7 +21,7 @@ import lms.cli.parser
 import lms.model.constants
 import lms.util.net
 
-SERVER_STARTUP_INITIAL_WAIT_SECS: float = 0.2
+DEFAULT_SERVER_STARTUP_INITIAL_WAIT_SECS: float = 0.2
 DEFAULT_STARTUP_WAIT_SECS: float = 10.0
 SERVER_STOP_WAIT_SECS: float = 5.00
 
@@ -45,6 +45,7 @@ class ServerRunner():
             server_stop_command: typing.Union[str, None] = None,
             http_exchanges_out_dir: typing.Union[str, None] = None,
             server_output_path: typing.Union[str, None] = None,
+            startup_initial_wait_secs: float = DEFAULT_SERVER_STARTUP_INITIAL_WAIT_SECS,
             startup_wait_secs: typing.Union[float, None] = None,
             startup_skip_identify: typing.Union[bool, None] = False,
             identify_max_attempts: int = DEFAULT_IDENTIFY_MAX_ATTEMPTS,
@@ -83,6 +84,9 @@ class ServerRunner():
 
         self.server_output_path: str = server_output_path
         """ Where to write server output (stdout and stderr). """
+
+        self.startup_initial_wait_secs: float = startup_initial_wait_secs
+        """ The duration to wait after giving the initial startup command. """
 
         if (startup_wait_secs is None):
             startup_wait_secs = DEFAULT_STARTUP_WAIT_SECS
@@ -196,7 +200,7 @@ class ServerRunner():
         status = None
         try:
             # Wait for a short period for the process to start.
-            status = self._process.wait(SERVER_STARTUP_INITIAL_WAIT_SECS)
+            status = self._process.wait(self.startup_initial_wait_secs)
         except subprocess.TimeoutExpired:
             # Good, the server is running.
             pass
@@ -207,6 +211,8 @@ class ServerRunner():
                 hint = 'server may already be running'
 
             raise ValueError(f"Server was unable to start successfully ('{hint}').")
+
+        logging.info("Completed initial server start wait.")
 
         # Ping the server to check if it has started.
         if (not self.startup_skip_identify):

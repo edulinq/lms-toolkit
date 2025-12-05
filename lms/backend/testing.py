@@ -76,8 +76,6 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
     def __init__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
         super().__init__(*args, **kwargs)
 
-        lms.model.backend.APIBackend._testing = True
-
         self._user_email: typing.Union[str, None] = None
         """
         The email of the current user for this backend.

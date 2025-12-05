@@ -8,7 +8,7 @@
 }
 ---
 Id	Name	Email	Role
-100010000	course-admin	course-admin@test.edulinq.org	grader
+100010000	course-admin	course-admin@test.edulinq.org	admin
 100020000	course-grader	course-grader@test.edulinq.org	grader
 100030000	course-other	course-other@test.edulinq.org	other
 100040000	course-owner	course-owner@test.edulinq.org	owner

@@ -2,13 +2,14 @@ import typing
 
 import lms.backend.canvas.common
 import lms.backend.canvas.model
+import lms.model.backend
 import lms.model.groups
 import lms.model.groupsets
 import lms.model.users
 
 BASE_ENDPOINT = "/api/v1/groups/{group_id}/users?per_page={page_size}"
 
-def request(backend: typing.Any,
+def request(backend: lms.model.backend.APIBackend,
         course_id: int,
         groupset_id: int,
         group_id: int,
@@ -34,7 +35,7 @@ def request(backend: typing.Any,
 
     memberships = []
     for raw_object in raw_objects:
-        user = lms.backend.canvas.model.course_user(raw_object)
+        user = lms.backend.canvas.model.course_user(backend, raw_object)
         membership = lms.model.groupsets.GroupSetMembership(user = user.to_query(), groupset = groupset_query, group = group_query)
         memberships.append(membership)
 

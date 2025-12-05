@@ -11,7 +11,7 @@
         "id": "100010000",
         "name": "course-admin",
         "email": "course-admin@test.edulinq.org",
-        "role": "grader"
+        "role": "admin"
     },
     {
         "id": "100020000",

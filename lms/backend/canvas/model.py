@@ -2,6 +2,7 @@ import typing
 
 import lms.backend.canvas.common
 import lms.model.assignments
+import lms.model.backend
 import lms.model.courses
 import lms.model.groups
 import lms.model.groupsets
@@ -85,7 +86,7 @@ def course(data: typing.Dict[str, typing.Any]) -> lms.model.courses.Course:
 
     return lms.model.courses.Course(**data)
 
-def course_user(data: typing.Dict[str, typing.Any]) -> lms.model.users.CourseUser:
+def course_user(backend: lms.model.backend.APIBackend, data: typing.Dict[str, typing.Any]) -> lms.model.users.CourseUser:
     """
     Create a Canvas user associated with a course.
 
@@ -108,6 +109,11 @@ def course_user(data: typing.Dict[str, typing.Any]) -> lms.model.users.CourseUse
     if (enrollments is not None):
         data['raw_role'] = _parse_role_from_enrollments(enrollments)
         data['role'] = ENROLLMENT_TYPE_TO_ROLE.get(data['raw_role'], None)
+
+        # Canvas has a discontinuity with its default course roles.
+        # We need to patch this during testing.
+        if (backend.is_testing() and data['email'] == 'course-admin@test.edulinq.org'):
+            data['role'] = lms.model.users.CourseRole.ADMIN
 
     return lms.model.users.CourseUser(**data)
 

@@ -10,7 +10,7 @@
 Id: 100010000
 Name: course-admin
 Email: course-admin@test.edulinq.org
-Role: grader
+Role: admin
 
 Id: 100020000
 Name: course-grader

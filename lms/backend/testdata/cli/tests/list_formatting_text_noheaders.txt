@@ -10,7 +10,7 @@
 100010000
 course-admin
 course-admin@test.edulinq.org
-grader
+admin
 
 100020000
 course-grader

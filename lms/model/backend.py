@@ -22,13 +22,13 @@ class APIBackend():
     while still leaving gaps where they are incomplete or impossible.
     """
 
-    _testing: bool = False
-    """ Testing infrastructure may set this to true during tests. """
+    _testing_override: typing.Union[bool, None] = None
+    """ A top-level override to control testing status. """
 
     def __init__(self,
             server: str,
             backend_type: str,
-            testing: typing.Union[bool, str] = _testing,
+            testing: typing.Union[bool, str] = False,
             **kwargs: typing.Any) -> None:
         self.server: str = server
         """ The server this backend will connect to. """
@@ -39,10 +39,19 @@ class APIBackend():
         Should be set by the child class.
         """
 
-        self.testing: bool = edq.util.parse.boolean(testing)
+        testing = edq.util.parse.boolean(testing)
+        if (APIBackend._testing_override is not None):
+            testing = APIBackend._testing_override
+
+        self.testing: bool = testing
         """ True if the backend is being used for a test. """
 
     # Core Methods
+
+    def is_testing(self) -> bool:
+        """ Check if this backend is in testing mode. """
+
+        return self.testing
 
     def get_standard_headers(self) -> typing.Dict[str, str]:
         """

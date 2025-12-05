@@ -8,6 +8,8 @@ import lms.backend.blackboard.model
 import lms.model.backend
 import lms.model.constants
 import lms.model.courses
+import lms.model.users
+import lms.util.parse
 
 class BlackboardBackend(lms.model.backend.APIBackend):
     """ An API backend for the Blackboard Learn LMS. """
@@ -85,7 +87,7 @@ class BlackboardBackend(lms.model.backend.APIBackend):
         router_params: typing.Dict[str, str] = {}
 
         # If we are testing, return fake cookies.
-        if (self.testing):
+        if (self.is_testing()):
             cookies['bbrouter'] = 'xsrf:abc,sessionId:9999999'
             router_params['xsrf'] = 'abc'
             router_params['sessionId'] = '9999999'
@@ -130,9 +132,33 @@ class BlackboardBackend(lms.model.backend.APIBackend):
         response, _ = edq.util.net.make_get(url, headers = self._session_headers, data = data)
 
         courses = []
-        for course in response.json().get('results', []):
-            courses.append(lms.backend.blackboard.model.course(course))
+        for raw_course in response.json().get('results', []):
+            courses.append(lms.backend.blackboard.model.course(raw_course))
 
         courses.sort()
 
         return courses
+
+    def courses_users_list(self,
+            course_id: str,
+            **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
+        parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
+
+        self._login()
+
+        url = self.server + '/learn/api/public/v1/courses/{course_id}/users'
+        url = url.format(course_id = lms.backend.blackboard.model.format_id(parsed_course_id))
+
+        data = {
+            'expand': 'user',
+        }
+
+        response, _ = edq.util.net.make_get(url, headers = self._session_headers, data = data)
+
+        users = []
+        for raw_user in response.json().get('results', []):
+            users.append(lms.backend.blackboard.model.course_user(raw_user))
+
+        users.sort()
+
+        return users
