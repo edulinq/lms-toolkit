@@ -186,3 +186,33 @@ def _recursive_remove_keys(data: typing.Any, remove_keys: typing.Set[str]) -> No
                 del data[key]
             else:
                 _recursive_remove_keys(data[key], remove_keys)
+
+def parse_cookies(
+        text_cookies: typing.Union[str, None],
+        strip_key_prefix: bool = True,
+        ) -> typing.Dict[str, typing.Any]:
+    """ Parse cookies out of a text string. """
+
+    cookies: typing.Dict[str, typing.Any] = {}
+
+    if (text_cookies is None):
+        return cookies
+
+    text_cookies = text_cookies.strip()
+    if (len(text_cookies) == 0):
+        return cookies
+
+    for cookie in text_cookies.split('; '):
+        parts = cookie.split('=', maxsplit = 1)
+
+        key = parts[0].lower()
+
+        if (strip_key_prefix):
+            key = key.split(', ')[-1]
+
+        if (len(parts) == 1):
+            cookies[key] = True
+        else:
+            cookies[key] = parts[1]
+
+    return cookies

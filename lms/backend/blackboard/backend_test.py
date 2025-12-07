@@ -1,6 +1,7 @@
 import os
 import typing
 
+import edq.testing.cli
 import edq.util.net
 
 import lms.backend.testing
@@ -20,7 +21,7 @@ class BlackboardBackendTest(lms.backend.testing.BackendTest):
         super().__init__(*args, **kwargs)
 
         # Skip exchange verification tests, since Blackboard users are not logged in ahead of time.
-        # This makes the exhcnages dependent on the login.
+        # This makes the exchanges dependent on the login.
         self.skip_test_exchanges_base = True
 
     @classmethod

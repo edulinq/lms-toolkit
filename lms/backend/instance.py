@@ -105,6 +105,10 @@ def guess_backend_type_from_request(server: str, timeout_secs: float = edq.util.
     if ('_normandy_session' in response.headers.get('set-cookie', '')):
         return lms.model.constants.BACKEND_TYPE_CANVAS
 
+    # Moodle will try to redirect with a special header.
+    if (response.headers.get('x-redirect-by', '').lower() == 'moodle'):
+        return lms.model.constants.BACKEND_TYPE_MOODLE
+
     # Moodle requests that a specific cookie is set.
     if ('MoodleSession' in response.headers.get('set-cookie', '')):
         return lms.model.constants.BACKEND_TYPE_MOODLE

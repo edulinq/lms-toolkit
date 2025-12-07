@@ -9,6 +9,7 @@ import lms.model.backend
 import lms.model.constants
 import lms.model.courses
 import lms.model.users
+import lms.util.net
 import lms.util.parse
 
 class BlackboardBackend(lms.model.backend.APIBackend):
@@ -37,6 +38,8 @@ class BlackboardBackend(lms.model.backend.APIBackend):
         """ The headers (e.g., cookies) for our logged in Blackboard session. """
 
     def _login(self) -> None:
+        """ Try to login to the Blackboard server. """
+
         # Check if we are already logged in.
         if (self._session_headers is not None):
             return
@@ -94,24 +97,7 @@ class BlackboardBackend(lms.model.backend.APIBackend):
 
             return cookies, router_params
 
-        if (text_cookies is None):
-            return cookies, router_params
-
-        text_cookies = text_cookies.strip()
-        if (len(text_cookies) == 0):
-            return cookies, router_params
-
-        for cookie in text_cookies.split('; '):
-            parts = cookie.split('=', maxsplit = 1)
-
-            key = parts[0].lower()
-            if (key.startswith('secure, ')):
-                key = key.replace('secure, ', '')
-
-            if (len(parts) == 1):
-                cookies[key] = True
-            else:
-                cookies[key] = parts[1]
+        cookies = lms.util.net.parse_cookies(text_cookies)
 
         router_text = cookies.get('bbrouter', None)
         if (isinstance(router_text, str)):
