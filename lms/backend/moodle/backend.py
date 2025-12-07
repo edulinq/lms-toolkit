@@ -98,8 +98,9 @@ class MoodleBackend(lms.model.backend.APIBackend):
                     + " To avoid extra requests, update the server (e.g., `--server`) to match the host."),
                     self.server, host)
 
+            # Update the server and try to login again (without updating the server again (to avoid loops)).
             self.server = host
-            self._login()
+            self._login(update_server = False)
             return
 
         raise ValueError(f"Could not log into Moodle server ({self.server}) with user '{self._username}'. Is username/password correct?")
