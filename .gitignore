@@ -1,6 +1,7 @@
 # Editor Files
 .DS_Store
 *.swp
+.idea
 
 # Language Dirents
 .ipynb_checkpoints
