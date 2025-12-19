@@ -35,7 +35,7 @@ function check_git() {
         exit 1
     fi
 
-    if [ $(git branch --show-current) != 'main' ] ; then
+    if [ $(git branch --show-current) != "${MAIN_BRANCH}" ] ; then
         echo "ERROR: Repository is not on the main branch."
         exit 2
     fi
@@ -105,7 +105,7 @@ function main() {
     done
 
     # Move back to main.
-    git checkout --quiet main
+    git checkout --quiet "${MAIN_BRANCH}"
 
     return 0
 }
