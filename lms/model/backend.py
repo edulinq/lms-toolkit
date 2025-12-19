@@ -39,11 +39,11 @@ class APIBackend():
         Should be set by the child class.
         """
 
-        testing = edq.util.parse.boolean(testing)
+        parsed_testing = edq.util.parse.boolean(testing)
         if (APIBackend._testing_override is not None):
-            testing = APIBackend._testing_override
+            parsed_testing = APIBackend._testing_override
 
-        self.testing: bool = testing
+        self.testing: bool = parsed_testing
         """ True if the backend is being used for a test. """
 
     # Core Methods

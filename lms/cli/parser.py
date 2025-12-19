@@ -18,6 +18,10 @@ CONFIG_FILENAME: str = 'edq-lms.json'
 DEFAULT_SKIP_ROWS: int = 0
 
 _set_exchanges_clean_func: bool = True  # pylint: disable=invalid-name
+"""
+Whether to set the exchanges clean function when creating the parser.
+This may be disabled for testing.
+"""
 
 def get_parser(description: str,
         include_server: bool = True,

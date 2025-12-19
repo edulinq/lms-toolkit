@@ -240,7 +240,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
 
     @classmethod
     def get_test_basename(cls, path: str) -> str:
-        """ Get the test's name based off of is filename and location. """
+        """ Get the test's name based off of its filename and location. """
 
         path = os.path.abspath(path)
 

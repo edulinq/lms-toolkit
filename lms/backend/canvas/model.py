@@ -23,6 +23,9 @@ This map is ordered by priority/power.
 The later in the dict, the more power.
 """
 
+_testing_override: bool = False  # pylint: disable=invalid-name
+""" A special override to signal testing. """
+
 def assignment(data: typing.Dict[str, typing.Any]) -> lms.model.assignments.Assignment:
     """
     Create a Canvas assignment associated with a course.
@@ -112,7 +115,7 @@ def course_user(backend: lms.model.backend.APIBackend, data: typing.Dict[str, ty
 
         # Canvas has a discontinuity with its default course roles.
         # We need to patch this during testing.
-        if (backend.is_testing() and data['email'] == 'course-admin@test.edulinq.org'):
+        if ((backend.is_testing() or _testing_override) and data['email'] == 'course-admin@test.edulinq.org'):
             data['role'] = lms.model.users.CourseRole.ADMIN
 
     return lms.model.users.CourseUser(**data)

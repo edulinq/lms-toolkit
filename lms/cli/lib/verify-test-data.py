@@ -7,14 +7,15 @@ Verify test data by starting the specified server and testing HTTP exchanges aga
 import argparse
 import sys
 
+import edq.testing.serverrunner
+
 import lms.cli.parser
-import lms.procedure.verify_test_data
-import lms.procedure.server
+import lms.testing.testdata
 
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
-    return lms.procedure.verify_test_data.run(args)
+    return lms.testing.testdata.verify(args)
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """
@@ -28,7 +29,7 @@ def _get_parser() -> argparse.ArgumentParser:
             include_auth = False,
     )
 
-    lms.procedure.server.modify_parser(parser)
+    edq.testing.serverrunner.modify_parser(parser)
 
     parser.add_argument('test_data_dir', metavar = 'TEST_DATA_DIR',
         action = 'store', type = str,
