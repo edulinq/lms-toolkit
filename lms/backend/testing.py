@@ -70,9 +70,6 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
     allowed_backend: typing.Union[str, None] = None
     """ If set, skip any backend tests that do not match this filter. """
 
-    override_server_url: typing.Union[str, None] = None
-    """ If set, return this URL from get_server_url(). """
-
     def __init__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
         super().__init__(*args, **kwargs)
 
@@ -112,13 +109,6 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
         """ Get a copy of the base arguments for a request (function). """
 
         return {}
-
-    @classmethod
-    def get_server_url(cls) -> str:
-        if (cls.override_server_url is not None):
-            return cls.override_server_url
-
-        return str(super().get_server_url())
 
     def setUp(self) -> None:
         edq.core.log.init('ERROR')
