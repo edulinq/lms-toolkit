@@ -1,3 +1,3 @@
 """
-The `lms.testing` package contains support code for testig.
+The `lms.testing` package contains support code for testing.
 """
