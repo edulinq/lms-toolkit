@@ -12,6 +12,8 @@ import lms.model.query
 import lms.model.scores
 import lms.model.users
 
+_logger = logging.getLogger(__name__)
+
 class APIBackend():
     """
     API backends provide a unified interface to an LMS.
@@ -73,7 +75,7 @@ class APIBackend():
         or when a query does not match any items.
         """
 
-        logging.warning("Object not found during operation: '%s'. Identifiers: %s.", operation, identifiers)
+        _logger.warning("Object not found during operation: '%s'. Identifiers: %s.", operation, identifiers)
 
     # API Methods
 
@@ -683,7 +685,7 @@ class APIBackend():
 
         # Warn about missing groups.
         for name in sorted(missing_group_memberships.keys()):
-            logging.warning("Group does not exist: '%s'.", name)
+            _logger.warning("Group does not exist: '%s'.", name)
 
         # Subtract memberships.
         counts = {}
@@ -895,7 +897,7 @@ class APIBackend():
         user_ids = []
         for query in sorted(resolved_user_queries):
             if (query.get_id() in group_user_ids):
-                logging.warning("User '%s' already in group '%s'.", query, resolved_group_query)
+                _logger.warning("User '%s' already in group '%s'.", query, resolved_group_query)
                 continue
 
             user_ids.append(query.get_id())
@@ -1070,7 +1072,7 @@ class APIBackend():
         user_ids = []
         for query in resolved_user_queries:
             if (query.get_id() not in group_user_ids):
-                logging.warning("User '%s' is not in group '%s'.", query, resolved_group_query)
+                _logger.warning("User '%s' is not in group '%s'.", query, resolved_group_query)
                 continue
 
             user_ids.append(query.get_id())
@@ -1594,7 +1596,7 @@ class APIBackend():
                     match = True
 
             if ((not match) and warn_on_miss):
-                logging.warning("Could not resolve %s query '%s'.", label, query)
+                _logger.warning("Could not resolve %s query '%s'.", label, query)
 
         return list(sorted(set(matched_queries)))
 
@@ -1638,7 +1640,7 @@ class APIBackend():
                     break
 
             if (resolved_user_query is None):
-                logging.warning("Could not resolve user '%s' for membership entry at index %d.", membership.user, i)
+                _logger.warning("Could not resolve user '%s' for membership entry at index %d.", membership.user, i)
                 continue
 
             # Resolve group.
@@ -1653,7 +1655,7 @@ class APIBackend():
 
             if (resolved_group_query is None):
                 if ((membership.group.name is None) or (len(membership.group.name) == 0)):
-                    logging.warning(("Membership entry at index %d has a group with no name."
+                    _logger.warning(("Membership entry at index %d has a group with no name."
                         + " Ensure that non-existent groups all have names."), i)
                     continue
 

@@ -11,6 +11,8 @@ import lms.model.backend
 import lms.model.constants
 import lms.util.net
 
+_logger = logging.getLogger(__name__)
+
 class MoodleBackend(lms.model.backend.APIBackend):
     """ An API backend for the Moodle LMS. """
 
@@ -94,7 +96,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
             parts = urllib.parse.urlparse(location)
             host = f"{parts.scheme}://{parts.netloc}"
 
-            logging.debug(("Mismatch in the client-specified server ('%s') and server-requested host ('%s')."
+            _logger.debug(("Mismatch in the client-specified server ('%s') and server-requested host ('%s')."
                     + " To avoid extra requests, update the server (e.g., `--server`) to match the host."),
                     self.server, host)
 
