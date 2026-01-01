@@ -88,7 +88,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
         # Login Failed
 
         # The specified server/host needs to match exactly what the Moodle server wants it to be,
-        # e.g., `127.0.0.1` does not work when the sevrer wants the host to be `localhost`.
+        # e.g., `127.0.0.1` does not work when the server wants the host to be `localhost`.
         # If these do not match, we will get a redirect here.
         # Use this redirect to discover the correct server.
         location = response.headers.get('location', None)

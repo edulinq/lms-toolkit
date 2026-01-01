@@ -115,22 +115,22 @@ SERVER_USERS = {
         id = '100090000',
         name = 'extra-course-student-4',
     ),
-    'sevrer-admin': lms.model.users.ServerUser(
+    'server-admin': lms.model.users.ServerUser(
         email = 'server-admin@test.edulinq.org',
         id = '100100000',
         name = 'server-admin',
     ),
-    'sevrer-creator': lms.model.users.ServerUser(
+    'server-creator': lms.model.users.ServerUser(
         email = 'server-creator@test.edulinq.org',
         id = '100110000',
         name = 'server-creator',
     ),
-    'sevrer-owner': lms.model.users.ServerUser(
+    'server-owner': lms.model.users.ServerUser(
         email = 'server-owner@test.edulinq.org',
         id = '100120000',
         name = 'server-owner',
     ),
-    'sevrer-user': lms.model.users.ServerUser(
+    'server-user': lms.model.users.ServerUser(
         email = 'server-user@test.edulinq.org',
         id = '100130000',
         name = 'server-user',
