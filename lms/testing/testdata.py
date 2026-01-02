@@ -39,6 +39,7 @@ def generate(args: typing.Union[argparse.Namespace, typing.Dict[str, typing.Any]
     test_args = {
         'test_dirs': [ROOT_PACKAGE_DIR],
         'fail_fast': args.get('fail_fast', False),
+        'pattern': args.get('pattern', None),
     }
     failure_count = int(edq.testing.run.run(test_args))
 

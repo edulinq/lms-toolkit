@@ -72,14 +72,23 @@ Therefore, each backend should have a full set of test HTTP Exchanges
 ### Generating Test Data
 
 Generating new test data (HTTP exchanges) is a simple, but multi-stage process.
-(Note that there are various possible processes for generating test data,
-the procedure listed here is just one example.)
+There are several possible processes for generating test data,
+this document will outline two of them.
 
-**Step 0: Develop the Backend/API Code**
+#### Method 1: Manually Running the Backend and Commands
+
+In this first procedure, you will manually run your backend (LMS server) of choice as well as CLI commands to generate your test data.
+In this document we will use Canvas as an example,
+but this information applies to all of the EduLinq LMS backends.
+
+This method is fairly manual, but gives you a lot of control over what you are generating.
+
+**Step 0: Implement the Backend/API Code**
 
 Generating test data is much simpler if you can leverage the rest of the LMS Toolkit.
 Therefore, a good starting point is to implement the code that calls the backend and the CLI interface to call that code.
-It's fine if the code is not 100% implemented right away, it can be just enough for you to start with.
+It's fine if the code is not 100% implemented right away, it can be just enough for you to start with
+(it just needs to make the HTTP requests that will eventually be saved as test data).
 
 **Step 1: Manually Start your LMS Backend**
 
@@ -129,6 +138,75 @@ This will probably also involve a PR to get your changes in.
 **Step 6: Update the Submodule and Push Your Changes**
 
 Now that the test data lives in the appropriate repo, you can pull those changes in this repo's submodule.
+You can now push the updated submodule along with all your changes.
+
+If you are making a PR, you should include a link to your data changes along with your code changes to this repo.
+
+#### Method 2: Automatically Running the Backend and Tests
+
+In this procedure, we will leverage existing infrastructure to generate the test data.
+This method tends to be much easier than the manual method,
+but can be slower and less flexible.
+
+With this method, you will need to access your LMS Toolkit development code from another repo,
+so I suggest installing it via Pip as an [editable install](https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs)
+and sharing the same virtual environment.
+For example:
+```sh
+pip install -e .
+```
+
+**Step 0: Implement the Backend/API Code and Tests**
+
+First, you will need to have your API code and test cases implemented.
+You don't need to have the assertions/expectations for the tests ready,
+but your tests will need to get far enough to make their HTTP calls.
+
+**Step 1: Use the Generate Test Data Script**
+
+Choose a test data repo/directory that you will use to generate the test data.
+You can choose a standalone directory outside of this project,
+but you can also choose one of the submodules already included in the `testdata` directory.
+Choosing one of the submodules can be very convenient since once you generate the test data you do not need to copy it anywhere,
+but the drawback is that pushing the data may be more difficult in git
+(since the submodule is pointing to the http remote).
+
+Go to your chosen test data repo,
+and run the generate test data script.
+This may vary slightly depending on the test data repo,
+but the repo should include instructions detailing the process.
+For example, the [lms-docker-canvas-testdata repo](https://github.com/edulinq/lms-docker-canvas-testdata) uses this command:
+```sh
+./scripts/generate-test-data.py
+```
+
+Make sure the read the scripts help prompt to fully understand how to use it:
+```sh
+./scripts/generate-test-data.py --help
+```
+
+This script should use your LMS Toolkit (since you are using an editable install),
+and run all the existing tests to generate test data in the `testdata/http` directory.
+
+Depending on the backend, this can take a while (e.g., 10 minutes).
+One way to speed this process up is to use the `--pattern` flag that may be available with the generate test data script.
+If available, this option should only run tests that match the given pattern.
+You can use the name of the test you made in Step 0 to only generate your new test data.
+
+**Step 2: Finish Development**
+
+Once you have your test data, you can finish developing any code and/or tests.
+
+**Step 3: Push Data to the LMS Test Data Repo**
+
+Now that your development is finished (and you know your code/tests work),
+you can commit the new test data to the appropriate repo.
+The exact procedure changes depending on whether or not you are using the submodule,
+but this specifics will be left to you.
+
+**Step 6: Update the Submodule and Push Your Changes**
+
+Now that the test data lives in the appropriate repo, you can pull those changes in this repo's submodule (if necessary).
 You can now push the updated submodule along with all your changes.
 
 If you are making a PR, you should include a link to your data changes along with your code changes to this repo.
