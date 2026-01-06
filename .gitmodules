@@ -4,3 +4,6 @@
 [submodule "testdata/lms-blackboard-testdata"]
 	path = testdata/lms-blackboard-testdata
 	url = https://github.com/edulinq/lms-blackboard-testdata.git
+[submodule "testdata/lms-docker-moodle-testdata"]
+	path = testdata/lms-docker-moodle-testdata
+	url = https://github.com/edulinq/lms-docker-moodle-testdata.git
