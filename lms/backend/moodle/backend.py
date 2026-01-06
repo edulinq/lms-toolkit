@@ -106,3 +106,39 @@ class MoodleBackend(lms.model.backend.APIBackend):
             return
 
         raise ValueError(f"Could not log into Moodle server ({self.server}) with user '{self._username}'. Is username/password correct?")
+
+    def courses_list(self,
+            **kwargs: typing.Any) -> typing.List[lms.model.courses.Course]:
+        self._login()
+
+        url = self.server + "/user/profile.php"
+        response, _ = edq.util.net.make_get(url, headers = self._session_headers)
+
+        document = bs4.BeautifulSoup(response.text, 'html.parser')
+        cards = document.select('div.card-body')
+
+        node = None
+        for card in cards:
+            text = card.get_text()
+            if (text.startswith("Course details")):
+                node = card
+                break
+
+        if (node is None):
+            return []
+
+        links = node.select('a')
+
+        courses = []
+        for link in links:
+            name = link.get_text()
+
+            href = link.get('href')
+            id = href.split("=")[-1]
+
+            courses.append(lms.model.courses.Course(
+                id = id,
+                name = name,
+            ))
+
+        return sorted(courses)
