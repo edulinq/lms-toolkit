@@ -11,10 +11,14 @@ import lms.cli.parser
 import lms.model.constants
 import lms.util.net
 
-BACKEND_REQUEST_CLEANING_FUNCS: typing.Dict[str, typing.Callable] = {
+BACKEND_REQUEST_CLEANING_FUNCS: typing.Dict[typing.Union[str, None], typing.Callable] = {
     lms.model.constants.BACKEND_TYPE_BLACKBOARD: lms.util.net.clean_blackboard_response,
     lms.model.constants.BACKEND_TYPE_CANVAS: lms.util.net.clean_canvas_response,
     lms.model.constants.BACKEND_TYPE_MOODLE: lms.util.net.clean_moodle_response,
+}
+
+BACKEND_EXCHANGE_FINALIZING_FUNCS: typing.Dict[typing.Union[str, None], typing.Callable] = {
+    lms.model.constants.BACKEND_TYPE_MOODLE: lms.util.net.finalize_moodle_exchange,
 }
 
 class LMSServerRunner(edq.testing.serverrunner.ServerRunner):
@@ -38,6 +42,12 @@ class LMSServerRunner(edq.testing.serverrunner.ServerRunner):
         The original value may be changed in start(), and will be reset in stop().
         """
 
+        self._old_exchanges_finalize_func: typing.Union[str, None] = None
+        """
+        The value of edq.util.net._exchanges_finalize_func when start() is called.
+        The original value may be changed in start(), and will be reset in stop().
+        """
+
         self._old_set_exchanges_clean_func: bool = False
         """
         The value of lms.cli.parser._set_exchanges_clean_func when start() is called.
@@ -57,20 +67,20 @@ class LMSServerRunner(edq.testing.serverrunner.ServerRunner):
         """
 
     def start(self) -> None:
-        super().start()
-
-        # Resolve the backend type.
-        self.backend_type = lms.backend.instance.guess_backend_type(self.server, backend_type = self.backend_type)
-        if (self.backend_type is None):
-            raise ValueError(f"Unable to determine backend type for server '{self.server}'.")
-
         # Set configs.
 
         exchange_clean_func = BACKEND_REQUEST_CLEANING_FUNCS.get(self.backend_type, lms.util.net.clean_lms_response)
         exchange_clean_func_name = edq.util.reflection.get_qualified_name(exchange_clean_func)
-
         self._old_exchanges_clean_func = edq.util.net._exchanges_clean_func
         edq.util.net._exchanges_clean_func = exchange_clean_func_name
+
+        self._old_exchanges_finalize_func = edq.util.net._exchanges_finalize_func
+        exchange_finalize_func = BACKEND_EXCHANGE_FINALIZING_FUNCS.get(self.backend_type, None)
+        if (exchange_finalize_func is not None):
+            exchange_finalize_func_name = edq.util.reflection.get_qualified_name(exchange_finalize_func)
+            edq.util.net._exchanges_finalize_func = exchange_finalize_func_name
+        else:
+            edq.util.net._exchanges_finalize_func = None
 
         self._old_set_exchanges_clean_func = lms.cli.parser._set_exchanges_clean_func
         lms.cli.parser._set_exchanges_clean_func = False
@@ -87,6 +97,9 @@ class LMSServerRunner(edq.testing.serverrunner.ServerRunner):
         logger = logging.getLogger('edq.testing.serverrunner')
         self._old_serverrunner_logging_level = logger.level
         logger.setLevel(logging.WARNING)
+
+        # Start the server.
+        super().start()
 
     def stop(self) -> bool:
         if (self._old_serverrunner_logging_level is not None):
