@@ -6,6 +6,7 @@ import typing
 import urllib.parse
 
 import edq.util.json
+import edq.util.net
 import requests
 
 import lms.model.constants
@@ -43,7 +44,26 @@ BLACKBOARD_CLEAN_REMOVE_HEADERS: typing.Set[str] = {
     'vary',
     'x-blackboard-xsrf',
 }
-""" Keys to remove from Blackboard content. """
+""" Keys to remove from Blackboard headers. """
+
+MOODLE_CLEAN_REMOVE_HEADERS: typing.Set[str] = {
+    'accept-ranges',
+    'content-encoding',
+    'content-language',
+    'content-script-type',
+    'content-style-type',
+    'expires',
+    'keep-alive',
+    'last-modified',
+    'pragma',
+    'vary',
+}
+""" Keys to remove from Moodle headers. """
+
+MOODLE_FINALIZE_REMOVE_PARAMS: typing.Set[str] = {
+    'logintoken',
+}
+""" Keys to remove from Moodle headers. """
 
 def clean_lms_response(response: requests.Response, body: str) -> str:
     """
@@ -146,7 +166,21 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
 
     body = _clean_base_response(response, body)
 
+    # Work on both request and response headers.
+    for headers in [response.headers, response.request.headers]:
+        for key in list(headers.keys()):
+            if (key.strip().lower() in MOODLE_CLEAN_REMOVE_HEADERS):
+                headers.pop(key, None)
+
     return body
+
+def finalize_moodle_exchange(exchange: edq.util.net.HTTPExchange) -> edq.util.net.HTTPExchange:
+    """ Finalize Moodle exhanges. """
+
+    for param in MOODLE_FINALIZE_REMOVE_PARAMS:
+        exchange.parameters.pop(param, None)
+
+    return exchange
 
 def _clean_base_response(response: requests.Response, body: str,
         keep_headers: typing.Union[typing.List[str], None] = None) -> str:

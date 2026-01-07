@@ -36,6 +36,10 @@ class MoodleBackendTest(lms.backend.testing.BackendTest):
             'auth_password': DEFAULT_USER,
         })
 
+        cls.params_to_skip += [
+            'logintoken',
+        ]
+
         cls.headers_to_skip += [
             'edq-lms-moodle-user',
         ]
