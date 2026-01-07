@@ -6,6 +6,7 @@ import urllib.parse
 
 import bs4
 import edq.util.net
+import requests
 
 import lms.model.backend
 import lms.model.constants
@@ -38,6 +39,20 @@ class MoodleBackend(lms.model.backend.APIBackend):
         self._session_headers: typing.Union[typing.Dict[str, typing.Any], None] = None
         """ The headers (e.g., cookies) for our logged in Moodle session. """
 
+    def _parse_cookies(self, response: requests.Response) -> typing.Dict[str, typing.Any]:
+        """
+        Parse Moodle cookies.
+        Return fake cookies when testing.
+        """
+
+        if (self.is_testing()):
+            return {
+                'moodlesession': 'testing-moodle-session',
+                'moodleid1_': 'testing-moodle-id',
+            }
+
+        return lms.util.net.parse_cookies(response.headers.get('set-cookie', None))
+
     def _login(self, update_server: bool = True) -> None:
         """
         Try to login to the Moodle server.
@@ -49,7 +64,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
             return
 
         response, body = edq.util.net.make_get(self.server + '/login/index.php')
-        cookies = lms.util.net.parse_cookies(response.headers.get('set-cookie', None))
+        cookies = self._parse_cookies(response)
 
         new_cookies = {
             'MoodleSession': cookies['moodlesession'],
@@ -64,8 +79,8 @@ class MoodleBackend(lms.model.backend.APIBackend):
             'cookie': text_cookies,
             'host': urllib.parse.urlparse(self.server).netloc,
         }
+
         data = {
-            'anchor': '',
             'logintoken': token,
             'username': self._username,
             'password': self._password,
@@ -76,7 +91,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
                 allow_redirects = False)
 
         # Check for a successful login.
-        cookies = lms.util.net.parse_cookies(response.headers.get('set-cookie', None))
+        cookies = self._parse_cookies(response)
         if ('moodleid1_' in cookies):
             self._session_headers = {
                 'cookie': response.headers.get('set-cookie', None),
@@ -133,8 +148,11 @@ class MoodleBackend(lms.model.backend.APIBackend):
         for link in links:
             name = link.get_text()
 
-            href = link.get('href')
-            id = href.split("=")[-1]
+            href = link.get('href', None)
+            if (href is None):
+                continue
+
+            id = str(href).rsplit("=", maxsplit = 1)[-1]
 
             courses.append(lms.model.courses.Course(
                 id = id,
