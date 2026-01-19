@@ -92,6 +92,24 @@ Note that values only need to be provided once (in the config or CLI).
 |------------|------------------------------|----------------------------------|
 | Blackboard | `auth_user`, `auth_password` | `--auth-user`, `--auth-password` |
 | Canvas     | `token`                      | `--token`                        |
+| Moodle     | `auth_user`, `auth_password` | `--auth-user`, `--auth-password` |
+
+For example, a Canvas config file may look like:
+```json
+{
+    "server": "canvas.edulinq.org",
+    "token" "abc123"
+}
+```
+
+Whereas a Blackboard/Moodle config file may look like:
+```json
+{
+    "server": "canvas.edulinq.org",
+    "auth_user": "sammy",
+    "auth_password" "abc123"
+}
+```
 
 ### Object Queries
 
