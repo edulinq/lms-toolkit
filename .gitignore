@@ -17,6 +17,7 @@ out*/
 /test-*
 test/
 /test*.*
+.secrets
 
 # Build
 /bin/
