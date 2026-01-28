@@ -27,7 +27,7 @@ readonly API_DOC_MARKER='<!-- API-DOC-MARKER -->'
 
 # Don't generate any docs for this version or earlier.
 # Because of this specific tag, we can just do a lexicographic comparison.
-readonly ONLY_AFTER_TAG='v1.0.0'
+readonly ONLY_AFTER_TAG='v1.1.8'
 
 function check_git() {
     if [ ! -z "$(git status --porcelain)" ] ; then
