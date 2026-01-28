@@ -6,7 +6,7 @@ import argparse
 import typing
 
 import edq.core.argparser
-import edq.util.net
+import edq.net.exchange
 import edq.util.reflection
 
 import lms
@@ -65,7 +65,7 @@ def get_parser(description: str,
     # Ensure that responses are cleaned as LMS responses.
     if (include_net):
         if (_set_exchanges_clean_func):
-            edq.util.net._exchanges_clean_func = edq.util.reflection.get_qualified_name(lms.util.net.clean_lms_response)
+            edq.net.exchange._exchanges_clean_func = edq.util.reflection.get_qualified_name(lms.util.net.clean_lms_response)
 
     if (include_server):
         parser.add_argument('--server', dest = 'server',

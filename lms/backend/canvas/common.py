@@ -3,8 +3,8 @@ import http
 import re
 import typing
 
+import edq.net.request
 import edq.util.json
-import edq.util.net
 import edq.util.time
 import requests
 
@@ -44,7 +44,7 @@ def make_request(
     """ Make a single Canvas request and return the decoded JSON body. """
 
     try:
-        _, body_text = edq.util.net.make_request(method, url, **kwargs)
+        _, body_text = edq.net.request.make_request(method, url, **kwargs)
     except requests.HTTPError as ex:
         if (raise_on_404 or (ex.response is None) or (ex.response.status_code != http.HTTPStatus.NOT_FOUND)):
             raise ex
@@ -85,7 +85,7 @@ def make_get_request_list(
 
     while (next_url is not None):
         try:
-            response, body_text = edq.util.net.make_get(next_url, headers = headers, data = data)
+            response, body_text = edq.net.request.make_get(next_url, headers = headers, data = data)
         except requests.HTTPError as ex:
             if (raise_on_404 or (ex.response is None) or (ex.response.status_code != http.HTTPStatus.NOT_FOUND)):
                 raise ex

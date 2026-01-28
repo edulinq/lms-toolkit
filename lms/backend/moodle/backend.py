@@ -5,7 +5,7 @@ import typing
 import urllib.parse
 
 import bs4
-import edq.util.net
+import edq.net.request
 import requests
 
 import lms.model.backend
@@ -63,7 +63,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
         if (self._session_headers is not None):
             return
 
-        response, body = edq.util.net.make_get(self.server + '/login/index.php')
+        response, body = edq.net.request.make_get(self.server + '/login/index.php')
         cookies = self._parse_cookies(response)
 
         new_cookies = {
@@ -86,7 +86,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
             'password': self._password,
         }
 
-        response, _ = edq.util.net.make_post(self.server + '/login/index.php',
+        response, _ = edq.net.request.make_post(self.server + '/login/index.php',
                 headers = headers, data = data,
                 allow_redirects = False)
 
@@ -127,7 +127,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
         self._login()
 
         url = self.server + "/user/profile.php"
-        response, _ = edq.util.net.make_get(url, headers = self._session_headers)
+        response, _ = edq.net.request.make_get(url, headers = self._session_headers)
 
         document = bs4.BeautifulSoup(response.text, 'html.parser')
         cards = document.select('div.card-body')

@@ -1,6 +1,6 @@
 import typing
 
-import edq.util.net
+import edq.net.request
 import requests
 
 import lms.backend.blackboard.backend
@@ -71,7 +71,7 @@ def guess_backend_type(
 
     return None
 
-def guess_backend_type_from_request(server: str, timeout_secs: float = edq.util.net.DEFAULT_REQUEST_TIMEOUT_SECS) -> typing.Union[str, None]:
+def guess_backend_type_from_request(server: str, timeout_secs: float = edq.net.request.DEFAULT_REQUEST_TIMEOUT_SECS) -> typing.Union[str, None]:
     """
     Attempt to guess the backend type by pinging the server.
     This function will not do any lexical analysis on the server string.
@@ -82,7 +82,7 @@ def guess_backend_type_from_request(server: str, timeout_secs: float = edq.util.
     }
 
     try:
-        response, _ = edq.util.net.make_get(server,
+        response, _ = edq.net.request.make_get(server,
                 raise_for_status = False,
                 timeout_secs = timeout_secs,
                 additional_requests_options = options)

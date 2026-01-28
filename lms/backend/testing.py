@@ -3,6 +3,7 @@ import os
 import typing
 
 import edq.core.log
+import edq.net.exchangeserver
 import edq.testing.cli
 import edq.testing.unittest
 import edq.testing.httpserver
@@ -80,7 +81,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
         """
 
     @classmethod
-    def setup_server(cls, server: edq.testing.httpserver.HTTPTestServer) -> None:
+    def setup_server(cls, server: edq.net.exchangeserver.HTTPExchangeServer) -> None:
         if (cls.server_key == ''):
             raise ValueError("BackendTest subclass did not set server key properly.")
 
@@ -101,7 +102,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
             server.match_options[key] += values
 
     @classmethod
-    def post_start_server(cls, server: edq.testing.httpserver.HTTPTestServer) -> None:
+    def post_start_server(cls, server: edq.net.exchangeserver.HTTPExchangeServer) -> None:
         cls.backend = lms.backend.instance.get_backend(cls.get_server_url(), backend_type = cls.backend_type, **cls.backend_args)
 
     @classmethod

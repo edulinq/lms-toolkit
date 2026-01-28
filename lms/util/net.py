@@ -5,8 +5,8 @@ Utilities for network and HTTP.
 import typing
 import urllib.parse
 
+import edq.net.exchange
 import edq.util.json
-import edq.util.net
 import requests
 
 import lms.model.constants
@@ -174,7 +174,7 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
 
     return body
 
-def finalize_moodle_exchange(exchange: edq.util.net.HTTPExchange) -> edq.util.net.HTTPExchange:
+def finalize_moodle_exchange(exchange: edq.net.exchange.HTTPExchange) -> edq.net.exchange.HTTPExchange:
     """ Finalize Moodle exhanges. """
 
     for param in MOODLE_FINALIZE_REMOVE_PARAMS:
