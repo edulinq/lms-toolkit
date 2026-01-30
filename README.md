@@ -464,42 +464,42 @@ python3 -m lms.cli.users.scores.list --course 'Extra Course' --user 'extra-cours
 The LMS Toolkit is constantly expanding its support with hopes for supporting all major LMSs.
 
 Legend:
- - `+` -- Supported
+ - ✅ -- Supported
  - `-` -- Not Yet Supported
  - `x` -- Support Impossible (See Notes)
 
 | Tool                                            | Blackboard | Canvas | Moodle |
 |-------------------------------------------------|------------|--------|--------|
-| lms.cli.courses.get                             | `+`        | `+`    | `+`    |
-| lms.cli.courses.list                            | `+`        | `+`    | `+`    |
-| lms.cli.courses.assignments.get                 | `-`        | `+`    | `-`    |
-| lms.cli.courses.assignments.list                | `-`        | `+`    | `-`    |
-| lms.cli.courses.assignments.scores.get          | `-`        | `+`    | `-`    |
-| lms.cli.courses.assignments.scores.list         | `-`        | `+`    | `-`    |
-| lms.cli.courses.assignments.scores.upload       | `-`        | `+`    | `-`    |
-| lms.cli.courses.assignments.scores.upload-score | `-`        | `+`    | `-`    |
-| lms.cli.courses.gradebook.get                   | `-`        | `+`    | `-`    |
-| lms.cli.courses.gradebook.list                  | `-`        | `+`    | `-`    |
-| lms.cli.courses.gradebook.upload                | `-`        | `+`    | `-`    |
-| lms.cli.courses.groups.create                   | `-`        | `+`    | `-`    |
-| lms.cli.courses.groups.delete                   | `-`        | `+`    | `-`    |
-| lms.cli.courses.groups.get                      | `-`        | `+`    | `-`    |
-| lms.cli.courses.groups.list                     | `-`        | `+`    | `-`    |
-| lms.cli.courses.groups.memberships.add          | `-`        | `+`    | `-`    |
-| lms.cli.courses.groups.memberships.list         | `-`        | `+`    | `-`    |
-| lms.cli.courses.groups.memberships.set          | `-`        | `+`    | `-`    |
-| lms.cli.courses.groups.memberships.subtract     | `-`        | `+`    | `-`    |
-| lms.cli.courses.groupsets.create                | `-`        | `+`    | `-`    |
-| lms.cli.courses.groupsets.delete                | `-`        | `+`    | `-`    |
-| lms.cli.courses.groupsets.get                   | `-`        | `+`    | `-`    |
-| lms.cli.courses.groupsets.list                  | `-`        | `+`    | `-`    |
-| lms.cli.courses.groupsets.memberships.add       | `-`        | `+`    | `-`    |
-| lms.cli.courses.groupsets.memberships.list      | `-`        | `+`    | `-`    |
-| lms.cli.courses.groupsets.memberships.set       | `-`        | `+`    | `-`    |
-| lms.cli.courses.groupsets.memberships.subtract  | `-`        | `+`    | `-`    |
-| lms.cli.courses.syllabus.get                    | `-`        | `+`    | `-`    |
-| lms.cli.courses.users.get                       | `+`        | `+`    | `-`    |
-| lms.cli.courses.users.list                      | `+`        | `+`    | `-`    |
-| lms.cli.courses.users.scores.get                | `-`        | `+`    | `-`    |
-| lms.cli.courses.users.scores.list               | `-`        | `+`    | `-`    |
-| lms.cli.server.identify                         | `+`        | `+`    | `+`    |
+| lms.cli.courses.get                             | ✅         | ✅     | ✅     |
+| lms.cli.courses.list                            | ✅         | ✅     | ✅     |
+| lms.cli.courses.assignments.get                 | `-`        | ✅     | `-`    |
+| lms.cli.courses.assignments.list                | `-`        | ✅     | `-`    |
+| lms.cli.courses.assignments.scores.get          | `-`        | ✅     | `-`    |
+| lms.cli.courses.assignments.scores.list         | `-`        | ✅     | `-`    |
+| lms.cli.courses.assignments.scores.upload       | `-`        | ✅     | `-`    |
+| lms.cli.courses.assignments.scores.upload-score | `-`        | ✅     | `-`    |
+| lms.cli.courses.gradebook.get                   | `-`        | ✅     | `-`    |
+| lms.cli.courses.gradebook.list                  | `-`        | ✅     | `-`    |
+| lms.cli.courses.gradebook.upload                | `-`        | ✅     | `-`    |
+| lms.cli.courses.groups.create                   | `-`        | ✅     | `-`    |
+| lms.cli.courses.groups.delete                   | `-`        | ✅     | `-`    |
+| lms.cli.courses.groups.get                      | `-`        | ✅     | `-`    |
+| lms.cli.courses.groups.list                     | `-`        | ✅     | `-`    |
+| lms.cli.courses.groups.memberships.add          | `-`        | ✅     | `-`    |
+| lms.cli.courses.groups.memberships.list         | `-`        | ✅     | `-`    |
+| lms.cli.courses.groups.memberships.set          | `-`        | ✅     | `-`    |
+| lms.cli.courses.groups.memberships.subtract     | `-`        | ✅     | `-`    |
+| lms.cli.courses.groupsets.create                | `-`        | ✅     | `-`    |
+| lms.cli.courses.groupsets.delete                | `-`        | ✅     | `-`    |
+| lms.cli.courses.groupsets.get                   | `-`        | ✅     | `-`    |
+| lms.cli.courses.groupsets.list                  | `-`        | ✅     | `-`    |
+| lms.cli.courses.groupsets.memberships.add       | `-`        | ✅     | `-`    |
+| lms.cli.courses.groupsets.memberships.list      | `-`        | ✅     | `-`    |
+| lms.cli.courses.groupsets.memberships.set       | `-`        | ✅     | `-`    |
+| lms.cli.courses.groupsets.memberships.subtract  | `-`        | ✅     | `-`    |
+| lms.cli.courses.syllabus.get                    | `-`        | ✅     | `-`    |
+| lms.cli.courses.users.get                       | ✅         | ✅     | `-`    |
+| lms.cli.courses.users.list                      | ✅         | ✅     | `-`    |
+| lms.cli.courses.users.scores.get                | `-`        | ✅     | `-`    |
+| lms.cli.courses.users.scores.list               | `-`        | ✅     | `-`    |
+| lms.cli.server.identify                         | ✅         | ✅     | ✅     |
