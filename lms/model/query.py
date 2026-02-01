@@ -13,29 +13,36 @@ class BaseQuery(edq.util.json.DictConverter):
     Queries are ways that users can attempt to refer to some object with uncertainty.
     This allows users to refer to objects by name, for example, instead of by id.
 
-    Queries are made up of 2-3 components:
+    Queries are made up of 2-4 components:
      - an identifier
      - a name
      - an email (optional)
+     - a student_id (optional)
 
-    Email support is decided by child classes.
+    Email and student_id support is decided by child classes.
     By default, ids are assumed to be only digits.
 
     A query can be represented in text the following ways:
      - LMS ID (`id`)
      - Email (`email`)
      - Full Name (`name`)
+     - Student ID (`student_id`)
      - f"{email} ({id})"
      - f"{name} ({id})"
+     - f"{name} [{student_id}] ({id})"
     """
 
     _include_email: bool = True
     """ Control if this class instance supports the email field. """
 
+    _include_student_id: bool = False
+    """ Control if this class instance supports the student_id field. """
+
     def __init__(self,
             id: typing.Union[str, int, None] = None,
             name: typing.Union[str, None] = None,
             email: typing.Union[str, None] = None,
+            student_id: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
         if (id is not None):
             id = str(id)
@@ -49,8 +56,11 @@ class BaseQuery(edq.util.json.DictConverter):
         self.email: typing.Union[str, None] = email
         """ The email address of this query. """
 
-        if ((self.id is None) and (self.name is None) and (self.email is None)):
-            raise ValueError("Query is empty, it must have at least one piece of information (id, name, email).")
+        self.student_id: typing.Union[str, None] = student_id
+        """ The student ID (also known as SIS ID) for this query. """
+
+        if ((self.id is None) and (self.name is None) and (self.email is None) and (self.student_id is None)):
+            raise ValueError("Query is empty, it must have at least one piece of information (id, name, email, student_id).")
 
     def match(self, target: typing.Union[typing.Any, 'BaseQuery', None]) -> bool:
         """
@@ -65,6 +75,8 @@ class BaseQuery(edq.util.json.DictConverter):
         field_names = ['id', 'name']
         if (self._include_email):
             field_names.append('email')
+        if (self._include_student_id):
+            field_names.append('student_id')
 
         for field_name in field_names:
             self_value = getattr(self, field_name, None)
@@ -87,6 +99,9 @@ class BaseQuery(edq.util.json.DictConverter):
         if (self._include_email):
             data['email'] = self.email
 
+        if (self._include_student_id):
+            data['student_id'] = self.student_id
+
         return data
 
     def _get_comparison_payload(self, include_id: bool) -> typing.Tuple:
@@ -101,6 +116,9 @@ class BaseQuery(edq.util.json.DictConverter):
 
         if (self._include_email):
             payload.append(self.email)
+
+        if (self._include_student_id):
+            payload.append(self.student_id)
 
         return tuple(payload)
 
@@ -134,6 +152,14 @@ class BaseQuery(edq.util.json.DictConverter):
         if ((not self._include_email) or (text is None)):
             text = self.name
 
+        # Add student ID in brackets if available.
+        if (self._include_student_id and (self.student_id is not None)):
+            if (text is not None):
+                text = f"{text} [{self.student_id}]"
+            else:
+                text = self.student_id
+
+        # Add LMS ID in parentheses.
         if (self.id is not None):
             if (text is not None):
                 text = f"{text} ({self.id})"
@@ -180,8 +206,10 @@ def parse_int_query(query_type: typing.Type[T], text: typing.Union[str, None],
         - LMS ID (`id`)
         - Email (`email`)
         - Name (`name`)
+        - Student ID (`student_id`)
         - f"{email} ({id})"
         - f"{name} ({id})"
+        - f"{name} [{student_id}] ({id})"
     """
 
     if (text is None):
@@ -195,16 +223,23 @@ def parse_int_query(query_type: typing.Type[T], text: typing.Union[str, None],
     id = None
     email = None
     name = None
+    student_id = None
 
-    match = re.search(r'^(\S.*)\((\d+)\)$', text)
+    # Try to match: "name [student_id] (id)".
+    match = re.search(r'^(\S.*)\[([^\]]+)\]\s*\((\d+)\)$', text)
     if (match is not None):
-        # Query has both text and id.
+        name = match.group(1).strip()
+        student_id = match.group(2).strip()
+        id = match.group(3)
+    # Try to match: "name (id)".
+    elif (match := re.search(r'^(\S.*)\((\d+)\)$', text)) is not None:
         name = match.group(1).strip()
         id = match.group(2)
+    # Try to match: just a number (LMS ID).
     elif (re.search(r'^\d+$', text) is not None):
-        # Query must be an ID.
         id = text
     else:
+        # It's a name or email.
         name = text
 
     # Check if the name is actually an email address.
@@ -216,6 +251,7 @@ def parse_int_query(query_type: typing.Type[T], text: typing.Union[str, None],
         'id': id,
         'name': name,
         'email': email,
+        'student_id': student_id,
     }
 
     return query_type(**data)

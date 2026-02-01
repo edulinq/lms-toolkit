@@ -11,11 +11,14 @@ class UserQuery(lms.model.query.BaseQuery):
      - LMS User ID (`id`)
      - Email (`email`)
      - Full Name (`name`)
+     - Student ID (`student_id`)
      - f"{email} ({id})"
      - f"{name} ({id})"
+     - f"{name} [{student_id}] ({id})"
     """
 
     _include_email = True
+    _include_student_id = True
 
 class ResolvedUserQuery(lms.model.query.ResolvedBaseQuery, UserQuery):
     """
@@ -23,11 +26,13 @@ class ResolvedUserQuery(lms.model.query.ResolvedBaseQuery, UserQuery):
     """
 
     _include_email = True
+    _include_student_id = True
 
     def __init__(self,
             user: 'ServerUser',
             **kwargs: typing.Any) -> None:
-        super().__init__(id = user.id, name = user.name, email = user.email, **kwargs)
+        super().__init__(id = user.id, name = user.name, email = user.email,
+                student_id = user.student_id, **kwargs)
 
 class CourseRole(enum.Enum):
     """
@@ -49,13 +54,14 @@ class ServerUser(lms.model.base.BaseType):
     A user associated with an LMS server.
     """
 
-    CORE_FIELDS = ['id', 'name', 'email']
+    CORE_FIELDS = ['id', 'name', 'email', 'student_id']
     """ The common fields shared across backends for this type. """
 
     def __init__(self,
             id: typing.Union[str, int, None] = None,
             email: typing.Union[str, None] = None,
             name: typing.Union[str, None] = None,
+            student_id: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
 
@@ -70,6 +76,9 @@ class ServerUser(lms.model.base.BaseType):
 
         self.email: typing.Union[str, None] = email
         """ The email address of this user. """
+
+        self.student_id: typing.Union[str, None] = student_id
+        """ The student ID (also known as SIS ID) for this user. """
 
     def to_query(self) -> ResolvedUserQuery:
         """ Get a query representation of this user. """

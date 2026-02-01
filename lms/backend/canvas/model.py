@@ -104,6 +104,9 @@ def course_user(backend: lms.model.backend.APIBackend, data: typing.Dict[str, ty
     # Modify specific arguments before sending them to super.
     data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
 
+    # Extract student ID from Canvas (called sis_user_id in the API).
+    data['student_id'] = data.get('sis_user_id', None)
+
     # Canvas sometimes has email under different fields.
     if ((data.get('email', None) is None) or (len(data.get('email', '')) == 0)):
         data['email'] = data.get('login_id', None)
