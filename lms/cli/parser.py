@@ -68,25 +68,29 @@ def get_parser(description: str,
             edq.net.exchange._exchanges_clean_func = edq.util.reflection.get_qualified_name(lms.util.net.clean_lms_response)
 
     if (include_server):
-        parser.add_argument('--server', dest = 'server',
+        group = parser.add_argument_group('server options')
+
+        group.add_argument('--server', dest = 'server',
             action = 'store', type = str, default = None,
             help = 'The address of the LMS server to connect to.')
 
-        parser.add_argument('--server-type', dest = 'backend_type',
+        group.add_argument('--server-type', dest = 'backend_type',
             action = 'store', type = str,
             default = None, choices = lms.model.constants.BACKEND_TYPES,
             help = 'The type of LMS being connected to (this can normally be guessed from the server address).')
 
     if (include_auth):
-        parser.add_argument('--auth-user', dest = 'auth_user',
+        group = parser.add_argument_group('authentication options')
+
+        group.add_argument('--auth-user', dest = 'auth_user',
             action = 'store', type = str, default = None,
             help = 'The user to authenticate with.')
 
-        parser.add_argument('--auth-password', dest = 'auth_password',
+        group.add_argument('--auth-password', dest = 'auth_password',
             action = 'store', type = str, default = None,
             help = 'The password to authenticate with.')
 
-        parser.add_argument('--auth-token', dest = 'auth_token',
+        group.add_argument('--auth-token', dest = 'auth_token',
             action = 'store', type = str, default = None,
             help = 'The token to authenticate with.')
 
@@ -116,22 +120,24 @@ def get_parser(description: str,
             help = 'The group to target for this operation.')
 
     if (include_output_format):
-        parser.add_argument('--format', dest = 'output_format',
+        group = parser.add_argument_group('output formatting options')
+
+        group.add_argument('--format', dest = 'output_format',
             action = 'store', type = str,
             default = lms.model.constants.OUTPUT_FORMAT_TEXT, choices = lms.model.constants.OUTPUT_FORMATS,
             help = 'The format to display the output as (default: %(default)s).')
 
-        parser.add_argument('--skip-headers', dest = 'skip_headers',
+        group.add_argument('--include-extra-fields', dest = 'include_extra_fields',
             action = 'store_true', default = False,
-            help = 'Skip headers when outputting results, will not apply to all formats (default: %(default)s).')
+            help = 'Include non-common (usually LMS-specific) fields in results (default: %(default)s).')
 
-        parser.add_argument('--pretty-headers', dest = 'pretty_headers',
+        group.add_argument('--pretty-headers', dest = 'pretty_headers',
             action = 'store_true', default = False,
             help = 'When displaying headers, try to make them look "pretty" (default: %(default)s).')
 
-        parser.add_argument('--include-extra-fields', dest = 'include_extra_fields',
+        group.add_argument('--skip-headers', dest = 'skip_headers',
             action = 'store_true', default = False,
-            help = 'Include non-common (usually LMS-specific) fields in results (default: %(default)s).')
+            help = 'Skip headers when outputting results, will not apply to all formats (default: %(default)s).')
 
     if (include_skip_rows):
         parser.add_argument('--skip-rows', dest = 'skip_rows',
