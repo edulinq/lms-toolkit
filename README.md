@@ -5,8 +5,8 @@ A suite of tools and a Python interface for interacting with different
 
 This project is not affiliated with any LMS developer/provider.
 
-Links:
  - [API Reference](https://edulinq.github.io/lms-toolkit)
+ - [CLI Reference](https://edulinq.github.io/lms-toolkit/docs/latest/lms/cli.html)
  - [Development Notes](docs/development.md)
  - [Installation](#installation)
  - [Usage Notes](#usage-notes)
