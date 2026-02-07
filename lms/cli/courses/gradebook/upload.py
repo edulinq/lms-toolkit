@@ -93,7 +93,7 @@ def _load_gradebook(
                 except Exception:
                     raise ValueError(f"File '{path}' line {lineno} has a score that cannot be converted to a number: '{part}'.")  # pylint: disable=raise-missing-from
 
-                assignment_score = lms.model.scores.AssignmentScore(score = float_score, assignment_query = assignments[i], user_query = user)
+                assignment_score = lms.model.scores.AssignmentScore(score = float_score, assignment = assignments[i], user = user)
                 scores.append(assignment_score)
 
     gradebook = lms.model.scores.Gradebook(assignments, users)

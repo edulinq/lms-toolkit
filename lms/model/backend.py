@@ -206,7 +206,7 @@ class APIBackend():
         matches = []
         for score in scores:
             for user_query in user_queries:
-                if (user_query.match(score.user_query)):
+                if (user_query.match(score.user)):
                     matches.append(score)
 
         return sorted(matches)
@@ -225,7 +225,7 @@ class APIBackend():
 
         scores = self.courses_assignments_scores_list(course_id, assignment_id, **kwargs)
         for score in scores:
-            if ((score.user_query is not None) and (score.user_query.id == user_id)):
+            if ((score.user is not None) and (score.user.id == user_id)):
                 return score
 
         return None
@@ -271,10 +271,10 @@ class APIBackend():
         users_map = {user.id: user for user in users}
 
         for score in scores:
-            score.assignment_query = target_assignment.to_query()
+            score.assignment = target_assignment.to_query()
 
-            if ((score.user_query is not None) and (score.user_query.id in users_map)):
-                score.user_query = users_map[score.user_query.id].to_query()
+            if ((score.user is not None) and (score.user.id in users_map)):
+                score.user = users_map[score.user.id].to_query()
 
         return sorted(scores)
 
@@ -1209,7 +1209,7 @@ class APIBackend():
         matches = []
         for score in scores:
             for assignment_query in assignment_queries:
-                if (assignment_query.match(score.assignment_query)):
+                if (assignment_query.match(score.assignment)):
                     matches.append(score)
 
         return matches
@@ -1270,10 +1270,10 @@ class APIBackend():
         assignments_map = {assignment.id: assignment for assignment in assignments}
 
         for score in scores:
-            score.user_query = target_user.to_query()
+            score.user = target_user.to_query()
 
-            if ((score.assignment_query is not None) and (score.assignment_query.id in assignments_map)):
-                score.assignment_query = assignments_map[score.assignment_query.id].to_query()
+            if ((score.assignment is not None) and (score.assignment.id in assignments_map)):
+                score.assignment = assignments_map[score.assignment.id].to_query()
 
         return sorted(scores)
 

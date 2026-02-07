@@ -24,12 +24,12 @@
         [
             {
                 "id": "110050101",
-                "user_query": {
+                "user": {
                     "id": "100050000",
                     "name": "course-student",
                     "email": "course-student@test.edulinq.org"
                 },
-                "assignment_query": {
+                "assignment": {
                     "id": "110000100",
                     "name": "Homework 0"
                 },

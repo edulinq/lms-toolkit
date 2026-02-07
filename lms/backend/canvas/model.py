@@ -65,10 +65,10 @@ def assignment_score(data: typing.Dict[str, typing.Any]) -> lms.model.scores.Ass
     data['graded_date'] = lms.backend.canvas.common.parse_timestamp(data.get('graded_at', None))
 
     assignment_id = lms.util.parse.required_string(data.get('assignment_id', None), 'assignment_id')
-    data['assignment_query'] = lms.model.assignments.AssignmentQuery(id = assignment_id)
+    data['assignment'] = lms.model.assignments.AssignmentQuery(id = assignment_id)
 
     user_id = lms.util.parse.required_string(data.get('user_id', None), 'user_id')
-    data['user_query'] = lms.model.users.UserQuery(id = user_id)
+    data['user'] = lms.model.users.UserQuery(id = user_id)
 
     return lms.model.scores.AssignmentScore(**data)
 
