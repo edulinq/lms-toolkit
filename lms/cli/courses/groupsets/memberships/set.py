@@ -26,7 +26,8 @@ def run_cli(args: argparse.Namespace) -> int:
     if (groupset_query is None):
         return 2
 
-    memberships = lms.cli.courses.groupsets.memberships.common.load_group_memberships(backend, args.path, args.skip_rows)
+    memberships = lms.cli.courses.groupsets.memberships.common.load_group_memberships(backend, args.path, args.skip_rows,
+            has_header = args.has_header)
 
     stats = backend.courses_groupsets_memberships_resolve_and_set(course_query, groupset_query, memberships)
     (created_groups, deleted_groups, add_counts, sub_counts) = stats
@@ -60,6 +61,7 @@ def _get_parser() -> argparse.ArgumentParser:
             include_groupset = True,
             include_group = True,
             include_skip_rows = True,
+            include_header = True,
     )
 
     parser.add_argument('path', metavar = 'PATH',

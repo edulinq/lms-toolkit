@@ -7,14 +7,19 @@ import ast
 import sys
 import typing
 
-import edq.util.dirent
-
 import lms.backend.instance
 import lms.cli.common
 import lms.cli.parser
+import lms.cli.table
 import lms.model.backend
 import lms.model.scores
 import lms.model.users
+
+SCORE_COLUMNS: typing.List[lms.cli.table.ColumnDef] = [
+    lms.cli.table.ColumnDef("user", required = True),
+    lms.cli.table.ColumnDef("score", required = True),
+    lms.cli.table.ColumnDef("comment", required = False),
+]
 
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
@@ -31,7 +36,7 @@ def run_cli(args: argparse.Namespace) -> int:
     if (assignment_query is None):
         return 2
 
-    scores = _load_scores(backend, args.path, args.skip_rows)
+    scores = _load_scores(backend, args.path, args.skip_rows, args.has_header)
 
     count = backend.courses_assignments_scores_resolve_and_upload(course_query, assignment_query, scores)
 
@@ -42,44 +47,35 @@ def run_cli(args: argparse.Namespace) -> int:
 def _load_scores(
         backend: lms.model.backend.APIBackend,
         path: str,
-        skip_rows: bool,
+        skip_rows: int,
+        has_header: bool,
         ) -> typing.Dict[lms.model.users.UserQuery, lms.model.scores.ScoreFragment]:
-    scores = {}
+    rows = lms.cli.table.read_table(path, SCORE_COLUMNS,
+            skip_rows = skip_rows, has_header = has_header)
 
-    with open(path, 'r', encoding = edq.util.dirent.DEFAULT_ENCODING) as file:
-        lineno = 0
-        real_rows = 0
-        for line in file:
-            lineno += 1
+    scores: typing.Dict[lms.model.users.UserQuery, lms.model.scores.ScoreFragment] = {}
 
-            if (line.strip() == ''):
-                continue
+    for (lineno, values) in rows:
+        user_raw = values[0]
+        score_raw = values[1]
+        comment_raw = values[2]
 
-            real_rows += 1
+        user_query = backend.parse_user_query(typing.cast(str, user_raw))
+        if (user_query is None):
+            raise ValueError(f"File '{path}' line {lineno} has a user query that could not be parsed: '{user_raw}'.")
 
-            if (real_rows <= skip_rows):
-                continue
+        score = None
+        if ((score_raw is not None) and (score_raw != '')):
+            try:
+                score = float(ast.literal_eval(score_raw))
+            except Exception:
+                raise ValueError(f"File '{path}' line {lineno} has a score that cannot be converted to a number: '{score_raw}'.")  # pylint: disable=raise-missing-from
 
-            parts = [part.strip() for part in line.split("\t")]
-            if (len(parts) not in [2, 3]):
-                raise ValueError(f"File '{path}' line {lineno} has the incorrect number of values. Expecting 2-3, found {len(parts)}.")
+        comment = None
+        if ((comment_raw is not None) and (comment_raw != '')):
+            comment = comment_raw
 
-            user_query = backend.parse_user_query(parts[0])
-            if (user_query is None):
-                raise ValueError(f"File '{path}' line {lineno} has a user query that could not be parsed: '{parts[0]}'.")
-
-            score = None
-            if (parts[1] != ''):
-                try:
-                    score = float(ast.literal_eval(parts[1]))
-                except Exception:
-                    raise ValueError(f"File '{path}' line {lineno} has a score that cannot be converted to a number: '{parts[1]}'.")  # pylint: disable=raise-missing-from
-
-            comment = None
-            if (len(parts) == 3):
-                comment = parts[2]
-
-            scores[user_query] = lms.model.scores.ScoreFragment(score = score, comment = comment)
+        scores[user_query] = lms.model.scores.ScoreFragment(score = score, comment = comment)
 
     return scores
 
@@ -94,6 +90,7 @@ def _get_parser() -> argparse.ArgumentParser:
             include_course = True,
             include_assignment = True,
             include_skip_rows = True,
+            include_header = True,
     )
 
     parser.add_argument('path', metavar = 'PATH',

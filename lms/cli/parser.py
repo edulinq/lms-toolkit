@@ -34,6 +34,7 @@ def get_parser(description: str,
         include_group: bool = False,
         include_net: bool = True,
         include_skip_rows: bool = False,
+        include_header: bool = False,
         ) -> argparse.ArgumentParser:
     """
     Get an argument parser specialized for LMS Toolkit.
@@ -143,5 +144,12 @@ def get_parser(description: str,
         parser.add_argument('--skip-rows', dest = 'skip_rows',
             action = 'store', type = int, default = DEFAULT_SKIP_ROWS,
             help = 'The number of header rows to skip (default: %(default)s).')
+
+    if (include_header):
+        parser.add_argument('--header', dest = 'has_header',
+            action = 'store_true', default = False,
+            help = 'The first row of the input file is a header with column names.'
+                    + ' The header determines column order.'
+                    + ' Cannot be used with --skip-rows.')
 
     return typing.cast(argparse.ArgumentParser, parser)

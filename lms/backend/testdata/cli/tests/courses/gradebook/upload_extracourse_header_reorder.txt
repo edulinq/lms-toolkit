@@ -1,0 +1,10 @@
+{
+    "cli": "lms.cli.courses.gradebook.upload",
+    "arguments": [
+        "--course", "Extra Course",
+        "--header",
+        "__DATA_DIR__(gradebooks/extracourse_header_reorder.txt)",
+    ],
+}
+---
+Uploaded 4 Scores

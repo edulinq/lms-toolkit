@@ -1,45 +1,39 @@
 import typing
 
-import edq.util.dirent
-
+import lms.cli.table
 import lms.model.backend
 import lms.model.groups
+
+GROUP_MEMBERSHIP_COLUMNS: typing.List[lms.cli.table.ColumnDef] = [
+    lms.cli.table.ColumnDef("group", required = True),
+    lms.cli.table.ColumnDef("user", required = True),
+]
 
 def load_group_memberships(
         backend: lms.model.backend.APIBackend,
         path: str,
-        skip_rows: bool,
+        skip_rows: int,
+        has_header: bool = False,
         ) -> typing.List[lms.model.groups.GroupMembership]:
     """ Read a group membership TSV file. """
 
+    rows = lms.cli.table.read_table(path, GROUP_MEMBERSHIP_COLUMNS,
+            skip_rows = skip_rows, has_header = has_header)
+
     memberships: typing.List[lms.model.groups.GroupMembership] = []
 
-    with open(path, 'r', encoding = edq.util.dirent.DEFAULT_ENCODING) as file:
-        lineno = 0
-        real_rows = 0
-        for line in file:
-            lineno += 1
+    for (lineno, values) in rows:
+        group_raw = values[0]
+        user_raw = values[1]
 
-            if (line.strip() == ''):
-                continue
+        group_query = backend.parse_group_query(typing.cast(str, group_raw))
+        if (group_query is None):
+            raise ValueError(f"File '{path}' line {lineno} has a group query that could not be parsed: '{group_raw}'.")
 
-            real_rows += 1
+        user_query = backend.parse_user_query(typing.cast(str, user_raw))
+        if (user_query is None):
+            raise ValueError(f"File '{path}' line {lineno} has a user query that could not be parsed: '{user_raw}'.")
 
-            if (real_rows <= skip_rows):
-                continue
-
-            parts = [part.strip() for part in line.split("\t")]
-            if (len(parts) != 2):
-                raise ValueError(f"File '{path}' line {lineno} has the incorrect number of values. Expecting 2, found {len(parts)}.")
-
-            group_query = backend.parse_group_query(parts[0])
-            if (group_query is None):
-                raise ValueError(f"File '{path}' line {lineno} has a group query that could not be parsed: '{parts[0]}'.")
-
-            user_query = backend.parse_user_query(parts[1])
-            if (user_query is None):
-                raise ValueError(f"File '{path}' line {lineno} has a user query that could not be parsed: '{parts[1]}'.")
-
-            memberships.append(lms.model.groups.GroupMembership(group = group_query, user = user_query))
+        memberships.append(lms.model.groups.GroupMembership(group = group_query, user = user_query))
 
     return memberships

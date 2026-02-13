@@ -1,0 +1,4 @@
+Group	User	Notes
+test_group_1	extra-course-student-1	some note
+Group 1-1	extra-course-student-1	another note
+Group 1-1	extra-course-student-3	yet another note
