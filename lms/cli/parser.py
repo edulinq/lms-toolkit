@@ -34,6 +34,7 @@ def get_parser(description: str,
         include_group: bool = False,
         include_net: bool = True,
         include_skip_rows: bool = False,
+        include_strict: bool = False,
         ) -> argparse.ArgumentParser:
     """
     Get an argument parser specialized for LMS Toolkit.
@@ -137,5 +138,10 @@ def get_parser(description: str,
         parser.add_argument('--skip-rows', dest = 'skip_rows',
             action = 'store', type = int, default = DEFAULT_SKIP_ROWS,
             help = 'The number of header rows to skip (default: %(default)s).')
+
+    if (include_strict):
+        parser.add_argument('--strict', dest = 'strict',
+            action = 'store_true', default = False,
+            help = 'Return a non-zero exit status if the operation did not fully complete (e.g., some users could not be resolved) (default: %(default)s).')
 
     return typing.cast(argparse.ArgumentParser, parser)

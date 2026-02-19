@@ -28,10 +28,18 @@ def run_cli(args: argparse.Namespace) -> int:
 
     memberships = lms.cli.courses.groupsets.memberships.common.load_group_memberships(backend, args.path, args.skip_rows)
 
+    expected_count = len(memberships)
+
     counts = backend.courses_groupsets_memberships_resolve_and_subtract(course_query, groupset_query, memberships)
 
+    total_count = 0
     for (group_query, count) in counts.items():
         print(f"Subtracted {count} users from group {group_query}.")
+        total_count += count
+
+    if (args.strict and (total_count < expected_count)):
+        print(f"Strict mode: expected to subtract {expected_count} memberships, but only subtracted {total_count}.")
+        return 101
 
     return 0
 
@@ -48,6 +56,7 @@ def _get_parser() -> argparse.ArgumentParser:
             include_groupset = True,
             include_group = True,
             include_skip_rows = True,
+            include_strict = True,
     )
 
     parser.add_argument('path', metavar = 'PATH',

@@ -39,6 +39,10 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(f"Uploaded {count} Scores")
 
+    if (args.strict and (count < len(scores))):
+        print(f"Strict mode: expected to upload {len(scores)} scores, but only uploaded {count}.")
+        return 101
+
     return 0
 
 def main() -> int:
@@ -52,6 +56,7 @@ def _get_parser() -> argparse.ArgumentParser:
             include_course = True,
             include_assignment = True,
             include_user = True,
+            include_strict = True,
     )
 
     parser.add_argument('score', metavar = 'SCORE',

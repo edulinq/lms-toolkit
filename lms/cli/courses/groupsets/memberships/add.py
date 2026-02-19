@@ -28,14 +28,22 @@ def run_cli(args: argparse.Namespace) -> int:
 
     memberships = lms.cli.courses.groupsets.memberships.common.load_group_memberships(backend, args.path, args.skip_rows)
 
+    expected_count = len(memberships)
+
     created_groups, counts = backend.courses_groupsets_memberships_resolve_and_add(course_query, groupset_query, memberships)
 
     if (len(created_groups) > 0):
         display_groups = [str(group.to_query()) for group in created_groups]
         print(f"Created {len(created_groups)} groups: {display_groups}.")
 
+    total_count = 0
     for (group_query, count) in counts.items():
         print(f"Added {count} users to group {group_query}.")
+        total_count += count
+
+    if (args.strict and (total_count < expected_count)):
+        print(f"Strict mode: expected to add {expected_count} memberships, but only added {total_count}.")
+        return 101
 
     return 0
 
@@ -52,6 +60,7 @@ def _get_parser() -> argparse.ArgumentParser:
             include_groupset = True,
             include_group = True,
             include_skip_rows = True,
+            include_strict = True,
     )
 
     parser.add_argument('path', metavar = 'PATH',

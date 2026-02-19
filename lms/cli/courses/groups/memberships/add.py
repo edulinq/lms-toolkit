@@ -35,6 +35,10 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(f"Added {count} users to group {group_query}.")
 
+    if (args.strict and (count < len(user_queries))):
+        print(f"Strict mode: expected to add {len(user_queries)} users, but only added {count}.")
+        return 101
+
     return 0
 
 def main() -> int:
@@ -49,6 +53,7 @@ def _get_parser() -> argparse.ArgumentParser:
             include_course = True,
             include_groupset = True,
             include_group = True,
+            include_strict = True,
     )
 
     parser.add_argument('users', metavar = 'USER_QUERY',
