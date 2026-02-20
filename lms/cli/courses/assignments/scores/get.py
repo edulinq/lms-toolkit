@@ -37,6 +37,12 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(output)
 
+    strict_result = lms.cli.common.check_strict(args, len(user_queries), len(scores),
+            f"Expected to get {len(user_queries)} scores, but only found {len(scores)}.",
+            3)
+    if (strict_result != 0):
+        return strict_result
+
     return 0
 
 def main() -> int:
@@ -50,6 +56,7 @@ def _get_parser() -> argparse.ArgumentParser:
             include_output_format = True,
             include_course = True,
             include_assignment = True,
+            include_strict = True,
     )
 
     parser.add_argument('users', metavar = 'USER_QUERY',

@@ -35,9 +35,11 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(f"Added {count} users to group {group_query}.")
 
-    if (args.strict and (count < len(user_queries))):
-        print(f"Strict mode: expected to add {len(user_queries)} users, but only added {count}.")
-        return 101
+    strict_result = lms.cli.common.check_strict(args, len(user_queries), count,
+            f"Expected to add {len(user_queries)} memberships to group, but only {count} were added.",
+            4)
+    if (strict_result != 0):
+        return strict_result
 
     return 0
 

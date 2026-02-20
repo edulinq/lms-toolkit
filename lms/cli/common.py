@@ -111,3 +111,24 @@ def check_required_user(
         return None
 
     return query
+
+def check_strict(
+        args: 'argparse.Namespace',
+        expected: int,
+        actual: int,
+        message: str,
+        exit_code: int,
+        ) -> int:
+    """
+    Check if strict mode is enabled and if the operation did not fully complete.
+    Returns the exit code if strict mode is triggered, otherwise returns 0.
+    """
+
+    if (not getattr(args, 'strict', False)):
+        return 0
+
+    if (actual < expected):
+        print(f"Strict mode: {message}")
+        return exit_code
+
+    return 0

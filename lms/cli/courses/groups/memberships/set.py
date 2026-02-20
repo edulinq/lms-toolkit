@@ -36,6 +36,12 @@ def run_cli(args: argparse.Namespace) -> int:
     print(f"Added {add_count} users to group {group_query}.")
     print(f"Subtracted {sub_count} users from group {group_query}.")
 
+    strict_result = lms.cli.common.check_strict(args, len(user_queries), add_count,
+            f"Expected to set {len(user_queries)} memberships in group, but only {add_count} were added.",
+            4)
+    if (strict_result != 0):
+        return strict_result
+
     return 0
 
 def main() -> int:
@@ -50,6 +56,7 @@ def _get_parser() -> argparse.ArgumentParser:
             include_course = True,
             include_groupset = True,
             include_group = True,
+            include_strict = True,
     )
 
     parser.add_argument('users', metavar = 'USER_QUERY',

@@ -37,6 +37,12 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(output)
 
+    strict_result = lms.cli.common.check_strict(args, len(queries), len(groups),
+            f"Expected to get {len(queries)} groups, but only found {len(groups)}.",
+            3)
+    if (strict_result != 0):
+        return strict_result
+
     return 0
 
 def main() -> int:
@@ -50,6 +56,7 @@ def _get_parser() -> argparse.ArgumentParser:
             include_output_format = True,
             include_course = True,
             include_groupset = True,
+            include_strict = True,
     )
 
     parser.add_argument('groups', metavar = 'GROUP_QUERY',

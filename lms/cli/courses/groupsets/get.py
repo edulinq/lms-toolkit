@@ -33,6 +33,12 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(output)
 
+    strict_result = lms.cli.common.check_strict(args, len(queries), len(groupsets),
+            f"Expected to get {len(queries)} group sets, but only found {len(groupsets)}.",
+            2)
+    if (strict_result != 0):
+        return strict_result
+
     return 0
 
 def main() -> int:
@@ -45,6 +51,7 @@ def _get_parser() -> argparse.ArgumentParser:
     parser = lms.cli.parser.get_parser(__doc__.strip(),
             include_output_format = True,
             include_course = True,
+            include_strict = True,
     )
 
     parser.add_argument('groupsets', metavar = 'GROUP_SET_QUERY',

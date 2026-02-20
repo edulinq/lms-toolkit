@@ -39,9 +39,11 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(f"Uploaded {count} Scores")
 
-    if (args.strict and (count < len(scores))):
-        print(f"Strict mode: expected to upload {len(scores)} scores, but only uploaded {count}.")
-        return 101
+    strict_result = lms.cli.common.check_strict(args, len(scores), count,
+            f"Expected to upload {len(scores)} scores, but only {count} were uploaded.",
+            4)
+    if (strict_result != 0):
+        return strict_result
 
     return 0
 

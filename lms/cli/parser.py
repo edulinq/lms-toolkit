@@ -142,6 +142,6 @@ def get_parser(description: str,
     if (include_strict):
         parser.add_argument('--strict', dest = 'strict',
             action = 'store_true', default = False,
-            help = 'Return a non-zero exit status if the operation did not fully complete (e.g., some users could not be resolved) (default: %(default)s).')
+            help = 'Enable strict mode for stricter error handling (default: %(default)s).')
 
     return typing.cast(argparse.ArgumentParser, parser)
