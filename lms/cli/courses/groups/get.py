@@ -38,8 +38,7 @@ def run_cli(args: argparse.Namespace) -> int:
     print(output)
 
     strict_result = lms.cli.common.check_strict(args, len(queries), len(groups),
-            f"Expected to get {len(queries)} groups, but only found {len(groups)}.",
-            3)
+        f"Expected to find {len(queries)} groups, but only found {len(groups)}.", 3)
     if (strict_result != 0):
         return strict_result
 

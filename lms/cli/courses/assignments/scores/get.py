@@ -38,8 +38,7 @@ def run_cli(args: argparse.Namespace) -> int:
     print(output)
 
     strict_result = lms.cli.common.check_strict(args, len(user_queries), len(scores),
-            f"Expected to get {len(user_queries)} scores, but only found {len(scores)}.",
-            3)
+        f"Expected to find {len(user_queries)} scores, but only found {len(scores)}.", 3)
     if (strict_result != 0):
         return strict_result
 

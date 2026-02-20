@@ -27,14 +27,14 @@ def run_cli(args: argparse.Namespace) -> int:
 
     gradebook = _load_gradebook(backend, args.path)
 
+    expected_count = len(gradebook)
+
     count = backend.courses_gradebook_resolve_and_upload(course_query, gradebook)
 
     print(f"Uploaded {count} Scores")
 
-    expected_count = len(gradebook)
     strict_result = lms.cli.common.check_strict(args, expected_count, count,
-            f"Expected to upload {expected_count} scores, but only {count} were uploaded.",
-            2)
+        f"Expected to upload {expected_count} scores, but only uploaded {count}.", 2)
     if (strict_result != 0):
         return strict_result
 

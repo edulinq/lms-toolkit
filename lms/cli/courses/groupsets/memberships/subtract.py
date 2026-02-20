@@ -28,6 +28,8 @@ def run_cli(args: argparse.Namespace) -> int:
 
     memberships = lms.cli.courses.groupsets.memberships.common.load_group_memberships(backend, args.path, args.skip_rows)
 
+    expected_count = len(memberships)
+
     counts = backend.courses_groupsets_memberships_resolve_and_subtract(course_query, groupset_query, memberships)
 
     total_count = 0
@@ -35,9 +37,8 @@ def run_cli(args: argparse.Namespace) -> int:
         print(f"Subtracted {count} users from group {group_query}.")
         total_count += count
 
-    strict_result = lms.cli.common.check_strict(args, len(memberships), total_count,
-            f"Expected to subtract {len(memberships)} memberships, but only {total_count} were subtracted.",
-            3)
+    strict_result = lms.cli.common.check_strict(args, expected_count, total_count,
+        f"Expected to subtract {expected_count} memberships from groupset, but only subtracted {total_count}.", 3)
     if (strict_result != 0):
         return strict_result
 

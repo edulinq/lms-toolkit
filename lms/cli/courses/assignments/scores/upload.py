@@ -38,8 +38,7 @@ def run_cli(args: argparse.Namespace) -> int:
     print(f"Uploaded {count} Scores")
 
     strict_result = lms.cli.common.check_strict(args, len(scores), count,
-            f"Expected to upload {len(scores)} scores, but only {count} were uploaded.",
-            3)
+        f"Expected to upload {len(scores)} scores, but only uploaded {count}.", 3)
     if (strict_result != 0):
         return strict_result
 
