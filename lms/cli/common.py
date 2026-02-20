@@ -128,7 +128,7 @@ def check_strict(
         return 0
 
     if (actual < expected):
-        print(f"Strict mode: {message}")
+        print(f"ERROR (Strict Mode): {message}")
         return exit_code
 
     return 0
