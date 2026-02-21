@@ -111,3 +111,23 @@ def check_required_user(
         return None
 
     return query
+
+def check_strict(
+        strict: bool,
+        has_error: bool,
+        message: str,
+        exit_code: int = 1,
+        ) -> int:
+    """
+    Check if strict mode is enabled and if the operation encountered an error.
+    Returns the exit code if strict mode is triggered, otherwise returns 0.
+    """
+
+    if (not strict):
+        return 0
+
+    if (has_error):
+        print(f"ERROR (Strict Mode): {message}")
+        return exit_code
+
+    return 0

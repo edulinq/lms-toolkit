@@ -39,7 +39,8 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(f"Uploaded {count} Scores")
 
-    return 0
+    return lms.cli.common.check_strict(args.strict, count < len(scores),
+        f"Expected to upload {len(scores)} scores, but only uploaded {count}.", 4)
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """
@@ -52,6 +53,7 @@ def _get_parser() -> argparse.ArgumentParser:
             include_course = True,
             include_assignment = True,
             include_user = True,
+            include_strict = True,
     )
 
     parser.add_argument('score', metavar = 'SCORE',
