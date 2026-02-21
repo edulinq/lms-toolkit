@@ -27,12 +27,8 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(output)
 
-    strict_result = lms.cli.common.check_strict(args, len(queries), len(courses),
-        f"Expected to find {len(queries)} courses, but only found {len(courses)}.", 1)
-    if (strict_result != 0):
-        return strict_result
-
-    return 0
+    return lms.cli.common.check_strict(args.strict, len(courses) < len(queries),
+        f"Expected to find {len(queries)} courses, but only found {len(courses)}.")
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """

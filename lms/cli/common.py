@@ -1,4 +1,3 @@
-import argparse
 import typing
 
 import lms.model.backend
@@ -114,21 +113,20 @@ def check_required_user(
     return query
 
 def check_strict(
-        args: 'argparse.Namespace',
-        expected: int,
-        actual: int,
+        strict: bool,
+        has_error: bool,
         message: str,
-        exit_code: int,
+        exit_code: int = 1,
         ) -> int:
     """
-    Check if strict mode is enabled and if the operation did not fully complete.
+    Check if strict mode is enabled and if the operation encountered an error.
     Returns the exit code if strict mode is triggered, otherwise returns 0.
     """
 
-    if (not getattr(args, 'strict', False)):
+    if (not strict):
         return 0
 
-    if (actual < expected):
+    if (has_error):
         print(f"ERROR (Strict Mode): {message}")
         return exit_code
 

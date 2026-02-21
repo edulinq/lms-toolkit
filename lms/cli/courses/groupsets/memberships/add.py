@@ -41,12 +41,8 @@ def run_cli(args: argparse.Namespace) -> int:
         print(f"Added {count} users to group {group_query}.")
         total_count += count
 
-    strict_result = lms.cli.common.check_strict(args, expected_count, total_count,
+    return lms.cli.common.check_strict(args.strict, total_count < expected_count,
         f"Expected to add {expected_count} memberships to groupset, but only added {total_count}.", 3)
-    if (strict_result != 0):
-        return strict_result
-
-    return 0
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """
