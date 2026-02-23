@@ -13,10 +13,11 @@ class BaseQuery(edq.util.json.DictConverter):
     Queries are ways that users can attempt to refer to some object with uncertainty.
     This allows users to refer to objects by name, for example, instead of by id.
 
-    Queries are made up of 2-3 components:
+    Queries are made up of 2-4 components:
      - an identifier
      - a name
      - an email (optional)
+     - Student ID (optional)
 
     Email support is decided by child classes.
     By default, ids are assumed to be only digits.
@@ -26,16 +27,21 @@ class BaseQuery(edq.util.json.DictConverter):
      - Email (`email`)
      - Full Name (`name`)
      - f"{email} ({id})"
+     - f"{student_id} ({id})"
      - f"{name} ({id})"
     """
 
     _include_email: bool = True
     """ Control if this class instance supports the email field. """
 
+    _include_student_id: bool = False
+    """ Control if this class instance supports the student_id field. """
+
     def __init__(self,
             id: typing.Union[str, int, None] = None,
             name: typing.Union[str, None] = None,
             email: typing.Union[str, None] = None,
+            student_id: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
         if (id is not None):
             id = str(id)
@@ -49,8 +55,11 @@ class BaseQuery(edq.util.json.DictConverter):
         self.email: typing.Union[str, None] = email
         """ The email address of this query. """
 
-        if ((self.id is None) and (self.name is None) and (self.email is None)):
-            raise ValueError("Query is empty, it must have at least one piece of information (id, name, email).")
+        self.student_id: typing.Union[str, None] = student_id
+        """ The student/institutional identifier for this query. """
+
+        if ((self.id is None) and (self.name is None) and (self.email is None) and (self.student_id is None)):
+            raise ValueError("Query is empty, it must have at least one piece of information (id, name, email, student_id).")
 
     def match(self, target: typing.Union[typing.Any, 'BaseQuery', None]) -> bool:
         """
@@ -65,6 +74,8 @@ class BaseQuery(edq.util.json.DictConverter):
         field_names = ['id', 'name']
         if (self._include_email):
             field_names.append('email')
+        if (self._include_student_id):
+            field_names.append('student_id')
 
         for field_name in field_names:
             self_value = getattr(self, field_name, None)
@@ -87,6 +98,9 @@ class BaseQuery(edq.util.json.DictConverter):
         if (self._include_email):
             data['email'] = self.email
 
+        if (self._include_student_id):
+            data['student_id'] = self.student_id
+
         return data
 
     def _get_comparison_payload(self, include_id: bool) -> typing.Tuple:
@@ -101,6 +115,9 @@ class BaseQuery(edq.util.json.DictConverter):
 
         if (self._include_email):
             payload.append(self.email)
+
+        if (self._include_student_id):
+            payload.append(self.student_id)
 
         return tuple(payload)
 
@@ -134,11 +151,15 @@ class BaseQuery(edq.util.json.DictConverter):
         if ((not self._include_email) or (text is None)):
             text = self.name
 
-        if (self.id is not None):
+        identifier = self.id
+        if ((identifier is None) and self._include_student_id):
+            identifier = self.student_id
+
+        if (identifier is not None):
             if (text is not None):
-                text = f"{text} ({self.id})"
+                text = f"{text} ({identifier})"
             else:
-                text = self.id
+                text = identifier
 
         if (text is None):
             return '<unknown>'

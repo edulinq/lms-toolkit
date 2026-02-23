@@ -57,6 +57,7 @@ class TestBaseType(edq.testing.unittest.BaseTest):
                     'email': None,
                     'id': '123',
                     'name': 'Alice',
+                    'student_id': None,
                     'extra': 'abc',
                 },
             ),
@@ -194,6 +195,7 @@ class TestBaseType(edq.testing.unittest.BaseTest):
                     'id: 123',
                     'name: Alice',
                     'email: ',
+                    'student_id: ',
                     'extra: abc',
                 ],
             ),
@@ -294,6 +296,7 @@ class TestBaseType(edq.testing.unittest.BaseTest):
                 [[
                     '123',
                     'Alice',
+                    '',
                     '',
                     'abc',
                 ]],
