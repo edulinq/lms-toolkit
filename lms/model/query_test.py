@@ -1,6 +1,7 @@
 import edq.testing.unittest
 
 import lms.model.query
+import lms.model.users
 
 class TestQuery(edq.testing.unittest.BaseTest):
     """ Test queries. """
@@ -236,6 +237,82 @@ class TestQuery(edq.testing.unittest.BaseTest):
             (
                 lms.model.query.BaseQuery(id = '123', name = 'name', email = 'email@test.edulinq.org'),
                 lms.model.query.BaseQuery(id = '999', name = 'ZZZZ', email = 'ZZZZZ@test.edulinq.org'),
+                False,
+            ),
+        ]
+
+        for (i, test_case) in enumerate(test_cases):
+            (query, target, expected) = test_case
+
+            with self.subTest(msg = f"Case {i} ('{query}' vs '{target}'):"):
+                actual = query.match(target)
+                self.assertEqual(expected, actual)
+
+    def test_match_user_query_student_id(self):
+        """ Test user query matching with student_id. """
+
+        # [(query, target, expected), ...]
+        test_cases = [
+            # Match by name against target name
+            (
+                lms.model.users.UserQuery(name = 'Alice'),
+                lms.model.users.ServerUser(id = '123', name = 'Alice', student_id = 'S001'),
+                True,
+            ),
+
+            # Match by name against target student_id
+            (
+                lms.model.users.UserQuery(name = 'S001'),
+                lms.model.users.ServerUser(id = '123', name = 'Alice', student_id = 'S001'),
+                True,
+            ),
+
+            # Name does not match name or student_id
+            (
+                lms.model.users.UserQuery(name = 'ZZZZ'),
+                lms.model.users.ServerUser(id = '123', name = 'Alice', student_id = 'S001'),
+                False,
+            ),
+
+            # No student_id on target, query by name should still match name
+            (
+                lms.model.users.UserQuery(name = 'Alice'),
+                lms.model.users.ServerUser(id = '123', name = 'Alice'),
+                True,
+            ),
+
+            # Match name against student_id when name is None on target
+            (
+                lms.model.users.UserQuery(name = 'S001'),
+                lms.model.users.ServerUser(id = '123', student_id = 'S001'),
+                True,
+            ),
+
+            # Name matches neither name nor student_id (no student_id on target)
+            (
+                lms.model.users.UserQuery(name = 'S001'),
+                lms.model.users.ServerUser(id = '123', name = 'Alice'),
+                False,
+            ),
+
+            # Match by email with student_id present
+            (
+                lms.model.users.UserQuery(email = 'alice@test.org'),
+                lms.model.users.ServerUser(id = '123', name = 'Alice', email = 'alice@test.org', student_id = 'S001'),
+                True,
+            ),
+
+            # Match by ID with student_id present
+            (
+                lms.model.users.UserQuery(id = '123'),
+                lms.model.users.ServerUser(id = '123', name = 'Alice', student_id = 'S001'),
+                True,
+            ),
+
+            # ID mismatch, even though name matches student_id
+            (
+                lms.model.users.UserQuery(id = '999', name = 'S001'),
+                lms.model.users.ServerUser(id = '123', name = 'Alice', student_id = 'S001'),
                 False,
             ),
         ]
