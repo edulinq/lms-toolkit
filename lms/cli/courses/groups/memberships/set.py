@@ -36,7 +36,7 @@ def run_cli(args: argparse.Namespace) -> int:
     print(f"Added {add_count} users to group {group_query}.")
     print(f"Subtracted {sub_count} users from group {group_query}.")
 
-    return lms.cli.common.check_strict(args.strict, add_count < len(user_queries),
+    return lms.cli.common.strict_check(args.strict, (add_count < len(user_queries)),
         f"Expected to set {len(user_queries)} memberships in group, but only added {add_count}.", 4)
 
 def main() -> int:
