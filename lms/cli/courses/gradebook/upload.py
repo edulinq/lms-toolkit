@@ -31,9 +31,8 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(f"Uploaded {count} Scores")
 
-    expected_count = len(gradebook)
-    return lms.cli.common.strict_check(args.strict, (count < expected_count),
-        f"Expected to upload {expected_count} scores, but only uploaded {count}.", 2)
+    return lms.cli.common.strict_check(args.strict, (count != len(gradebook)),
+        f"Expected to upload {len(gradebook)} scores, but only uploaded {count}.", 2)
 
 def _load_gradebook(
         backend: lms.model.backend.APIBackend,

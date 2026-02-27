@@ -28,7 +28,6 @@ def run_cli(args: argparse.Namespace) -> int:
 
     memberships = lms.cli.courses.groupsets.memberships.common.load_group_memberships(backend, args.path, args.skip_rows)
 
-    expected_count = len(memberships)
 
     created_groups, counts = backend.courses_groupsets_memberships_resolve_and_add(course_query, groupset_query, memberships)
 
@@ -41,8 +40,8 @@ def run_cli(args: argparse.Namespace) -> int:
         print(f"Added {count} users to group {group_query}.")
         total_count += count
 
-    return lms.cli.common.strict_check(args.strict, (total_count < expected_count),
-        f"Expected to add {expected_count} memberships to groupset, but only added {total_count}.", 3)
+    return lms.cli.common.strict_check(args.strict, (total_count != len(memberships)),
+        f"Expected to add {len(memberships)} memberships to groupset, but only added {total_count}.", 3)
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """

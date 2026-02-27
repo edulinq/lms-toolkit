@@ -37,7 +37,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(output)
 
-    return lms.cli.common.strict_check(args.strict, (len(scores) < len(assignment_queries)),
+    return lms.cli.common.strict_check(args.strict, (len(scores) != len(assignment_queries)),
         f"Expected to find {len(assignment_queries)} scores, but only found {len(scores)}.", 3)
 
 def main() -> int:
