@@ -1,0 +1,12 @@
+{
+    "cli": "lms.cli.courses.get",
+    "arguments": [
+        "--strict",
+        "Course 101",
+        "NonExistent Course"
+    ],
+}
+---
+id: 110000000
+name: Course 101
+ERROR (Strict Mode): Expected to find 2 courses, but only found 1.
