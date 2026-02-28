@@ -28,7 +28,6 @@ def run_cli(args: argparse.Namespace) -> int:
 
     memberships = lms.cli.courses.groupsets.memberships.common.load_group_memberships(backend, args.path, args.skip_rows)
 
-
     counts = backend.courses_groupsets_memberships_resolve_and_subtract(course_query, groupset_query, memberships)
 
     total_count = 0
@@ -37,7 +36,7 @@ def run_cli(args: argparse.Namespace) -> int:
         total_count += count
 
     return lms.cli.common.strict_check(args.strict, (total_count != len(memberships)),
-        f"Expected to subtract {len(memberships)} memberships from groupset, but only subtracted {total_count}.", 3)
+        f"Expected to subtract {len(memberships)} memberships from groupset, but subtracted {total_count}.", 3)
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """

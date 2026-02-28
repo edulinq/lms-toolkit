@@ -40,7 +40,7 @@ def run_cli(args: argparse.Namespace) -> int:
     print(f"Uploaded {count} Scores")
 
     return lms.cli.common.strict_check(args.strict, (count != len(scores)),
-        f"Expected to upload {len(scores)} scores, but only uploaded {count}.", 4)
+        f"Expected to upload {len(scores)} scores, but uploaded {count}.", 4)
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """

@@ -34,7 +34,7 @@ def run_cli(args: argparse.Namespace) -> int:
     print(output)
 
     return lms.cli.common.strict_check(args.strict, (len(groupsets) != len(queries)),
-        f"Expected to find {len(queries)} groupsets, but only found {len(groupsets)}.", 2)
+        f"Expected to find {len(queries)} groupsets, but found {len(groupsets)}.", 2)
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """
