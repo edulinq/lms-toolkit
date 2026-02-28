@@ -35,7 +35,8 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(f"Subtracted {count} users from group {group_query}.")
 
-    return 0
+    return lms.cli.common.strict_check(args.strict, (count != len(user_queries)),
+        f"Expected to subtract {len(user_queries)} memberships from group, but subtracted {count}.", 4)
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """
@@ -49,6 +50,7 @@ def _get_parser() -> argparse.ArgumentParser:
             include_course = True,
             include_groupset = True,
             include_group = True,
+            include_strict = True,
     )
 
     parser.add_argument('users', metavar = 'USER_QUERY',

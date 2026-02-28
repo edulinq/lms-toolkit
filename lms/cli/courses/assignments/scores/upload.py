@@ -37,7 +37,8 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(f"Uploaded {count} Scores")
 
-    return 0
+    return lms.cli.common.strict_check(args.strict, (count != len(scores)),
+        f"Expected to upload {len(scores)} scores, but uploaded {count}.", 3)
 
 def _load_scores(
         backend: lms.model.backend.APIBackend,
@@ -94,6 +95,7 @@ def _get_parser() -> argparse.ArgumentParser:
             include_course = True,
             include_assignment = True,
             include_skip_rows = True,
+            include_strict = True,
     )
 
     parser.add_argument('path', metavar = 'PATH',

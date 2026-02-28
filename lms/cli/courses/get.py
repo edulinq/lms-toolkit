@@ -6,6 +6,7 @@ import argparse
 import sys
 
 import lms.backend.instance
+import lms.cli.common
 import lms.cli.parser
 import lms.model.base
 
@@ -26,7 +27,8 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(output)
 
-    return 0
+    return lms.cli.common.strict_check(args.strict, (len(courses) != len(queries)),
+        f"Expected to find {len(queries)} courses, but found {len(courses)}.")
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """
@@ -37,6 +39,7 @@ def _get_parser() -> argparse.ArgumentParser:
 
     parser = lms.cli.parser.get_parser(__doc__.strip(),
             include_output_format = True,
+            include_strict = True,
     )
 
     parser.add_argument('courses', metavar = 'COURSE_QUERY',

@@ -34,10 +34,13 @@ def run_cli(args: argparse.Namespace) -> int:
         display_groups = [str(group.to_query()) for group in created_groups]
         print(f"Created {len(created_groups)} groups: {display_groups}.")
 
+    total_count = 0
     for (group_query, count) in counts.items():
         print(f"Added {count} users to group {group_query}.")
+        total_count += count
 
-    return 0
+    return lms.cli.common.strict_check(args.strict, (total_count != len(memberships)),
+        f"Expected to add {len(memberships)} memberships to groupset, but added {total_count}.", 3)
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """
@@ -52,6 +55,7 @@ def _get_parser() -> argparse.ArgumentParser:
             include_groupset = True,
             include_group = True,
             include_skip_rows = True,
+            include_strict = True,
     )
 
     parser.add_argument('path', metavar = 'PATH',
