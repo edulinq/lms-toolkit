@@ -27,7 +27,7 @@ def run_cli(args: argparse.Namespace) -> int:
         return 2
 
     memberships = lms.cli.courses.groupsets.memberships.common.load_group_memberships(backend, args.path, args.skip_rows)
- 
+
     stats = backend.courses_groupsets_memberships_resolve_and_set(course_query, groupset_query, memberships)
     (created_groups, deleted_groups, add_counts, sub_counts) = stats
 
