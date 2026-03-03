@@ -9,6 +9,7 @@ class UserQuery(lms.model.query.BaseQuery):
     A class for the different ways one can attempt to reference an LMS user.
     In general, a user can be queried by:
      - LMS User ID (`id`)
+     - Student ID (`student_id`)
      - Email (`email`)
      - Full Name (`name`)
      - f"{email} ({id})"
@@ -16,6 +17,36 @@ class UserQuery(lms.model.query.BaseQuery):
     """
 
     _include_email = True
+
+    def match(self, target: typing.Union[typing.Any, 'UserQuery', None]) -> bool:
+        """
+        Check if this query matches the given target.
+        Extends the base match to also check the query's name against the target's student_id,
+        allowing users to look up users by student ID without needing a separate field.
+        """
+
+        if (target is None):
+            return False
+
+        # Check non-name fields normally.
+        for field_name in ['id', 'email']:
+            self_value = getattr(self, field_name, None)
+            target_value = getattr(target, field_name, None)
+
+            if (self_value is None):
+                continue
+
+            if (self_value != target_value):
+                return False
+
+        # Check name: also allow matching against target's student_id.
+        if (self.name is not None):
+            target_name = getattr(target, 'name', None)
+            target_student_id = getattr(target, 'student_id', None)
+            if ((self.name != target_name) and (self.name != target_student_id)):
+                return False
+
+        return True
 
 class ResolvedUserQuery(lms.model.query.ResolvedBaseQuery, UserQuery):
     """
@@ -27,7 +58,8 @@ class ResolvedUserQuery(lms.model.query.ResolvedBaseQuery, UserQuery):
     def __init__(self,
             user: 'ServerUser',
             **kwargs: typing.Any) -> None:
-        super().__init__(id = user.id, name = user.name, email = user.email, **kwargs)
+        super().__init__(id = user.id, name = user.name, email = user.email,
+                student_id = user.student_id, **kwargs)
 
 class CourseRole(enum.Enum):
     """
@@ -56,6 +88,7 @@ class ServerUser(lms.model.base.BaseType):
             id: typing.Union[str, int, None] = None,
             email: typing.Union[str, None] = None,
             name: typing.Union[str, None] = None,
+            student_id: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
 
@@ -70,6 +103,9 @@ class ServerUser(lms.model.base.BaseType):
 
         self.email: typing.Union[str, None] = email
         """ The email address of this user. """
+
+        self.student_id: typing.Union[str, None] = student_id
+        """ The student/institutional identifier for this user. """
 
     def to_query(self) -> ResolvedUserQuery:
         """ Get a query representation of this user. """
