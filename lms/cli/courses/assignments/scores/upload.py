@@ -7,11 +7,10 @@ import ast
 import sys
 import typing
 
-import edq.util.dirent
-
 import lms.backend.instance
 import lms.cli.common
 import lms.cli.parser
+import lms.cli.table
 import lms.model.backend
 import lms.model.scores
 import lms.model.users
@@ -47,40 +46,22 @@ def _load_scores(
         ) -> typing.Dict[lms.model.users.UserQuery, lms.model.scores.ScoreFragment]:
     scores = {}
 
-    with open(path, 'r', encoding = edq.util.dirent.DEFAULT_ENCODING) as file:
-        lineno = 0
-        real_rows = 0
-        for line in file:
-            lineno += 1
+    rows = lms.cli.table.read_table(path, ['user', 'score'], skip_rows, optional_columns = ['comment'])
+    for (lineno, row) in rows:
+        user_query = backend.parse_user_query(row['user'])
+        if (user_query is None):
+            raise ValueError(f"File '{path}' line {lineno} has a user query that could not be parsed: '{row['user']}'.")
 
-            if (line.strip() == ''):
-                continue
+        score = None
+        if (row['score'] != ''):
+            try:
+                score = float(ast.literal_eval(row['score']))
+            except Exception:
+                raise ValueError(f"File '{path}' line {lineno} has a score that cannot be converted to a number: '{row['score']}'.")  # pylint: disable=raise-missing-from
 
-            real_rows += 1
+        comment = row.get('comment')
 
-            if (real_rows <= skip_rows):
-                continue
-
-            parts = [part.strip() for part in line.split("\t")]
-            if (len(parts) not in [2, 3]):
-                raise ValueError(f"File '{path}' line {lineno} has the incorrect number of values. Expecting 2-3, found {len(parts)}.")
-
-            user_query = backend.parse_user_query(parts[0])
-            if (user_query is None):
-                raise ValueError(f"File '{path}' line {lineno} has a user query that could not be parsed: '{parts[0]}'.")
-
-            score = None
-            if (parts[1] != ''):
-                try:
-                    score = float(ast.literal_eval(parts[1]))
-                except Exception:
-                    raise ValueError(f"File '{path}' line {lineno} has a score that cannot be converted to a number: '{parts[1]}'.")  # pylint: disable=raise-missing-from
-
-            comment = None
-            if (len(parts) == 3):
-                comment = parts[2]
-
-            scores[user_query] = lms.model.scores.ScoreFragment(score = score, comment = comment)
+        scores[user_query] = lms.model.scores.ScoreFragment(score = score, comment = comment)
 
     return scores
 
