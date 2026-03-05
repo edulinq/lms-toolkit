@@ -242,6 +242,7 @@ def base_list_to_output_format(values: typing.Sequence[BaseType], output_format:
         skip_headers: bool = False,
         pretty_headers: bool = False,
         include_extra_fields: bool = False,
+        delim: str = "\t",
         **kwargs: typing.Any) -> str:
     """
     Convert a list of base types to a string representation.
@@ -265,6 +266,7 @@ def base_list_to_output_format(values: typing.Sequence[BaseType], output_format:
         output = base_list_to_table(values,
                 skip_headers = skip_headers, pretty_headers = pretty_headers,
                 include_extra_fields = include_extra_fields,
+                delim = delim,
                 **kwargs)
     elif (output_format == lms.model.constants.OUTPUT_FORMAT_TEXT):
         output = base_list_to_text(values,

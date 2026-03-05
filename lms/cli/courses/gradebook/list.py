@@ -27,6 +27,7 @@ def run_cli(args: argparse.Namespace) -> int:
             pretty_headers = args.pretty_headers,
             include_extra_fields = args.include_extra_fields,
             extract_single_list = True,
+            delim = args.table_delim,
     )
 
     print(output)
