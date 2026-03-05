@@ -17,18 +17,11 @@ def run_cli(args: argparse.Namespace) -> int:
     backend = lms.backend.instance.get_backend(**config)
     courses = backend.courses_list()
 
-    DELIM_MAP = {
-        "tab": "\t",
-        "comma": ",",
-        "semicolon": ";"
-    }
-    delimiter = DELIM_MAP.get(args.table_delim, "\t")
-
     output = lms.model.base.base_list_to_output_format(courses, args.output_format,
-            skip_headers = args.skip_headers,
-            pretty_headers = args.pretty_headers,
-            include_extra_fields = args.include_extra_fields,
-            delim=delimiter,
+        skip_headers = args.skip_headers,
+        pretty_headers = args.pretty_headers,
+        include_extra_fields = args.include_extra_fields,
+        delim = args.table_delim,
     )
 
     print(output)
