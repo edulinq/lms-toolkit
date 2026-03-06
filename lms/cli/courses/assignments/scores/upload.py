@@ -19,7 +19,6 @@ def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
     config = args._config
-
     backend = lms.backend.instance.get_backend(**config)
 
     course_query = lms.cli.common.check_required_course(backend, config)
@@ -44,24 +43,31 @@ def _load_scores(
         path: str,
         skip_rows: bool,
         ) -> typing.Dict[lms.model.users.UserQuery, lms.model.scores.ScoreFragment]:
+    """ Load scores from a TSV file. """
+
     scores = {}
     for row in lms.util.tsv.read_tsv(path, ['user', 'score', 'comment'], skip_rows):
         lineno = row['__lineno__']
-        if not row.get('__has_header__'):
+
+        if (not row.get('__has_header__')):
             parts_len = len(row.get('__parts__', []))
-            if parts_len not in [2, 3]:
+            if (parts_len not in [2, 3]):
                 raise ValueError(f"File '{path}' line {lineno} has the incorrect number of values. Expecting 2-3, found {parts_len}.")
+
         user_query = backend.parse_user_query(row['user'])
         if (user_query is None):
             raise ValueError(f"File '{path}' line {lineno} has a user query that could not be parsed: '{row['user']}'.")
+
         score = None
         if (row['score'] != ''):
             try:
                 score = float(ast.literal_eval(row['score']))
             except Exception:
                 raise ValueError(f"File '{path}' line {lineno} has a score that cannot be converted to a number: '{row['score']}'.")  # pylint: disable=raise-missing-from
+
         comment = row['comment'] or None
         scores[user_query] = lms.model.scores.ScoreFragment(score = score, comment = comment)
+
     return scores
 
 def main() -> int:
