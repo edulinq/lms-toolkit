@@ -1,0 +1,2 @@
+Score	Extra	Comment	User
+1.0	data	foo	course-student@test.edulinq.org
