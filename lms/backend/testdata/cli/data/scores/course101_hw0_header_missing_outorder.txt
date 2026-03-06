@@ -1,0 +1,2 @@
+Score	User
+1.0	course-student@test.edulinq.org
