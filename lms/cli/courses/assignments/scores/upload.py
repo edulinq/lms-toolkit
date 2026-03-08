@@ -62,7 +62,7 @@ def _load_scores(
                 continue
 
             parts = [part.strip() for part in line.split("\t")]
-            if (len(parts) not in [2, 3]):
+            if (len(parts) not in [2,3,4]):
                 raise ValueError(f"File '{path}' line {lineno} has the incorrect number of values. Expecting 2-3, found {len(parts)}.")
 
             user_query = backend.parse_user_query(parts[0])
@@ -77,10 +77,13 @@ def _load_scores(
                     raise ValueError(f"File '{path}' line {lineno} has a score that cannot be converted to a number: '{parts[1]}'.")  # pylint: disable=raise-missing-from
 
             comment = None
+            excused = None
             if (len(parts) == 3):
                 comment = parts[2]
-
-            scores[user_query] = lms.model.scores.ScoreFragment(score = score, comment = comment)
+            if (len(parts) == 4):
+                 excused_text = parts[3].lower()
+                 excused = excused_text in ["true", "1", "yes"]
+            scores[user_query] = lms.model.scores.ScoreFragment(score = score, comment = comment, excused=excused)
 
     return scores
 

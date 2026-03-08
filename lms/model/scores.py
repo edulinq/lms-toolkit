@@ -13,6 +13,7 @@ class ScoreFragment(edq.util.json.DictConverter):
     def __init__(self,
             score: typing.Union[float, None] = None,
             comment: typing.Union[str, None] = None,
+            excused: typing.Union[bool, None] = None,
             **kwargs: typing.Any) -> None:
         self.score: typing.Union[float, None] = score
         """
@@ -22,6 +23,9 @@ class ScoreFragment(edq.util.json.DictConverter):
 
         self.comment: typing.Union[str, None] = comment
         """ An optional comment for this score. """
+
+        self.excused: typing.Union[bool, None] = excused
+        """ Whether the submission is excused. """
 
 class AssignmentScore(lms.model.base.BaseType):
     """
@@ -67,7 +71,7 @@ class AssignmentScore(lms.model.base.BaseType):
     def to_fragment(self) -> ScoreFragment:
         """ Get a score fragment from this assignment score. """
 
-        return ScoreFragment(score = self.score, comment = self.comment)
+        return ScoreFragment(score = self.score, comment = self.comment , excused=getattr(self, "excused", None))
 
 class Gradebook(lms.model.base.BaseType):
     """
