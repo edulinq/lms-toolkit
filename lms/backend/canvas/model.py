@@ -6,6 +6,7 @@ import lms.model.backend
 import lms.model.courses
 import lms.model.groups
 import lms.model.groupsets
+import lms.model.quizzes
 import lms.model.scores
 import lms.model.users
 import lms.util.parse
@@ -33,16 +34,7 @@ def assignment(data: typing.Dict[str, typing.Any]) -> lms.model.assignments.Assi
     See: https://developerdocs.instructure.com/services/canvas/resources/assignments
     """
 
-    for field in ['id']:
-        if (field not in data):
-            raise ValueError(f"Canvas assignment is missing '{field}' field.")
-
-    # Modify specific arguments before creation.
-    data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
-    data['due_date'] = lms.backend.canvas.common.parse_timestamp(data.get('due_at', None))
-    data['open_date'] = lms.backend.canvas.common.parse_timestamp(data.get('unlock_at', None))
-    data['close_date'] = lms.backend.canvas.common.parse_timestamp(data.get('lock_at', None))
-
+    _parse_assignment_data(data, 'assignment')
     return lms.model.assignments.Assignment(**data)
 
 def assignment_score(data: typing.Dict[str, typing.Any]) -> lms.model.scores.AssignmentScore:
@@ -153,6 +145,35 @@ def group_set(data: typing.Dict[str, typing.Any]) -> lms.model.groupsets.GroupSe
     data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
 
     return lms.model.groupsets.GroupSet(**data)
+
+def quiz(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Quiz:
+    """
+    Create a Canvas quiz associated with a course.
+
+    See: https://developerdocs.instructure.com/services/canvas/resources/quizzes
+    """
+
+    _parse_assignment_data(data, 'quiz')
+    return lms.model.quizzes.Quiz(**data)
+
+def _parse_assignment_data(data: typing.Dict[str, typing.Any], label: str) -> None:
+    """
+    Parse core assignment data.
+    """
+
+    for field in ['id']:
+        if (field not in data):
+            raise ValueError(f"Canvas {label} is missing '{field}' field.")
+
+    # Modify specific arguments before creation.
+    data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
+    data['due_date'] = lms.backend.canvas.common.parse_timestamp(data.get('due_at', None))
+    data['open_date'] = lms.backend.canvas.common.parse_timestamp(data.get('unlock_at', None))
+    data['close_date'] = lms.backend.canvas.common.parse_timestamp(data.get('lock_at', None))
+
+    # If there is no name, look for a title.
+    if (data.get('name', None) is None):
+        data['name'] = data.get('title', None)
 
 def _parse_role_from_enrollments(enrollments: typing.Any) -> typing.Union[str, None]:
     """

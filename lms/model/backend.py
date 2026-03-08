@@ -9,6 +9,7 @@ import lms.model.courses
 import lms.model.groups
 import lms.model.groupsets
 import lms.model.query
+import lms.model.quizzes
 import lms.model.scores
 import lms.model.users
 
@@ -1105,6 +1106,69 @@ class APIBackend():
 
         return count, deleted
 
+    def courses_quizzes_get(self,
+            course_query: lms.model.courses.CourseQuery,
+            quiz_queries: typing.Collection[lms.model.quizzes.QuizQuery],
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Quiz]:
+        """
+        Get the specified quizzes associated with the given course.
+        """
+
+        if (len(quiz_queries) == 0):
+            return []
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+
+        quizzes = sorted(self.courses_quizzes_list(resolved_course_query.get_id(), **kwargs))
+        quiz_queries = sorted(quiz_queries)
+
+        matches = []
+        for quiz in quizzes:
+            for query in quiz_queries:
+                if (query.match(quiz)):
+                    matches.append(quiz)
+                    break
+
+        return matches
+
+    def courses_quizzes_fetch(self,
+            course_id: str,
+            quiz_id: str,
+            **kwargs: typing.Any) -> typing.Union[lms.model.quizzes.Quiz, None]:
+        """
+        Fetch a single quiz associated with the given course.
+        Return None if no matching quiz is found.
+
+        By default, this will just do a list and choose the relevant record.
+        Specific backends may override this if there are performance concerns.
+        """
+
+        quizzes = self.courses_quizzes_list(course_id, **kwargs)
+        for quiz in sorted(quizzes):
+            if (quiz.id == quiz_id):
+                return quiz
+
+        return None
+
+    def courses_quizzes_list(self,
+            course_id: str,
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Quiz]:
+        """
+        List the quizzes associated with the given course.
+        """
+
+        raise NotImplementedError('courses_quizzes_list')
+
+    def courses_quizzes_resolve_and_list(self,
+            course_query: lms.model.courses.CourseQuery,
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Quiz]:
+        """
+        List the quizzes associated with the given course.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        return sorted(self.courses_quizzes_list(resolved_course_query.get_id(), **kwargs))
+
     def courses_syllabus_fetch(self,
             course_id: str,
             **kwargs: typing.Any) -> typing.Union[str, None]:
@@ -1366,6 +1430,29 @@ class APIBackend():
         queries = []
         for text in texts:
             query = self.parse_group_query(text)
+            if (query is not None):
+                queries.append(query)
+
+        return queries
+
+    def parse_quiz_query(self, text: typing.Union[str, None]) -> typing.Union[lms.model.quizzes.QuizQuery, None]:
+        """
+        Attempt to parse a quiz query from a string.
+        The there is no query, return a None.
+        If the query is malformed, raise an exception.
+
+        By default, this method assumes that LMS IDs are ints.
+        Child backends may override this to implement their specific behavior.
+        """
+
+        return lms.model.query.parse_int_query(lms.model.quizzes.QuizQuery, text, check_email = False)
+
+    def parse_quiz_queries(self, texts: typing.Collection[typing.Union[str, None]]) -> typing.List[lms.model.quizzes.QuizQuery]:
+        """ Parse a list of quiz queries. """
+
+        queries = []
+        for text in texts:
+            query = self.parse_quiz_query(text)
             if (query is not None):
                 queries.append(query)
 

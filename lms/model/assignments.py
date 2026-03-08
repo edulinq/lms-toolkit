@@ -63,10 +63,10 @@ class Assignment(lms.model.base.BaseType):
         """ The description of this assignment. """
 
         self.open_date: typing.Union[edq.util.time.Timestamp, None] = open_date
-        """ The datetime that this assignment becomes open at. """
+        """ The datetime that this assignment opens at. """
 
         self.close_date: typing.Union[edq.util.time.Timestamp, None] = close_date
-        """ The datetime that this assignment becomes close at. """
+        """ The datetime that this assignment closes at. """
 
         self.due_date: typing.Union[edq.util.time.Timestamp, None] = due_date
         """ The datetime that this assignment is due at. """
