@@ -156,6 +156,24 @@ def quiz(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Quiz:
     _parse_assignment_data(data, 'quiz')
     return lms.model.quizzes.Quiz(**data)
 
+def quiz_question(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Question:
+    """
+    Create a Canvas quiz question.
+
+    See: https://developerdocs.instructure.com/services/canvas/resources/quiz_questions
+    """
+
+    # Check for important fields.
+    for field in ['id']:
+        if (field not in data):
+            raise ValueError(f"Canvas quiz question is missing '{field}' field.")
+
+    # Modify specific arguments before creation.
+    data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
+    data['name'] = data.get('question_name', None)
+
+    return lms.model.quizzes.Question(**data)
+
 def _parse_assignment_data(data: typing.Dict[str, typing.Any], label: str) -> None:
     """
     Parse core assignment data.

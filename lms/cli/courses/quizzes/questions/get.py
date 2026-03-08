@@ -1,5 +1,5 @@
 """
-Get specific quizzes from a course.
+Get specific questions from a quiz.
 """
 
 import argparse
@@ -21,11 +21,15 @@ def run_cli(args: argparse.Namespace) -> int:
     if (course_query is None):
         return 1
 
-    queries = backend.parse_quiz_queries(args.quizzes)
+    quiz_query = lms.cli.common.check_required_quiz(backend, config)
+    if (quiz_query is None):
+        return 2
 
-    quizzes = backend.courses_quizzes_get(course_query, queries)
+    queries = backend.parse_quiz_question_queries(args.questions)
 
-    output = lms.model.base.base_list_to_output_format(quizzes, args.output_format,
+    questions = backend.courses_quizzes_questions_get(course_query, quiz_query, queries)
+
+    output = lms.model.base.base_list_to_output_format(questions, args.output_format,
             skip_headers = args.skip_headers,
             pretty_headers = args.pretty_headers,
             include_extra_fields = args.include_extra_fields,
@@ -33,8 +37,8 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(output)
 
-    return lms.cli.common.strict_check(args.strict, (len(quizzes) != len(queries)),
-        f"Expected to find {len(queries)} quizzes, but found {len(quizzes)}.", 2)
+    return lms.cli.common.strict_check(args.strict, (len(questions) != len(queries)),
+        f"Expected to find {len(queries)} questions, but found {len(questions)}.", 2)
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """
@@ -46,10 +50,11 @@ def _get_parser() -> argparse.ArgumentParser:
     parser = lms.cli.parser.get_parser(__doc__.strip(),
             include_output_format = True,
             include_course = True,
+            include_quiz = True,
             include_strict = True,
     )
 
-    parser.add_argument('quizzes', metavar = 'QUIZ_QUERY',
+    parser.add_argument('questions', metavar = 'QUESTION_QUERY',
         type = str, nargs = '*',
         help = 'A query for a quiz to get.')
 

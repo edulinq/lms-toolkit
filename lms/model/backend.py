@@ -1169,6 +1169,75 @@ class APIBackend():
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
         return sorted(self.courses_quizzes_list(resolved_course_query.get_id(), **kwargs))
 
+    def courses_quizzes_questions_get(self,
+            course_query: lms.model.courses.CourseQuery,
+            quiz_query: lms.model.quizzes.QuizQuery,
+            question_queries: typing.Collection[lms.model.quizzes.QuestionQuery],
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Question]:
+        """
+        Get the specified quizze questions associated with the given course and quiz.
+        """
+
+        if (len(question_queries) == 0):
+            return []
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_quiz_query = self.resolve_quiz_query(resolved_course_query.get_id(), quiz_query, **kwargs)
+
+        questions = sorted(self.courses_quizzes_questions_list(resolved_course_query.get_id(), resolved_quiz_query.get_id(), **kwargs))
+        question_queries = sorted(question_queries)
+
+        matches = []
+        for question in questions:
+            for query in question_queries:
+                if (query.match(question)):
+                    matches.append(question)
+                    break
+
+        return matches
+
+    def courses_quizzes_questions_fetch(self,
+            course_id: str,
+            quiz_id: str,
+            question_id: str,
+            **kwargs: typing.Any) -> typing.Union[lms.model.quizzes.Question, None]:
+        """
+        Fetch a single quiz question associated with the given course and quiz.
+        Return None if no matching question is found.
+
+        By default, this will just do a list and choose the relevant record.
+        Specific backends may override this if there are performance concerns.
+        """
+
+        questions = self.courses_quizzes_questions_list(course_id, quiz_id, **kwargs)
+        for question in sorted(questions):
+            if (question.id == question_id):
+                return question
+
+        return None
+
+    def courses_quizzes_questions_list(self,
+            course_id: str,
+            quiz_id: str,
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Question]:
+        """
+        List the quizzes associated with the given course.
+        """
+
+        raise NotImplementedError('courses_quizzes_questions_list')
+
+    def courses_quizzes_questions_resolve_and_list(self,
+            course_query: lms.model.courses.CourseQuery,
+            quiz_query: lms.model.quizzes.QuizQuery,
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Question]:
+        """
+        List the quizzes associated with the given course.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_quiz_query = self.resolve_quiz_query(resolved_course_query.get_id(), quiz_query, **kwargs)
+        return sorted(self.courses_quizzes_questions_list(resolved_course_query.get_id(), resolved_quiz_query.get_id(), **kwargs))
+
     def courses_syllabus_fetch(self,
             course_id: str,
             **kwargs: typing.Any) -> typing.Union[str, None]:
@@ -1346,7 +1415,7 @@ class APIBackend():
     def parse_assignment_query(self, text: typing.Union[str, None]) -> typing.Union[lms.model.assignments.AssignmentQuery, None]:
         """
         Attempt to parse an assignment query from a string.
-        The there is no query, return a None.
+        If there is no query, return a None.
         If the query is malformed, raise an exception.
 
         By default, this method assumes that LMS IDs are ints.
@@ -1369,7 +1438,7 @@ class APIBackend():
     def parse_course_query(self, text: typing.Union[str, None]) -> typing.Union[lms.model.courses.CourseQuery, None]:
         """
         Attempt to parse a course query from a string.
-        The there is no query, return a None.
+        If there is no query, return a None.
         If the query is malformed, raise an exception.
 
         By default, this method assumes that LMS IDs are ints.
@@ -1392,7 +1461,7 @@ class APIBackend():
     def parse_groupset_query(self, text: typing.Union[str, None]) -> typing.Union[lms.model.groupsets.GroupSetQuery, None]:
         """
         Attempt to parse a group set query from a string.
-        The there is no query, return a None.
+        If there is no query, return a None.
         If the query is malformed, raise an exception.
 
         By default, this method assumes that LMS IDs are ints.
@@ -1415,7 +1484,7 @@ class APIBackend():
     def parse_group_query(self, text: typing.Union[str, None]) -> typing.Union[lms.model.groups.GroupQuery, None]:
         """
         Attempt to parse a group query from a string.
-        The there is no query, return a None.
+        If there is no query, return a None.
         If the query is malformed, raise an exception.
 
         By default, this method assumes that LMS IDs are ints.
@@ -1438,7 +1507,7 @@ class APIBackend():
     def parse_quiz_query(self, text: typing.Union[str, None]) -> typing.Union[lms.model.quizzes.QuizQuery, None]:
         """
         Attempt to parse a quiz query from a string.
-        The there is no query, return a None.
+        If there is no query, return a None.
         If the query is malformed, raise an exception.
 
         By default, this method assumes that LMS IDs are ints.
@@ -1458,10 +1527,33 @@ class APIBackend():
 
         return queries
 
+    def parse_quiz_question_query(self, text: typing.Union[str, None]) -> typing.Union[lms.model.quizzes.QuestionQuery, None]:
+        """
+        Attempt to parse a quiz question query from a string.
+        If there is no query, return a None.
+        If the query is malformed, raise an exception.
+
+        By default, this method assumes that LMS IDs are ints.
+        Child backends may override this to implement their specific behavior.
+        """
+
+        return lms.model.query.parse_int_query(lms.model.quizzes.QuestionQuery, text, check_email = False)
+
+    def parse_quiz_question_queries(self, texts: typing.Collection[typing.Union[str, None]]) -> typing.List[lms.model.quizzes.QuestionQuery]:
+        """ Parse a list of quiz question queries. """
+
+        queries = []
+        for text in texts:
+            query = self.parse_quiz_question_query(text)
+            if (query is not None):
+                queries.append(query)
+
+        return queries
+
     def parse_user_query(self, text: typing.Union[str, None]) -> typing.Union[lms.model.users.UserQuery, None]:
         """
         Attempt to parse a user query from a string.
-        The there is no query, return a None.
+        If there is no query, return a None.
         If the query is malformed, raise an exception.
 
         By default, this method assumes that LMS IDs are ints.
@@ -1616,6 +1708,40 @@ class APIBackend():
             raise ValueError(f"Could not resolve group set query: '{groupset_query}'.")
 
         return results[0]
+
+    def resolve_quiz_query(self,
+            course_id: str,
+            quiz_query: lms.model.quizzes.QuizQuery,
+            **kwargs: typing.Any) -> lms.model.quizzes.ResolvedQuizQuery:
+        """ Resolve the quiz query or raise an exception. """
+
+        # Shortcut already resolved queries.
+        if (isinstance(quiz_query, lms.model.quizzes.ResolvedQuizQuery)):
+            return quiz_query
+
+        results = self.resolve_quiz_queries(course_id, [quiz_query], **kwargs)
+        if (len(results) == 0):
+            raise ValueError(f"Could not resolve quiz query: '{quiz_query}'.")
+
+        return results[0]
+
+    def resolve_quiz_queries(self,
+            course_id: str,
+            queries: typing.Collection[lms.model.quizzes.QuizQuery],
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.ResolvedQuizQuery]:
+        """
+        Resolve a list of quiz queries into a list of resolved quiz queries.
+        See _resolve_queries().
+        """
+
+        results = self._resolve_queries(
+            queries,
+            'quiz',
+            self.courses_quizzes_list(course_id, **kwargs),
+            lms.model.quizzes.ResolvedQuizQuery,
+            **kwargs)
+
+        return typing.cast(typing.List[lms.model.quizzes.ResolvedQuizQuery], results)
 
     def resolve_user_queries(self,
             course_id: str,

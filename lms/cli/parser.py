@@ -29,6 +29,7 @@ def get_parser(description: str,
         include_output_format: bool = False,
         include_course: bool = False,
         include_assignment: bool = False,
+        include_quiz: bool = False,
         include_user: bool = False,
         include_groupset: bool = False,
         include_group: bool = False,
@@ -50,6 +51,7 @@ def get_parser(description: str,
             'auth_token': 'auth_token',
             'course': 'course',
             'assignment': 'assignment',
+            'quiz': 'quiz',
             'user': 'user',
             'group': 'group',
             'groupset': 'groupset',
@@ -104,6 +106,11 @@ def get_parser(description: str,
         parser.add_argument('--assignment', dest = 'assignment',
             action = 'store', type = str, default = None,
             help = 'The assignment to target for this operation.')
+
+    if (include_quiz):
+        parser.add_argument('--quiz', dest = 'quiz',
+            action = 'store', type = str, default = None,
+            help = 'The quiz to target for this operation.')
 
     if (include_user):
         parser.add_argument('--user', dest = 'user',

@@ -4,6 +4,58 @@ import lms.model.assignments
 import lms.model.base
 import lms.model.query
 
+class QuestionQuery(lms.model.query.BaseQuery):
+    """
+    A class for the different ways one can attempt to reference an LMS quiz question.
+    In general, a quiz question can be queried by:
+     - LMS Question ID (`id`)
+     - Full Name (`name`)
+     - f"{name} ({id})"
+    """
+
+    _include_email = False
+
+class ResolvedQuestionQuery(lms.model.query.ResolvedBaseQuery, QuestionQuery):
+    """
+    A QuestionQuery that has been resolved (verified) from a real quiz question instance.
+    """
+
+    _include_email = False
+
+    def __init__(self,
+            question: 'Question',
+            **kwargs: typing.Any) -> None:
+        super().__init__(id = question.id, name = question.name, **kwargs)
+
+class Question(lms.model.base.BaseType):
+    """
+    A question within a quiz.
+    """
+
+    CORE_FIELDS = [
+        'id', 'name',
+    ]
+
+    def __init__(self,
+            id: typing.Union[str, int, None] = None,
+            name: typing.Union[str, None] = None,
+            **kwargs: typing.Any) -> None:
+        super().__init__(**kwargs)
+
+        if (id is None):
+            raise ValueError("Quiz questions must have an id.")
+
+        self.id: str = str(id)
+        """ The LMS's identifier for this question. """
+
+        self.name: typing.Union[str, None] = name
+        """ The display name of this question. """
+
+    def to_query(self) -> ResolvedQuestionQuery:  # type: ignore[override]
+        """ Get a query representation of this question. """
+
+        return ResolvedQuestionQuery(self)
+
 class QuizQuery(lms.model.query.BaseQuery):
     """
     A class for the different ways one can attempt to reference an LMS quiz.

@@ -1,5 +1,5 @@
 """
-Get specific quizzes from a course.
+List the questions in a quiz.
 """
 
 import argparse
@@ -21,11 +21,13 @@ def run_cli(args: argparse.Namespace) -> int:
     if (course_query is None):
         return 1
 
-    queries = backend.parse_quiz_queries(args.quizzes)
+    quiz_query = lms.cli.common.check_required_quiz(backend, config)
+    if (quiz_query is None):
+        return 2
 
-    quizzes = backend.courses_quizzes_get(course_query, queries)
+    questions = backend.courses_quizzes_questions_resolve_and_list(course_query, quiz_query)
 
-    output = lms.model.base.base_list_to_output_format(quizzes, args.output_format,
+    output = lms.model.base.base_list_to_output_format(questions, args.output_format,
             skip_headers = args.skip_headers,
             pretty_headers = args.pretty_headers,
             include_extra_fields = args.include_extra_fields,
@@ -33,8 +35,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(output)
 
-    return lms.cli.common.strict_check(args.strict, (len(quizzes) != len(queries)),
-        f"Expected to find {len(queries)} quizzes, but found {len(quizzes)}.", 2)
+    return 0
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """
@@ -43,17 +44,11 @@ def main() -> int:
 def _get_parser() -> argparse.ArgumentParser:
     """ Get the parser. """
 
-    parser = lms.cli.parser.get_parser(__doc__.strip(),
+    return lms.cli.parser.get_parser(__doc__.strip(),
             include_output_format = True,
             include_course = True,
-            include_strict = True,
+            include_quiz = True,
     )
-
-    parser.add_argument('quizzes', metavar = 'QUIZ_QUERY',
-        type = str, nargs = '*',
-        help = 'A query for a quiz to get.')
-
-    return parser
 
 if (__name__ == '__main__'):
     sys.exit(main())
