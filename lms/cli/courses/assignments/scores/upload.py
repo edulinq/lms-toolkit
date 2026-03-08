@@ -41,31 +41,45 @@ def run_cli(args: argparse.Namespace) -> int:
 def _load_scores(
         backend: lms.model.backend.APIBackend,
         path: str,
-        skip_rows: bool,
+        skip_rows: int,
         ) -> typing.Dict[lms.model.users.UserQuery, lms.model.scores.ScoreFragment]:
     """ Load scores from a TSV file. """
 
+    tsv = lms.util.tsv.read_tsv(path, ['user', 'score', 'comment'], skip_rows)
     scores = {}
-    for row in lms.util.tsv.read_tsv(path, ['user', 'score', 'comment'], skip_rows):
-        lineno = row['__lineno__']
 
-        if (not row.get('__has_header__')):
-            parts_len = len(row.get('__parts__', []))
-            if (parts_len not in [2, 3]):
-                raise ValueError(f"File '{path}' line {lineno} has the incorrect number of values. Expecting 2-3, found {parts_len}.")
+    user_index = tsv.header_map['user']
+    score_index = tsv.header_map['score']
+    comment_index = tsv.header_map.get('comment')
 
-        user_query = backend.parse_user_query(row['user'])
+    if (user_index is None or score_index is None):
+        raise ValueError(f"File '{path}' is missing required columns 'user' and/or 'score'.")
+
+    max_required_index = max(user_index, score_index)
+
+    for row in tsv.rows:
+        if (tsv.headers is None):
+            if (len(row.parts) not in [2, 3]):
+                raise ValueError(f"File '{path}' line {row.lineno} has the incorrect number of values. Expecting 2-3, found {len(row.parts)}.")
+        else:
+            if (len(row.parts) <= max_required_index):
+                raise ValueError(f"File '{path}' line {row.lineno} has the incorrect number of values. Expecting 2-3, found {len(row.parts)}.")
+
+        user_value = row.parts[user_index]
+        user_query = backend.parse_user_query(user_value)
         if (user_query is None):
-            raise ValueError(f"File '{path}' line {lineno} has a user query that could not be parsed: '{row['user']}'.")
+            raise ValueError(f"File '{path}' line {row.lineno} has a user query that could not be parsed: '{user_value}'.")
 
+        score_value = row.parts[score_index]
         score = None
-        if (row['score'] != ''):
+        if (score_value != ''):
             try:
-                score = float(ast.literal_eval(row['score']))
+                score = float(ast.literal_eval(score_value))
             except Exception:
-                raise ValueError(f"File '{path}' line {lineno} has a score that cannot be converted to a number: '{row['score']}'.")  # pylint: disable=raise-missing-from
+                raise ValueError(f"File '{path}' line {row.lineno} has a score that cannot be converted to a number: '{score_value}'.")  # pylint: disable=raise-missing-from
 
-        comment = row['comment'] or None
+        comment = (row.parts[comment_index] if (comment_index is not None and comment_index < len(row.parts)) else '') or None
+
         scores[user_query] = lms.model.scores.ScoreFragment(score = score, comment = comment)
 
     return scores
