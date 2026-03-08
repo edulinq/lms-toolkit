@@ -1,6 +1,7 @@
 import logging
 import typing
 
+import edq.core.errors
 import edq.net.exchange
 import edq.net.request
 import edq.testing.serverrunner
@@ -125,5 +126,9 @@ class LMSServerRunner(edq.testing.serverrunner.ServerRunner):
         return True
 
     def identify_server(self) ->  bool:
-        backend_type = lms.backend.instance.guess_backend_type_from_request(self.server, timeout_secs = self.identify_wait_secs)
+        try:
+            backend_type = lms.backend.instance.guess_backend_type_from_request(self.server, timeout_secs = self.identify_wait_secs)
+        except edq.core.errors.RetryError:
+            return False
+
         return (backend_type is not None)
