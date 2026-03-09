@@ -47,7 +47,7 @@ def parse_tsv(path: str) -> typing.List[TsvRow]:
     rows = []
     with open(path, 'r', encoding = edq.util.dirent.DEFAULT_ENCODING) as file:
         for lineno, line in enumerate(file, start=1):
-            line = line.rstrip('\r\n')
+            line = line.rstrip()
             if (line.strip() == ''):
                 continue
             parts = [part.strip() for part in line.split('\t')]
