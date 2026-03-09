@@ -131,7 +131,7 @@ def get_parser(description: str,
         group.add_argument('--delim', dest = 'delim',
             action = 'store', type = str,
             default = "\t",
-            help='Delimiter used to separate values in output (default: tab).')
+            help = 'Delimiter used to separate values in output (default: tab).')
 
         group.add_argument('--include-extra-fields', dest = 'include_extra_fields',
             action = 'store_true', default = False,
