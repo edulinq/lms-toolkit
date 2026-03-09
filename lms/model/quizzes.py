@@ -52,6 +52,7 @@ class Question(lms.model.base.BaseType):
             name: typing.Union[str, None] = None,
             prompt: typing.Union[str, None] = None,
             points: typing.Union[float, None] = None,
+            answers: typing.Union[typing.List[typing.Any], None] = None,
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
 
@@ -75,6 +76,12 @@ class Question(lms.model.base.BaseType):
 
         self.points: typing.Union[float, None] = points
         """ The number of points possible for this queston. """
+
+        if (answers is None):
+            answers = []
+
+        self.answers: typing.List[typing.Any] = answers
+        """ Possible answers to this question. """
 
     def to_query(self) -> ResolvedQuestionQuery:
         """ Get a query representation of this question. """
@@ -113,17 +120,16 @@ class Question(lms.model.base.BaseType):
     def _to_quizcomp(self) -> quizcomp.question.base.Question:
         """ Get a QuizComp representation of this question. """
 
-        if (self.question_type == quizcomp.question.base.QuestionType.ESSAY):
-            question = quizcomp.question.essay.Essay(
-                question_type = self.question_type,
-                name = self.name,
-                prompt = self.prompt,
-                points = self.points,
-                ids = {'lms': self.id},
-            )
-        else:
-            raise ValueError(f"Unknown question type: '{self.question_type}'.")
+        data = {
+            'question_type': str(self.question_type),
+            'name': self.name,
+            'prompt': self.prompt,
+            'points': self.points,
+            'ids': {'lms': self.id},
+            'answers': self.answers,
+        }
 
+        question = quizcomp.question.base.Question.from_dict(data)
         question.validate()
 
         return question

@@ -194,16 +194,16 @@ def quiz_question(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Quest
         raise ValueError(f"Unknown Canvas question type: '{raw_question_type}'.")
 
     data['question_type'] = question_type
-
-    # Modify specific arguments before creation.
     data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
     data['name'] = lms.util.parse.optional_string(data.get('question_name', None))
-    data['prompt'] = _parse_qiiz_question_text(data.get('question_text', None))
+    data['prompt'] = _parse_quiz_question_text(data.get('question_text', None))
     data['points'] = lms.util.parse.optional_float(data.get('points_possible', None), 'points')
+    data['raw_answers'] = data.get('answers', None)
+    data['answers'] = _parse_quiz_question_answers(data.get('answers', None), question_type)
 
     return lms.model.quizzes.Question(**data)
 
-def _parse_qiiz_question_text(text: typing.Union[str, None]) -> str:
+def _parse_quiz_question_text(text: typing.Union[str, None]) -> str:
     """
     Parse the text from a Canvas quiz question into markdown.
     We intend for the resulting markdown to have a little HTML as possible.
@@ -225,6 +225,29 @@ def _parse_qiiz_question_text(text: typing.Union[str, None]) -> str:
     text = re.sub(r'\[/?code\]', '```', text)
 
     return text
+
+def _parse_quiz_question_answers(
+        raw_answers: typing.Union[typing.List[typing.Any], None],
+        question_type: quizcomp.question.base.QuestionType,
+        ) -> typing.List[typing.Any]:
+    """ Parse question answers from Canvas responses. """
+
+    if (raw_answers is None):
+        return []
+
+    answers = []
+
+    # Parse answers based on question type.
+    if (question_type == quizcomp.question.base.QuestionType.TF):
+        if (len(raw_answers) != 2):
+            raise ValueError(f"Unexpected length for T/F answers. Expected 2, found {len(raw_answers)}.")
+
+        answers = [
+            {"correct": (raw_answers[0]['weight'] > 0), "text": "True"},
+            {"correct": (raw_answers[1]['weight'] > 0), "text": "False"},
+        ]
+
+    return answers
 
 def _parse_assignment_data(data: typing.Dict[str, typing.Any], label: str) -> None:
     """
