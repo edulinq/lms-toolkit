@@ -1,5 +1,7 @@
 import typing
 
+import quizcomp.question.base
+
 import lms.backend.canvas.common
 import lms.model.assignments
 import lms.model.backend
@@ -23,6 +25,19 @@ Canvas enrollment types mapped to roles.
 This map is ordered by priority/power.
 The later in the dict, the more power.
 """
+
+QUESTION_TYPE_MAPPING: typing.Dict[typing.Union[str, None], quizcomp.question.base.QuestionType] = {
+    'essay_question': quizcomp.question.base.QuestionType.ESSAY,
+    'fill_in_multiple_blanks_question': quizcomp.question.base.QuestionType.FIMB,
+    'matching_question': quizcomp.question.base.QuestionType.MATCHING,
+    'multiple_answers_question': quizcomp.question.base.QuestionType.MA,
+    'multiple_choice_question': quizcomp.question.base.QuestionType.MCQ,
+    'multiple_dropdowns_question': quizcomp.question.base.QuestionType.MDD,
+    'numerical_question': quizcomp.question.base.QuestionType.NUMERICAL,
+    'short_answer_question': quizcomp.question.base.QuestionType.FITB,
+    'text_only_question': quizcomp.question.base.QuestionType.TEXT_ONLY,
+    'true_false_question': quizcomp.question.base.QuestionType.TF,
+}
 
 _testing_override: bool = False  # pylint: disable=invalid-name
 """ A special override to signal testing. """
@@ -168,9 +183,21 @@ def quiz_question(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Quest
         if (field not in data):
             raise ValueError(f"Canvas quiz question is missing '{field}' field.")
 
+    raw_question_type = data.get('question_type', None)
+    if (raw_question_type is None):
+        raise ValueError('No question type provided.')
+
+    question_type = QUESTION_TYPE_MAPPING.get(raw_question_type, None)
+    if (question_type is None):
+        raise ValueError(f"Unknown Canvas question type: '{raw_question_type}'.")
+
+    data['question_type'] = question_type
+
     # Modify specific arguments before creation.
     data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
-    data['name'] = data.get('question_name', None)
+    data['name'] = lms.util.parse.optional_string(data.get('question_name', None))
+    data['prompt'] = lms.util.parse.optional_string(data.get('question_text', None))
+    data['points'] = lms.util.parse.optional_float(data.get('points_possible', None), 'points')
 
     return lms.model.quizzes.Question(**data)
 
@@ -191,7 +218,7 @@ def _parse_assignment_data(data: typing.Dict[str, typing.Any], label: str) -> No
 
     # If there is no name, look for a title.
     if (data.get('name', None) is None):
-        data['name'] = data.get('title', None)
+        data['name'] = lms.util.parse.optional_string(data.get('title', None))
 
 def _parse_role_from_enrollments(enrollments: typing.Any) -> typing.Union[str, None]:
     """

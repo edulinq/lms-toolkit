@@ -1,3 +1,4 @@
 beautifulsoup4>=4.10.0
+edq-quizcomp>=0.4.3
 edq-utils>=0.4.3
 requests>=2.31.0
