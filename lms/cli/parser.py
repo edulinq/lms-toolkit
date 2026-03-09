@@ -128,10 +128,10 @@ def get_parser(description: str,
             default = lms.model.constants.OUTPUT_FORMAT_TEXT, choices = lms.model.constants.OUTPUT_FORMATS,
             help = 'The format to display the output as (default: %(default)s).')
 
-        group.add_argument('--delim', dest = 'table_delim',
+        group.add_argument('--delim', dest = 'delim',
             action = 'store', type = str,
             default = "\t",
-            help = 'Delimiter used for table output (default: \\t).')
+            help='Delimiter used to separate values in output (default: tab).')
 
         group.add_argument('--include-extra-fields', dest = 'include_extra_fields',
             action = 'store_true', default = False,

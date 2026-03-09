@@ -242,7 +242,7 @@ def base_list_to_output_format(values: typing.Sequence[BaseType], output_format:
         skip_headers: bool = False,
         pretty_headers: bool = False,
         include_extra_fields: bool = False,
-        delim: str = "\t",
+        delim: str = lms.model.constants.DEFAULT_DELIMITER,
         **kwargs: typing.Any) -> str:
     """
     Convert a list of base types to a string representation.
@@ -292,7 +292,7 @@ def base_list_to_json(values: typing.Sequence[BaseType],
 
 def base_list_to_table(values: typing.Sequence[BaseType],
         skip_headers: bool = False,
-        delim: str = "\t",
+        delim: str = lms.model.constants.DEFAULT_DELIMITER,
         **kwargs: typing.Any) -> str:
     """ Convert a list of base types to a table string representation. """
 
