@@ -1,5 +1,7 @@
+import re
 import typing
 
+import html2text
 import quizcomp.question.base
 
 import lms.backend.canvas.common
@@ -196,10 +198,33 @@ def quiz_question(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Quest
     # Modify specific arguments before creation.
     data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
     data['name'] = lms.util.parse.optional_string(data.get('question_name', None))
-    data['prompt'] = lms.util.parse.optional_string(data.get('question_text', None))
+    data['prompt'] = _parse_qiiz_question_text(data.get('question_text', None))
     data['points'] = lms.util.parse.optional_float(data.get('points_possible', None), 'points')
 
     return lms.model.quizzes.Question(**data)
+
+def _parse_qiiz_question_text(text: typing.Union[str, None]) -> str:
+    """
+    Parse the text from a Canvas quiz question into markdown.
+    We intend for the resulting markdown to have a little HTML as possible.
+    This is an impossible task, but we want to do our best.
+    """
+
+    if (text is None):
+        return ''
+
+    converter = html2text.HTML2Text()
+
+    converter.body_width = 0
+    converter.mark_code = True
+
+    text = converter.handle(text)
+    text = text.strip()
+
+    # Replace code tags with fences.
+    text = re.sub(r'\[/?code\]', '```', text)
+
+    return text
 
 def _parse_assignment_data(data: typing.Dict[str, typing.Any], label: str) -> None:
     """

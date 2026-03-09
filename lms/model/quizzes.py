@@ -1,6 +1,10 @@
+import os
 import typing
 
+import edq.util.dirent
+import quizcomp.constants
 import quizcomp.question.base
+import quizcomp.question.essay
 
 import lms.model.assignments
 import lms.model.base
@@ -76,6 +80,53 @@ class Question(lms.model.base.BaseType):
         """ Get a query representation of this question. """
 
         return ResolvedQuestionQuery(self)
+
+    # TEST - Clean HTML
+    # TEST - Supporting Files? Path Rewrites?
+    # TEST - Many formats.
+    # TEST - Answers
+    def write(self, base_dir: str, force: bool = False) -> str:
+        """
+        Write this question to the given directory in Quiz Composer format and return the new directory for this question.
+        If `force` is true, then any existing directory with the same name will be overwritten,
+        otherwise an error will be raised.
+        """
+
+        base_dir = os.path.abspath(base_dir)
+
+        dirname = f"{self.name} ({self.id})"
+        out_dir = os.path.join(base_dir, dirname)
+
+        if (os.path.exists(out_dir)):
+            if (not force):
+                raise ValueError(f"Path to write quiz question ('{dirname}') already exists: '{out_dir}'.")
+
+            edq.util.dirent.remove(out_dir)
+
+        edq.util.dirent.mkdir(out_dir)
+
+        question = self._to_quizcomp()
+        question.to_path(os.path.join(out_dir, quizcomp.constants.QUESTION_FILENAME))
+
+        return out_dir
+
+    def _to_quizcomp(self) -> quizcomp.question.base.Question:
+        """ Get a QuizComp representation of this question. """
+
+        if (self.question_type == quizcomp.question.base.QuestionType.ESSAY):
+            question = quizcomp.question.essay.Essay(
+                question_type = self.question_type,
+                name = self.name,
+                prompt = self.prompt,
+                points = self.points,
+                ids = {'lms': self.id},
+            )
+        else:
+            raise ValueError(f"Unknown question type: '{self.question_type}'.")
+
+        question.validate()
+
+        return question
 
 class QuizQuery(lms.model.query.BaseQuery):
     """

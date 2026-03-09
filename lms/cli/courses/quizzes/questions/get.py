@@ -56,7 +56,7 @@ def _get_parser() -> argparse.ArgumentParser:
 
     parser.add_argument('questions', metavar = 'QUESTION_QUERY',
         type = str, nargs = '*',
-        help = 'A query for a quiz to get.')
+        help = 'A query for the questions to get.')
 
     return parser
 
