@@ -30,8 +30,7 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'Ice Breaker',
         points = 1.0,
         prompt = "Taking inspiration from the XKCD comic below, how would you save the day using regular expressions?\n\n![XKCD Comic 208](http://127.0.0.1:3000/courses/110000000/files/1/preview)",
-        answers = [
-        ],
+        answers = [],
     ),
     'Regular Expression in Programming Languages': lms.model.quizzes.Question(
         id = '110000202',
@@ -90,8 +89,7 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'Question',
         points = 0.0,
         prompt = "Below is the opening paragraph (which is actually just one sentence) from _A Tale Of Two Cities_ written by Charles Dickens. Future questions may reference this passage as \"the provided passage\".\n\n\"It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness, it was the epoch of belief, it was the epoch of incredulity, it was the season of Light, it was the season of Darkness, it was the spring of hope, it was the winter of despair, we had everything before us, we had nothing before us, we were all going direct to Heaven, we were all going direct the other way \u2014 in short, the period was so far like the present period, that some of its noisiest authorities insisted on its being received, for good or for evil, in the superlative degree of comparison only.\"",
-        answers = [
-        ],
+        answers = [],
     ),
     'Passage Search': lms.model.quizzes.Question(
         id = '110000206',
@@ -218,8 +216,17 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'Backreference Matching',
         points = 1.0,
         prompt = "Suppose that we are trying to write a script extract name information from text and put it into a CSV (comma-separated value) file. The order of the columns in our CSV file are: first name, last name, and title. As part of our script, we have a regular expression that looks for people that have their name's written as \"last, first\".\n```\n    import re\n    \n    def create_csv_line(text_line):\n        regex = r'^\\s*((Dr).?)?\\s*([^,]+)\\s*,\\s*(.+)\\s*$'\n        replacement = MY_REPLACEMENT_STRING\n    \n        return re.sub(regex, replacement, text_line)\n    \n```\n\nFill in the blanks in `MY_REPLACEMENT_STRING` to make the above code work correctly.\n\n`MY_REPLACEMENT_STRING = r'`<placeholder>A</placeholder>`,`<placeholder>B</placeholder>`,`<placeholder>C</placeholder>`'`",
-        answers = [
-        ],
+        answers = {
+            "A": [
+                "\\4"
+            ],
+            "B": [
+                "\\3"
+            ],
+            "C": [
+                "\\2"
+            ]
+        },
     ),
     'Regex Golf': lms.model.quizzes.Question(
         id = '110000211',
@@ -240,8 +247,7 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'Write a Function',
         points = 1.0,
         prompt = "Implement a function with the following signature and description:\n```\n    import re\n    \n    def compute(text):\n        \"\"\"\n        Compute the result of the binary expression represented in the |text| variable.\n        The possible operators are: \"+\", \"-\", \"*\", and \"/\".\n        Operands may be any real number.\n        If the operation is division, the RHS (denominator) will not be zero.\n        \"\"\"\n    \n        return NotImplemented\n    \n```\n\nSpecifics:\n\n  * Your function must use regular expressions.\n  * You may not use `eval()` or any other Python ast functionality.\n  * You may only import modules from the Python standard library.\n  * You should return a float that is the result of the binary operation represented by `text`.\n  * The operator will be one of: {+,\u2212,\u2217,/}\\\\{+, -, *, /\\\\}.\n  * Operands may be any real number.",
-        answers = [
-        ],
+        answers = [],
     ),
 }
 

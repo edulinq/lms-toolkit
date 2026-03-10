@@ -278,6 +278,14 @@ def _parse_quiz_question_answers(
         answers = []
         for raw_answer in raw_answers:
             answers.append(_parse_quiz_question_text(raw_answer))
+    elif (question_type == quizcomp.question.base.QuestionType.FIMB):
+        answers = {}
+        for raw_answer in raw_answers:
+            key = raw_answer.get('blank_id', '')
+            if (key not in answers):
+                answers[key] = []
+
+            answers[key].append(_parse_quiz_question_text(raw_answer))
     else:
         _logger.warning("Cannot form question answers, unknown question type: '%s'.", question_type)
 
