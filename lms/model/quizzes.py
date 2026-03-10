@@ -52,7 +52,7 @@ class Question(lms.model.base.BaseType):
             name: typing.Union[str, None] = None,
             prompt: typing.Union[str, None] = None,
             points: typing.Union[float, None] = None,
-            answers: typing.Union[typing.List[typing.Any], None] = None,
+            answers: typing.Union[typing.List[typing.Any], typing.Dict[str, typing.Any], None] = None,
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
 
@@ -80,7 +80,7 @@ class Question(lms.model.base.BaseType):
         if (answers is None):
             answers = []
 
-        self.answers: typing.List[typing.Any] = answers
+        self.answers: typing.Union[typing.List[typing.Any], typing.Dict[str, typing.Any]] = answers
         """ Possible answers to this question. """
 
     def to_query(self) -> ResolvedQuestionQuery:

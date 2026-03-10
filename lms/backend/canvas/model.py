@@ -196,14 +196,14 @@ def quiz_question(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Quest
     data['question_type'] = question_type
     data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
     data['name'] = lms.util.parse.optional_string(data.get('question_name', None))
-    data['prompt'] = _html_to_markdown(data.get('question_text', None))
+    data['prompt'] = _canvas_html_to_markdown(data.get('question_text', None))
     data['points'] = lms.util.parse.optional_float(data.get('points_possible', None), 'points')
     data['raw_answers'] = data.get('answers', None)
     data['answers'] = _parse_quiz_question_answers(data.get('answers', None), question_type)
 
     return lms.model.quizzes.Question(**data)
 
-def _html_to_markdown(text: typing.Union[str, None]) -> str:
+def _canvas_html_to_markdown(text: typing.Union[str, None]) -> str:
     """
     Parse the text from a Canvas quiz question into markdown.
     We intend for the resulting markdown to have a little HTML as possible.
@@ -224,18 +224,21 @@ def _html_to_markdown(text: typing.Union[str, None]) -> str:
     # Replace code tags with fences.
     text = re.sub(r'\[/?code\]', '```', text)
 
+    # Replace placeholders (e.g., for fill in the blank questions).
+    text = re.sub(r'\[(\w+?)\]', r'<placeholder>\1</placeholder>', text)
+
     return text
 
 def _parse_quiz_question_answers(
         raw_answers: typing.Union[typing.List[typing.Any], None],
         question_type: quizcomp.question.base.QuestionType,
-        ) -> typing.List[typing.Any]:
+        ) -> typing.Union[typing.List[typing.Any], typing.Dict[str, typing.Any]]:
     """ Parse question answers from Canvas responses. """
 
     if (raw_answers is None):
         return []
 
-    answers = []
+    answers: typing.Union[typing.List[typing.Any], typing.Dict[str, typing.Any]] = []
 
     # Parse answers based on question type.
     if (question_type == quizcomp.question.base.QuestionType.TF):
@@ -247,17 +250,46 @@ def _parse_quiz_question_answers(
             {"correct": (raw_answers[1]['weight'] > 0), "text": "False"},
         ]
     elif (question_type in {quizcomp.question.base.QuestionType.MA, quizcomp.question.base.QuestionType.MCQ}):
+        answers = _parse_quiz_question_choices(raw_answers)
+    elif (question_type == quizcomp.question.base.QuestionType.MDD):
+        # Divide up sections by blank ID (find all the possibilities for each blank).
+        # {key: [raw_answer, ...]}
+        raw_sections: typing.Dict[str, typing.List[typing.Dict[str, typing.Any]]] = {}
         for raw_answer in raw_answers:
-            text = raw_answer.get('text', '').strip()
-            if (text is None):
-                text = ''
+            key = raw_answer.get('blank_id', '')
+            if (key not in raw_sections):
+                raw_sections[key] = []
 
-            if (len(text) == 0):
-                text = _html_to_markdown(raw_answer.get('html', None))
+            raw_sections[key].append(raw_answer)
 
-            answers.append({"correct": (raw_answer['weight'] > 0), "text": text})
+        # Parse the choices for each section/blank.
+        answers = {}
+        for (section_key, section_raw_answers) in raw_sections.items():
+            answers[section_key] = {
+                'text': section_key,
+                'values': _parse_quiz_question_choices(section_raw_answers)
+            }
 
     return answers
+
+def _parse_quiz_question_choices(choices: list[typing.Dict[str, typing.Any]]) -> typing.List[typing.Dict[str, typing.Any]]:
+    """
+    Parse the quiz question choices.
+    This works for multiple types, like MCQ and MA.
+    """
+
+    results = []
+    for choice in choices:
+        text = choice.get('text', '').strip()
+        if (text is None):
+            text = ''
+
+        if (len(text) == 0):
+            text = _canvas_html_to_markdown(choice.get('html', None))
+
+        results.append({"correct": (choice['weight'] > 0), "text": text})
+
+    return results
 
 def _parse_assignment_data(data: typing.Dict[str, typing.Any], label: str) -> None:
     """

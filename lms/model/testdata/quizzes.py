@@ -71,7 +71,7 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         question_type = quizcomp.question.base.QuestionType.MDD,
         name = 'Quantifiers',
         points = 1.0,
-        prompt = "For each scenario, select the quantifier that is most appropriate.\n\nYou want to match the leading zeros for some number. E.g., \"00\" for \"005\".  \n[PART1]\n\nYou want to match the negative sign for some number. E.g., \"-\" for \"-9\".  \n[PART2]\n\nYou want to match the main digits (before any decimal point) for a required number, e.g., \"123\" for \"123\".  \n[PART3]",
+        prompt = "For each scenario, select the quantifier that is most appropriate.\n\nYou want to match the leading zeros for some number. E.g., \"00\" for \"005\".  \n<placeholder>PART1</placeholder>\n\nYou want to match the negative sign for some number. E.g., \"-\" for \"-9\".  \n<placeholder>PART2</placeholder>\n\nYou want to match the main digits (before any decimal point) for a required number, e.g., \"123\" for \"123\".  \n<placeholder>PART3</placeholder>",
     ),
     'General Quantification 1': lms.model.quizzes.Question(
         id = '110000208',
@@ -92,7 +92,7 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         question_type = quizcomp.question.base.QuestionType.FIMB,
         name = 'Backreference Matching',
         points = 1.0,
-        prompt = "Suppose that we are trying to write a script extract name information from text and put it into a CSV (comma-separated value) file. The order of the columns in our CSV file are: first name, last name, and title. As part of our script, we have a regular expression that looks for people that have their name's written as \"last, first\".\n```\n    import re\n    \n    def create_csv_line(text_line):\n        regex = r'^\\s*((Dr).?)?\\s*([^,]+)\\s*,\\s*(.+)\\s*$'\n        replacement = MY_REPLACEMENT_STRING\n    \n        return re.sub(regex, replacement, text_line)\n    \n```\n\nFill in the blanks in `MY_REPLACEMENT_STRING` to make the above code work correctly.\n\n`MY_REPLACEMENT_STRING = r'`[A]`,`[B]`,`[C]`'`",
+        prompt = "Suppose that we are trying to write a script extract name information from text and put it into a CSV (comma-separated value) file. The order of the columns in our CSV file are: first name, last name, and title. As part of our script, we have a regular expression that looks for people that have their name's written as \"last, first\".\n```\n    import re\n    \n    def create_csv_line(text_line):\n        regex = r'^\\s*((Dr).?)?\\s*([^,]+)\\s*,\\s*(.+)\\s*$'\n        replacement = MY_REPLACEMENT_STRING\n    \n        return re.sub(regex, replacement, text_line)\n    \n```\n\nFill in the blanks in `MY_REPLACEMENT_STRING` to make the above code work correctly.\n\n`MY_REPLACEMENT_STRING = r'`<placeholder>A</placeholder>`,`<placeholder>B</placeholder>`,`<placeholder>C</placeholder>`'`",
     ),
     'Regex Golf': lms.model.quizzes.Question(
         id = '110000211',
