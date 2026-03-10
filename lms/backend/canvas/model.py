@@ -1,3 +1,4 @@
+import logging
 import re
 import typing
 
@@ -14,6 +15,8 @@ import lms.model.quizzes
 import lms.model.scores
 import lms.model.users
 import lms.util.parse
+
+_logger = logging.getLogger(__name__)
 
 ENROLLMENT_TYPE_TO_ROLE: typing.Dict[str, lms.model.users.CourseRole] = {
     'ObserverEnrollment': lms.model.users.CourseRole.OTHER,
@@ -241,7 +244,9 @@ def _parse_quiz_question_answers(
     answers: typing.Union[typing.List[typing.Any], typing.Dict[str, typing.Any]] = []
 
     # Parse answers based on question type.
-    if (question_type == quizcomp.question.base.QuestionType.TF):
+    if (question_type in {quizcomp.question.base.QuestionType.ESSAY, quizcomp.question.base.QuestionType.TEXT_ONLY}):
+        pass
+    elif (question_type == quizcomp.question.base.QuestionType.TF):
         if (len(raw_answers) != 2):
             raise ValueError(f"Unexpected length for T/F answers. Expected 2, found {len(raw_answers)}.")
 
@@ -269,6 +274,12 @@ def _parse_quiz_question_answers(
                 'text': section_key,
                 'values': _parse_quiz_question_choices(section_raw_answers)
             }
+    elif (question_type == quizcomp.question.base.QuestionType.FITB):
+        answers = []
+        for raw_answer in raw_answers:
+            answers.append(_parse_quiz_question_text(raw_answer))
+    else:
+        _logger.warning("Cannot form question answers, unknown question type: '%s'.", question_type)
 
     return answers
 
@@ -280,16 +291,22 @@ def _parse_quiz_question_choices(choices: list[typing.Dict[str, typing.Any]]) ->
 
     results = []
     for choice in choices:
-        text = choice.get('text', '').strip()
-        if (text is None):
-            text = ''
-
-        if (len(text) == 0):
-            text = _canvas_html_to_markdown(choice.get('html', None))
-
+        text = _parse_quiz_question_text(choice)
         results.append({"correct": (choice['weight'] > 0), "text": text})
 
     return results
+
+def _parse_quiz_question_text(choice: typing.Dict[str, typing.Any]) -> str:
+    """ Parse text out of a Canvas question choice field. """
+
+    text = choice.get('text', '').strip()
+    if (text is None):
+        text = ''
+
+    if (len(text) == 0):
+        text = _canvas_html_to_markdown(choice.get('html', None))
+
+    return text
 
 def _parse_assignment_data(data: typing.Dict[str, typing.Any], label: str) -> None:
     """
