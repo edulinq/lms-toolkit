@@ -286,6 +286,27 @@ def _parse_quiz_question_answers(
                 answers[key] = []
 
             answers[key].append(_parse_quiz_question_text(raw_answer))
+    elif (question_type == quizcomp.question.base.QuestionType.NUMERICAL):
+        answers = []
+        for raw_answer in raw_answers:
+            raw_type = raw_answer.get('numerical_answer_type', None)
+
+            answer_type = str(raw_type).removesuffix('_answer')
+            answer = {'type': answer_type}
+
+            if (answer_type == quizcomp.constants.NUMERICAL_ANSWER_TYPE_EXACT):
+                answer['value'] = raw_answer.get('exact', None)
+                answer['margin'] = raw_answer.get('error_margin', 0)
+            elif (answer_type == quizcomp.constants.NUMERICAL_ANSWER_TYPE_RANGE):
+                answer['min'] = raw_answer.get('range_start', None)
+                answer['max'] = raw_answer.get('range_end', None)
+            elif (answer_type == quizcomp.constants.NUMERICAL_ANSWER_TYPE_PRECISION):
+                answer['value'] = raw_answer.get('approximate', None)
+                answer['precision'] = raw_answer.get('precision', None)
+            else:
+                raise ValueError(f"Unknown numerical answer type: '{raw_type}'.")
+
+            answers.append(answer)
     else:
         _logger.warning("Cannot form question answers, unknown question type: '%s'.", question_type)
 

@@ -98,6 +98,11 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         points = 1.0,
         prompt = "In the provided passage, how many non-specific time periods are mentioned, i.e., how many matches are there for the following regular expression:\n```\n    r'(age|season|epoch)\\s+of\\s+(\\w+)'\n    \n```",
         answers = [
+            {
+                "type": "exact",
+                "value": 6.0,
+                "margin": 0
+            }
         ],
     ),
     'Quantifiers': lms.model.quizzes.Question(
