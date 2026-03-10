@@ -196,14 +196,14 @@ def quiz_question(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Quest
     data['question_type'] = question_type
     data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
     data['name'] = lms.util.parse.optional_string(data.get('question_name', None))
-    data['prompt'] = _parse_quiz_question_text(data.get('question_text', None))
+    data['prompt'] = _html_to_markdown(data.get('question_text', None))
     data['points'] = lms.util.parse.optional_float(data.get('points_possible', None), 'points')
     data['raw_answers'] = data.get('answers', None)
     data['answers'] = _parse_quiz_question_answers(data.get('answers', None), question_type)
 
     return lms.model.quizzes.Question(**data)
 
-def _parse_quiz_question_text(text: typing.Union[str, None]) -> str:
+def _html_to_markdown(text: typing.Union[str, None]) -> str:
     """
     Parse the text from a Canvas quiz question into markdown.
     We intend for the resulting markdown to have a little HTML as possible.
@@ -246,6 +246,16 @@ def _parse_quiz_question_answers(
             {"correct": (raw_answers[0]['weight'] > 0), "text": "True"},
             {"correct": (raw_answers[1]['weight'] > 0), "text": "False"},
         ]
+    elif (question_type == quizcomp.question.base.QuestionType.MCQ):
+        for raw_answer in raw_answers:
+            text = raw_answer.get('text', '').strip()
+            if (text is None):
+                text = ''
+
+            if (len(text) == 0):
+                text = _html_to_markdown(raw_answer.get('html', None))
+
+            answers.append({"correct": (raw_answer['weight'] > 0), "text": text})
 
     return answers
 
