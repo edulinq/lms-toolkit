@@ -246,7 +246,7 @@ def _parse_quiz_question_answers(
             {"correct": (raw_answers[0]['weight'] > 0), "text": "True"},
             {"correct": (raw_answers[1]['weight'] > 0), "text": "False"},
         ]
-    elif (question_type == quizcomp.question.base.QuestionType.MCQ):
+    elif (question_type in {quizcomp.question.base.QuestionType.MA, quizcomp.question.base.QuestionType.MCQ}):
         for raw_answer in raw_answers:
             text = raw_answer.get('text', '').strip()
             if (text is None):
