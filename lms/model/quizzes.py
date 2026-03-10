@@ -89,10 +89,7 @@ class Question(lms.model.base.BaseType):
 
         return ResolvedQuestionQuery(self)
 
-    # TEST - Clean HTML
     # TEST - Supporting Files? Path Rewrites?
-    # TEST - Many formats.
-    # TEST - Answers
     def write(self, base_dir: str, force: bool = False) -> str:
         """
         Write this question to the given directory in Quiz Composer format and return the new directory for this question.
@@ -134,6 +131,71 @@ class Question(lms.model.base.BaseType):
         question.validate()
 
         return question
+
+class QuestionGroupQuery(lms.model.query.BaseQuery):
+    """
+    A class for the different ways one can attempt to reference an LMS quiz question group.
+    In general, a quiz question group can be queried by:
+     - LMS Question Group ID (`id`)
+     - Full Name (`name`)
+     - f"{name} ({id})"
+    """
+
+    _include_email = False
+
+class ResolvedQuestionGroupQuery(lms.model.query.ResolvedBaseQuery, QuestionGroupQuery):
+    """
+    A QuestionGroupQuery that has been resolved (verified) from a real quiz question question instance.
+    """
+
+    _include_email = False
+
+    def __init__(self,
+            group: 'QuestionGroup',
+            **kwargs: typing.Any) -> None:
+        super().__init__(id = group.id, name = group.name, **kwargs)
+
+class QuestionGroup(lms.model.base.BaseType):
+    """
+    A question group within a quiz.
+    This allows a quiz to choose a specific number of questions for each part of the quiz,
+    e.g., the group may have 10 questions, and 3 are chosen when the quiz is given/generated.
+    """
+
+    CORE_FIELDS = [
+        'id',
+        'name',
+        'pick_count',
+        'points',
+    ]
+
+    def __init__(self,
+            id: typing.Union[str, int, None] = None,
+            name: typing.Union[str, None] = None,
+            pick_count: typing.Union[int, None] = None,
+            points: typing.Union[float, None] = None,
+            **kwargs: typing.Any) -> None:
+        super().__init__(**kwargs)
+
+        if (id is None):
+            raise ValueError("Quiz question groups must have an id.")
+
+        self.id: str = str(id)
+        """ The LMS's identifier for this group. """
+
+        self.name: typing.Union[str, None] = name
+        """ The display name of this group. """
+
+        self.pick_count: typing.Union[int, None] = pick_count
+        """ The number of questions to choose for this group. """
+
+        self.points: typing.Union[float, None] = points
+        """ The number of points possible for this queston. """
+
+    def to_query(self) -> ResolvedQuestionGroupQuery:
+        """ Get a query representation of this question group. """
+
+        return ResolvedQuestionGroupQuery(self)
 
 class QuizQuery(lms.model.query.BaseQuery):
     """

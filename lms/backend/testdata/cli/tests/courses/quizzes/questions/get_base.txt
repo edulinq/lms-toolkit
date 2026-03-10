@@ -1,0 +1,15 @@
+{
+    "cli": "lms.cli.courses.quizzes.questions.get",
+    "arguments": [
+        "--course", "Course 101",
+        "--quiz", "Regular Expressions",
+        "Regular Expression in Programming Languages",
+    ],
+}
+---
+id: 110000202
+question_type: true_false
+name: Regular Expression in Programming Languages
+prompt: Regular expressions are implemented as either a core feature or in the standard library of almost every major programming language.
+points: 1.0
+answers: [{"correct": true, "text": "True"}, {"correct": false, "text": "False"}]

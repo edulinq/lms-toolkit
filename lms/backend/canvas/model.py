@@ -174,6 +174,9 @@ def quiz(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Quiz:
     """
 
     _parse_assignment_data(data, 'quiz')
+
+    data['description'] = _canvas_html_to_markdown(data.get('description', None))
+
     return lms.model.quizzes.Quiz(**data)
 
 def quiz_question(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Question:
@@ -205,6 +208,25 @@ def quiz_question(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Quest
     data['answers'] = _parse_quiz_question_answers(data.get('answers', None), data.get('matching_answer_incorrect_matches', None), question_type)
 
     return lms.model.quizzes.Question(**data)
+
+def quiz_question_group(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.QuestionGroup:
+    """
+    Create a Canvas quiz question group.
+
+    See: https://developerdocs.instructure.com/services/canvas/resources/quiz_question_groups
+    """
+
+    # Check for important fields.
+    for field in ['id']:
+        if (field not in data):
+            raise ValueError(f"Canvas quiz question group is missing '{field}' field.")
+
+    data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
+    data['name'] = lms.util.parse.optional_string(data.get('name', None))
+    data['points'] = lms.util.parse.optional_float(data.get('question_points', None), 'points')
+    data['pick_count'] = lms.util.parse.required_int(data.get('pick_count', None), 'pick_count')
+
+    return lms.model.quizzes.QuestionGroup(**data)
 
 def _canvas_html_to_markdown(text: typing.Union[str, None]) -> str:
     """

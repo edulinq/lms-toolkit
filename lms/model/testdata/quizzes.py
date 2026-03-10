@@ -7,6 +7,12 @@ import lms.model.quizzes
 # {course_name: {name: quiz, ...}, ...}
 COURSE_QUIZZES: typing.Dict[str, typing.Dict[str, lms.model.quizzes.Quiz]] = {}
 
+# {quiz_name: {name: group, ...}, ...}
+QUIZ_GROUPS: typing.Dict[str, typing.Dict[str, lms.model.quizzes.QuestionGroup]] = {}
+
+# {quiz_name: [group, ...], ...}
+ORDERED_QUIZ_GROUPS: typing.Dict[str, typing.List[lms.model.quizzes.QuestionGroup]] = {}
+
 # {quiz_name: {name: question, ...}, ...}
 QUIZ_QUESTIONS: typing.Dict[str, typing.Dict[str, lms.model.quizzes.Question]] = {}
 
@@ -19,9 +25,92 @@ COURSE_QUIZZES['Course 101'] = {
         id = '110000200',
         name = 'Regular Expressions',
         points_possible = 0.0,
-        description = '<p></p><div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">This quiz is open note, open book, and open world. Assume all regular expressions are done in Python using the <code style=\"margin-left: 0.25em; margin-right: 0.25em\">re</code> standard library. Good luck!</p></div><p></p><br><hr><p>Version: UNKNOWN</p>'
+        description = "This quiz is open note, open book, and open world. Assume all regular expressions are done in Python using the `re` standard library. Good luck!\n\n  \n\n\n* * *\n\nVersion: UNKNOWN",
     ),
 }
+
+QUIZ_GROUPS['Regular Expressions'] = {
+    "Ice Breaker": lms.model.quizzes.QuestionGroup(
+        id = "110000201",
+        name = "Ice Breaker",
+        pick_count = 1,
+        points = 5.0,
+    ),
+    "Regular Expression in Programming Languages": lms.model.quizzes.QuestionGroup(
+        id = "110000202",
+        name = "Regular Expression in Programming Languages",
+        pick_count = 1,
+        points = 5.0,
+    ),
+    "Regular Expression Vocabulary": lms.model.quizzes.QuestionGroup(
+        id = "110000203",
+        name = "Regular Expression Vocabulary",
+        pick_count = 1,
+        points = 20.0,
+    ),
+    "Basic Regular Expressions": lms.model.quizzes.QuestionGroup(
+        id = "110000204",
+        name = "Basic Regular Expressions",
+        pick_count = 1,
+        points = 5.0,
+    ),
+    "Passage": lms.model.quizzes.QuestionGroup(
+        id = "110000205",
+        name = "Passage",
+        pick_count = 1,
+        points = 0.0,
+    ),
+    "Passage Search": lms.model.quizzes.QuestionGroup(
+        id = "110000206",
+        name = "Passage Search",
+        pick_count = 1,
+        points = 10.0,
+    ),
+    "Quantifiers": lms.model.quizzes.QuestionGroup(
+        id = "110000207",
+        name = "Quantifiers",
+        pick_count = 1,
+        points = 5.0,
+    ),
+    "General Quantification": lms.model.quizzes.QuestionGroup(
+        id = "110000208",
+        name = "General Quantification",
+        pick_count = 1,
+        points = 5.0,
+    ),
+    "Backreference Matching": lms.model.quizzes.QuestionGroup(
+        id = "110000209",
+        name = "Backreference Matching",
+        pick_count = 1,
+        points = 10.0,
+    ),
+    "Regex Golf": lms.model.quizzes.QuestionGroup(
+        id = "110000210",
+        name = "Regex Golf",
+        pick_count = 1,
+        points = 15.0,
+    ),
+    "Write a Function": lms.model.quizzes.QuestionGroup(
+        id = "110000211",
+        name = "Write a Function",
+        pick_count = 1,
+        points = 20.0,
+    ),
+}
+
+ORDERED_QUIZ_GROUPS['Regular Expressions'] = [
+    QUIZ_GROUPS['Regular Expressions']['Ice Breaker'],
+    QUIZ_GROUPS['Regular Expressions']['Regular Expression in Programming Languages'],
+    QUIZ_GROUPS['Regular Expressions']['Regular Expression Vocabulary'],
+    QUIZ_GROUPS['Regular Expressions']['Basic Regular Expressions'],
+    QUIZ_GROUPS['Regular Expressions']['Passage'],
+    QUIZ_GROUPS['Regular Expressions']['Passage Search'],
+    QUIZ_GROUPS['Regular Expressions']['Quantifiers'],
+    QUIZ_GROUPS['Regular Expressions']['General Quantification'],
+    QUIZ_GROUPS['Regular Expressions']['Backreference Matching'],
+    QUIZ_GROUPS['Regular Expressions']['Regex Golf'],
+    QUIZ_GROUPS['Regular Expressions']['Write a Function'],
+]
 
 QUIZ_QUESTIONS['Regular Expressions'] = {
     'Ice Breaker': lms.model.quizzes.Question(

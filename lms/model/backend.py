@@ -1169,13 +1169,82 @@ class APIBackend():
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
         return sorted(self.courses_quizzes_list(resolved_course_query.get_id(), **kwargs))
 
+    def courses_quizzes_groups_get(self,
+            course_query: lms.model.courses.CourseQuery,
+            quiz_query: lms.model.quizzes.QuizQuery,
+            group_queries: typing.Collection[lms.model.quizzes.QuestionGroupQuery],
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.QuestionGroup]:
+        """
+        Get the specified quiz question groups associated with the given course and quiz.
+        """
+
+        if (len(group_queries) == 0):
+            return []
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_quiz_query = self.resolve_quiz_query(resolved_course_query.get_id(), quiz_query, **kwargs)
+
+        questions = sorted(self.courses_quizzes_groups_list(resolved_course_query.get_id(), resolved_quiz_query.get_id(), **kwargs))
+        group_queries = sorted(group_queries)
+
+        matches = []
+        for question in questions:
+            for query in group_queries:
+                if (query.match(question)):
+                    matches.append(question)
+                    break
+
+        return matches
+
+    def courses_quizzes_groups_fetch(self,
+            course_id: str,
+            quiz_id: str,
+            group_id: str,
+            **kwargs: typing.Any) -> typing.Union[lms.model.quizzes.QuestionGroup, None]:
+        """
+        Fetch a single quiz question group associated with the given course and quiz.
+        Return None if no matching question is found.
+
+        By default, this will just do a list and choose the relevant record.
+        Specific backends may override this if there are performance concerns.
+        """
+
+        questions = self.courses_quizzes_groups_list(course_id, quiz_id, **kwargs)
+        for question in sorted(questions):
+            if (question.id == group_id):
+                return question
+
+        return None
+
+    def courses_quizzes_groups_list(self,
+            course_id: str,
+            quiz_id: str,
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.QuestionGroup]:
+        """
+        List the quiz question groups associated with the given course and quiz.
+        """
+
+        raise NotImplementedError('courses_quizzes_groups_list')
+
+    def courses_quizzes_groups_resolve_and_list(self,
+            course_query: lms.model.courses.CourseQuery,
+            quiz_query: lms.model.quizzes.QuizQuery,
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.QuestionGroup]:
+        """
+        List the quiz question group associated with the given course and quiz.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_quiz_query = self.resolve_quiz_query(resolved_course_query.get_id(), quiz_query, **kwargs)
+        return sorted(self.courses_quizzes_groups_list(resolved_course_query.get_id(), resolved_quiz_query.get_id(), **kwargs))
+
     def courses_quizzes_questions_get(self,
             course_query: lms.model.courses.CourseQuery,
             quiz_query: lms.model.quizzes.QuizQuery,
             question_queries: typing.Collection[lms.model.quizzes.QuestionQuery],
             **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Question]:
         """
-        Get the specified quizze questions associated with the given course and quiz.
+        Get the specified quiz questions associated with the given course and quiz.
         """
 
         if (len(question_queries) == 0):
@@ -1221,7 +1290,7 @@ class APIBackend():
             quiz_id: str,
             **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Question]:
         """
-        List the quizzes associated with the given course.
+        List the quiz questions associated with the given course and quiz.
         """
 
         raise NotImplementedError('courses_quizzes_questions_list')
@@ -1231,7 +1300,7 @@ class APIBackend():
             quiz_query: lms.model.quizzes.QuizQuery,
             **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Question]:
         """
-        List the quizzes associated with the given course.
+        List the quiz questions associated with the given course and quiz.
         """
 
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
@@ -1545,6 +1614,31 @@ class APIBackend():
         queries = []
         for text in texts:
             query = self.parse_quiz_question_query(text)
+            if (query is not None):
+                queries.append(query)
+
+        return queries
+
+    def parse_quiz_question_group_query(self, text: typing.Union[str, None]) -> typing.Union[lms.model.quizzes.QuestionGroupQuery, None]:
+        """
+        Attempt to parse a quiz question group query from a string.
+        If there is no query, return a None.
+        If the query is malformed, raise an exception.
+
+        By default, this method assumes that LMS IDs are ints.
+        Child backends may override this to implement their specific behavior.
+        """
+
+        return lms.model.query.parse_int_query(lms.model.quizzes.QuestionGroupQuery, text, check_email = False)
+
+    def parse_quiz_question_group_queries(self,
+            texts: typing.Collection[typing.Union[str, None]],
+            ) -> typing.List[lms.model.quizzes.QuestionGroupQuery]:
+        """ Parse a list of quiz question group queries. """
+
+        queries = []
+        for text in texts:
+            query = self.parse_quiz_question_group_query(text)
             if (query is not None):
                 queries.append(query)
 
