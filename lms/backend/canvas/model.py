@@ -202,7 +202,7 @@ def quiz_question(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Quest
     data['prompt'] = _canvas_html_to_markdown(data.get('question_text', None))
     data['points'] = lms.util.parse.optional_float(data.get('points_possible', None), 'points')
     data['raw_answers'] = data.get('answers', None)
-    data['answers'] = _parse_quiz_question_answers(data.get('answers', None), question_type)
+    data['answers'] = _parse_quiz_question_answers(data.get('answers', None), data.get('matching_answer_incorrect_matches', None), question_type)
 
     return lms.model.quizzes.Question(**data)
 
@@ -234,6 +234,7 @@ def _canvas_html_to_markdown(text: typing.Union[str, None]) -> str:
 
 def _parse_quiz_question_answers(
         raw_answers: typing.Union[typing.List[typing.Any], None],
+        raw_distractors: typing.Union[str, None],
         question_type: quizcomp.question.base.QuestionType,
         ) -> typing.Union[typing.List[typing.Any], typing.Dict[str, typing.Any]]:
     """ Parse question answers from Canvas responses. """
@@ -246,14 +247,18 @@ def _parse_quiz_question_answers(
     # Parse answers based on question type.
     if (question_type in {quizcomp.question.base.QuestionType.ESSAY, quizcomp.question.base.QuestionType.TEXT_ONLY}):
         pass
-    elif (question_type == quizcomp.question.base.QuestionType.TF):
-        if (len(raw_answers) != 2):
-            raise ValueError(f"Unexpected length for T/F answers. Expected 2, found {len(raw_answers)}.")
+    elif (question_type == quizcomp.question.base.QuestionType.FIMB):
+        answers = {}
+        for raw_answer in raw_answers:
+            key = raw_answer.get('blank_id', '')
+            if (key not in answers):
+                answers[key] = []
 
-        answers = [
-            {"correct": (raw_answers[0]['weight'] > 0), "text": "True"},
-            {"correct": (raw_answers[1]['weight'] > 0), "text": "False"},
-        ]
+            answers[key].append(_parse_quiz_question_text(raw_answer))
+    elif (question_type == quizcomp.question.base.QuestionType.FITB):
+        answers = []
+        for raw_answer in raw_answers:
+            answers.append(_parse_quiz_question_text(raw_answer))
     elif (question_type in {quizcomp.question.base.QuestionType.MA, quizcomp.question.base.QuestionType.MCQ}):
         answers = _parse_quiz_question_choices(raw_answers)
     elif (question_type == quizcomp.question.base.QuestionType.MDD):
@@ -274,18 +279,20 @@ def _parse_quiz_question_answers(
                 'text': section_key,
                 'values': _parse_quiz_question_choices(section_raw_answers)
             }
-    elif (question_type == quizcomp.question.base.QuestionType.FITB):
-        answers = []
-        for raw_answer in raw_answers:
-            answers.append(_parse_quiz_question_text(raw_answer))
-    elif (question_type == quizcomp.question.base.QuestionType.FIMB):
-        answers = {}
-        for raw_answer in raw_answers:
-            key = raw_answer.get('blank_id', '')
-            if (key not in answers):
-                answers[key] = []
+    elif (question_type == quizcomp.question.base.QuestionType.MATCHING):
+        if (raw_distractors is None):
+            raw_distractors = ''
 
-            answers[key].append(_parse_quiz_question_text(raw_answer))
+        matches = []
+        distractors = [value.strip() for value in raw_distractors.split("\n")]
+
+        for raw_answer in raw_answers:
+            matches.append([raw_answer.get('left', ''), raw_answer.get('right', '')])
+
+        answers = {
+            'matches': matches,
+            'distractors': distractors,
+        }
     elif (question_type == quizcomp.question.base.QuestionType.NUMERICAL):
         answers = []
         for raw_answer in raw_answers:
@@ -307,6 +314,14 @@ def _parse_quiz_question_answers(
                 raise ValueError(f"Unknown numerical answer type: '{raw_type}'.")
 
             answers.append(answer)
+    elif (question_type == quizcomp.question.base.QuestionType.TF):
+        if (len(raw_answers) != 2):
+            raise ValueError(f"Unexpected length for T/F answers. Expected 2, found {len(raw_answers)}.")
+
+        answers = [
+            {"correct": (raw_answers[0]['weight'] > 0), "text": "True"},
+            {"correct": (raw_answers[1]['weight'] > 0), "text": "False"},
+        ]
     else:
         _logger.warning("Cannot form question answers, unknown question type: '%s'.", question_type)
 

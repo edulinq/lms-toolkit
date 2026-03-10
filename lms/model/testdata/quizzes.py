@@ -55,8 +55,44 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'Regular Expression Vocabulary',
         points = 1.0,
         prompt = "Match the following terms to their corresponding definitions.",
-        answers = [
-        ],
+        answers = {
+            "matches": [
+                [
+                    "Character Class",
+                    "A set of character where any single member of the group can be matched."
+                ],
+                [
+                    "Anchor",
+                    "A special character that can be used to match the beginning or end of a line."
+                ],
+                [
+                    "Word Boundary",
+                    "The empty string between ([\\W^] and \\w) or between (\\w and [\\W$])."
+                ],
+                [
+                    "Kleene Star",
+                    "A repetition operator that matches the range [0, infinity]."
+                ],
+                [
+                    "Group",
+                    "A collection of character that can be treated as a single unit."
+                ],
+                [
+                    "Disjunction",
+                    "An operator that allows us to select one of two options."
+                ],
+                [
+                    "Back Reference",
+                    "A special character that allows us to invoke a previous group."
+                ]
+            ],
+            "distractors": [
+                "The set of all alphanumeric characters and underscore.",
+                "All digits.",
+                "A repetition operator that matches the range [1, infinity].",
+                "An operator that allows us to select both of two options."
+            ]
+        },
     ),
     'Basic Regular Expressions': lms.model.quizzes.Question(
         id = '110000204',
