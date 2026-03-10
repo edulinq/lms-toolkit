@@ -30,6 +30,8 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'Ice Breaker',
         points = 1.0,
         prompt = "Taking inspiration from the XKCD comic below, how would you save the day using regular expressions?\n\n![XKCD Comic 208](http://127.0.0.1:3000/courses/110000000/files/1/preview)",
+        answers = [
+        ],
     ),
     'Regular Expression in Programming Languages': lms.model.quizzes.Question(
         id = '110000202',
@@ -37,6 +39,16 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'Regular Expression in Programming Languages',
         points = 1.0,
         prompt = "Regular expressions are implemented as either a core feature or in the standard library of almost every major programming language.",
+        answers = [
+            {
+                "correct": True,
+                "text": "True"
+            },
+            {
+                "correct": False,
+                "text": "False"
+            }
+        ],
     ),
     'Regular Expression Vocabulary': lms.model.quizzes.Question(
         id = '110000203',
@@ -44,6 +56,8 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'Regular Expression Vocabulary',
         points = 1.0,
         prompt = "Match the following terms to their corresponding definitions.",
+        answers = [
+        ],
     ),
     'Basic Regular Expressions': lms.model.quizzes.Question(
         id = '110000204',
@@ -51,6 +65,24 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'Basic Regular Expressions',
         points = 1.0,
         prompt = "Which of the following regular expressions would be best to match a 10-digit phone number formatted as: '123 456-7890'. (Assume any stretch of continuous whitespace is a single space character.)",
+        answers = [
+            {
+                "correct": True,
+                "text": "`r'\\d{3} \\d{3}-\\d{4}'`"
+            },
+            {
+                "correct": False,
+                "text": "`r'\\d{10}'`"
+            },
+            {
+                "correct": False,
+                "text": "`r'\\d* \\d*-\\d*'`"
+            },
+            {
+                "correct": False,
+                "text": "`r'\\d+ \\d+-\\d+'`"
+            }
+        ],
     ),
     'Question': lms.model.quizzes.Question(
         id = '110000205',
@@ -58,6 +90,8 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'Question',
         points = 0.0,
         prompt = "Below is the opening paragraph (which is actually just one sentence) from _A Tale Of Two Cities_ written by Charles Dickens. Future questions may reference this passage as \"the provided passage\".\n\n\"It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness, it was the epoch of belief, it was the epoch of incredulity, it was the season of Light, it was the season of Darkness, it was the spring of hope, it was the winter of despair, we had everything before us, we had nothing before us, we were all going direct to Heaven, we were all going direct the other way \u2014 in short, the period was so far like the present period, that some of its noisiest authorities insisted on its being received, for good or for evil, in the superlative degree of comparison only.\"",
+        answers = [
+        ],
     ),
     'Passage Search': lms.model.quizzes.Question(
         id = '110000206',
@@ -65,6 +99,8 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'Passage Search',
         points = 1.0,
         prompt = "In the provided passage, how many non-specific time periods are mentioned, i.e., how many matches are there for the following regular expression:\n```\n    r'(age|season|epoch)\\s+of\\s+(\\w+)'\n    \n```",
+        answers = [
+        ],
     ),
     'Quantifiers': lms.model.quizzes.Question(
         id = '110000207',
@@ -72,6 +108,59 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'Quantifiers',
         points = 1.0,
         prompt = "For each scenario, select the quantifier that is most appropriate.\n\nYou want to match the leading zeros for some number. E.g., \"00\" for \"005\".  \n<placeholder>PART1</placeholder>\n\nYou want to match the negative sign for some number. E.g., \"-\" for \"-9\".  \n<placeholder>PART2</placeholder>\n\nYou want to match the main digits (before any decimal point) for a required number, e.g., \"123\" for \"123\".  \n<placeholder>PART3</placeholder>",
+        answers = {
+            "PART1": {
+                "text": "PART1",
+                "values": [
+                    {
+                        "correct": False,
+                        "text": "?"
+                    },
+                    {
+                        "correct": True,
+                        "text": "*"
+                    },
+                    {
+                        "correct": False,
+                        "text": "+"
+                    }
+                ]
+            },
+            "PART2": {
+                "text": "PART2",
+                "values": [
+                    {
+                        "correct": True,
+                        "text": "?"
+                    },
+                    {
+                        "correct": False,
+                        "text": "*"
+                    },
+                    {
+                        "correct": False,
+                        "text": "+"
+                    }
+                ]
+            },
+            "PART3": {
+                "text": "PART3",
+                "values": [
+                    {
+                        "correct": False,
+                        "text": "?"
+                    },
+                    {
+                        "correct": False,
+                        "text": "*"
+                    },
+                    {
+                        "correct": True,
+                        "text": "+"
+                    }
+                ]
+            }
+        },
     ),
     'General Quantification 1': lms.model.quizzes.Question(
         id = '110000208',
@@ -79,6 +168,24 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'General Quantification',
         points = 1.0,
         prompt = "Which of the following does the regex `r'Lo{2,3}ng Cat'` match? Select all that apply.",
+        answers = [
+            {
+                "correct": False,
+                "text": "Long Cat"
+            },
+            {
+                "correct": True,
+                "text": "Loong Cat"
+            },
+            {
+                "correct": True,
+                "text": "Looong Cat"
+            },
+            {
+                "correct": False,
+                "text": "Loooong Cat"
+            }
+        ],
     ),
     'General Quantification 2': lms.model.quizzes.Question(
         id = '110000209',
@@ -86,6 +193,24 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'General Quantification',
         points = 1.0,
         prompt = "Which of the following does the regex `r'I'm So{3,4} Hungry!'` match? Select all that apply.",
+        answers = [
+            {
+                "correct": False,
+                "text": "I'm So Hungry!"
+            },
+            {
+                "correct": False,
+                "text": "I'm Soo Hungry!"
+            },
+            {
+                "correct": True,
+                "text": "I'm Sooo Hungry!"
+            },
+            {
+                "correct": True,
+                "text": "I'm Soooo Hungry!"
+            }
+        ],
     ),
     'Backreference Matching': lms.model.quizzes.Question(
         id = '110000210',
@@ -93,6 +218,8 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'Backreference Matching',
         points = 1.0,
         prompt = "Suppose that we are trying to write a script extract name information from text and put it into a CSV (comma-separated value) file. The order of the columns in our CSV file are: first name, last name, and title. As part of our script, we have a regular expression that looks for people that have their name's written as \"last, first\".\n```\n    import re\n    \n    def create_csv_line(text_line):\n        regex = r'^\\s*((Dr).?)?\\s*([^,]+)\\s*,\\s*(.+)\\s*$'\n        replacement = MY_REPLACEMENT_STRING\n    \n        return re.sub(regex, replacement, text_line)\n    \n```\n\nFill in the blanks in `MY_REPLACEMENT_STRING` to make the above code work correctly.\n\n`MY_REPLACEMENT_STRING = r'`<placeholder>A</placeholder>`,`<placeholder>B</placeholder>`,`<placeholder>C</placeholder>`'`",
+        answers = [
+        ],
     ),
     'Regex Golf': lms.model.quizzes.Question(
         id = '110000211',
@@ -100,6 +227,12 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'Regex Golf',
         points = 1.0,
         prompt = "Create a regular expression that matches successfully completes a game a golf with the table below.\n\nSpecifics:\n\n  * Match all values in the `Match` column.\n  * Do not match any values in the `No Match` column.\n  * Write you regex as a raw string using a single or double quotes (not triple quotes).\n  * Treat the contents of each table cell as a string (so you do not have the match the quotes).\n  * You may assume that any contiguous whitespace is a single space character.\n  * You only need to match (or not match) the values in the table, you do not need to extend this pattern to unseen values.\n\nMatch| No Match  \n---|---  \n`'12:00 AM'`| `'00:00'`  \n`'05:30 PM'`| `'17:30'`  \n`'01:45 AM'`| `'01:65 AM'`  \n`'10:10 PM'`| `'10:10 ZZ'`  \n`'12:34 PM'`| `'12:34 pm'`  \n`'11:59 PM'`| `'23:59'`  \n| `'123:45 AM'`  \n| `'12:345 PM'`",
+        answers = [
+            "r'\\d\\d:\\d\\d [AP]M'",
+            "r\"\\d\\d:\\d\\d [AP]M\"",
+            "r'\\d{2}:\\d{2} [AP]M'",
+            "r\"\\d{2}:\\d{2} [AP]M\""
+        ],
     ),
     'Write a Function': lms.model.quizzes.Question(
         id = '110000212',
@@ -107,6 +240,8 @@ QUIZ_QUESTIONS['Regular Expressions'] = {
         name = 'Write a Function',
         points = 1.0,
         prompt = "Implement a function with the following signature and description:\n```\n    import re\n    \n    def compute(text):\n        \"\"\"\n        Compute the result of the binary expression represented in the |text| variable.\n        The possible operators are: \"+\", \"-\", \"*\", and \"/\".\n        Operands may be any real number.\n        If the operation is division, the RHS (denominator) will not be zero.\n        \"\"\"\n    \n        return NotImplemented\n    \n```\n\nSpecifics:\n\n  * Your function must use regular expressions.\n  * You may not use `eval()` or any other Python ast functionality.\n  * You may only import modules from the Python standard library.\n  * You should return a float that is the result of the binary operation represented by `text`.\n  * The operator will be one of: {+,\u2212,\u2217,/}\\\\{+, -, *, /\\\\}.\n  * Operands may be any real number.",
+        answers = [
+        ],
     ),
 }
 

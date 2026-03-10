@@ -44,6 +44,7 @@ class Question(lms.model.base.BaseType):
         'name',
         'prompt',
         'points',
+        'answers',
     ]
 
     def __init__(self,
