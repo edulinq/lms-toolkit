@@ -48,8 +48,9 @@ def cli_assert_quiz_questions(test: edq.testing.unittest.BaseTest, expected: str
     expected_list = edq.util.json.loads(edq.util.json.dumps(lms.model.testdata.quizzes.ORDERED_QUIZ_QUESTIONS['Regular Expressions']))
     actual_list = edq.util.json.loads(actual)
 
-    # Remove an extra field.
+    # Remove extra fields.
     for question in expected_list:
         question.pop('extra_fields', None)
+        question.pop('group_id', None)
 
     test.assertListEqual(expected_list, actual_list)

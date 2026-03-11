@@ -78,3 +78,8 @@ class Assignment(lms.model.base.BaseType):
         """ Get a query representation of this assignment. """
 
         return ResolvedAssignmentQuery(self)
+
+    def get_label(self) -> str:
+        """ Get the label for this assignment. """
+
+        return f"{self.name} ({self.id})"

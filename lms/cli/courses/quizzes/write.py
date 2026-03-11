@@ -1,5 +1,5 @@
 """
-Write quiz questions to disk in the Quiz Composer format.
+Write quiz to disk in the Quiz Composer format.
 """
 
 import argparse
@@ -22,23 +22,23 @@ def run_cli(args: argparse.Namespace) -> int:
     if (course_query is None):
         return 1
 
-    quiz_query = lms.cli.common.check_required_quiz(backend, config)
-    if (quiz_query is None):
-        return 2
-
-    questions = []
-    if (len(args.questions) == 0):
-        questions = backend.courses_quizzes_questions_resolve_and_list(course_query, quiz_query)
+    quizzes = []
+    if (len(args.quizzes) == 0):
+        quizzes = backend.courses_quizzes_resolve_and_list(course_query)
     else:
-        queries = backend.parse_quiz_question_queries(args.questions)
-        questions = backend.courses_quizzes_questions_get(course_query, quiz_query, queries)
+        queries = backend.parse_quiz_queries(args.quizzes)
+        quizzes = backend.courses_quizzes_get(course_query, queries)
 
     base_dir = os.path.abspath(args.out_dir)
-    for question in questions:
-        path = question.write(base_dir, force = args.force)
-        print(f"Wrote question '{question.name}' to '{path}'.")
+    for quiz in quizzes:
+        # Get the groups and questions for this quiz.
+        groups = backend.courses_quizzes_groups_resolve_and_list(course_query, quiz.to_query())
+        questions = backend.courses_quizzes_questions_resolve_and_list(course_query, quiz.to_query())
 
-    print(f"{len(questions)} questions written.")
+        path = quiz.write(base_dir, groups, questions, force = args.force)
+        print(f"Wrote quiz '{quiz.name}' to '{path}'.")
+
+    print(f"{len(quizzes)} quizzes written.")
 
     return 0
 
@@ -60,11 +60,11 @@ def _get_parser() -> argparse.ArgumentParser:
 
     parser.add_argument('--force', dest = 'force',
         action = 'store_true', default = False,
-        help = "Delete any existing files when writing the questions (default: %(default)s).")
+        help = "Delete any existing files when writing the quizzes (default: %(default)s).")
 
-    parser.add_argument('questions', metavar = 'QUESTION_QUERY',
+    parser.add_argument('quizzes', metavar = 'QUIZ_QUERY',
         type = str, nargs = '*',
-        help = "A query for the questions to get, or don't specify for all questions.")
+        help = "A query for a quiz to get, or don't specify for all quizzes.")
 
     return parser
 

@@ -206,6 +206,7 @@ def quiz_question(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Quest
     data['points'] = lms.util.parse.optional_float(data.get('points_possible', None), 'points')
     data['raw_answers'] = data.get('answers', None)
     data['answers'] = _parse_quiz_question_answers(data.get('answers', None), data.get('matching_answer_incorrect_matches', None), question_type)
+    data['group_id'] = lms.util.parse.optional_string(data.get('quiz_group_id', None))
 
     return lms.model.quizzes.Question(**data)
 

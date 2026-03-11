@@ -2,13 +2,17 @@ import os
 import typing
 
 import edq.util.dirent
+import edq.util.json
 import quizcomp.constants
+import quizcomp.group
 import quizcomp.question.base
-import quizcomp.question.essay
+import quizcomp.quiz
 
 import lms.model.assignments
 import lms.model.base
 import lms.model.query
+
+QUESTIONS_DIRNAME: str = 'questions'
 
 class QuestionQuery(lms.model.query.BaseQuery):
     """
@@ -54,6 +58,7 @@ class Question(lms.model.base.BaseType):
             prompt: typing.Union[str, None] = None,
             points: typing.Union[float, None] = None,
             answers: typing.Union[typing.List[typing.Any], typing.Dict[str, typing.Any], None] = None,
+            group_id: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
 
@@ -84,10 +89,18 @@ class Question(lms.model.base.BaseType):
         self.answers: typing.Union[typing.List[typing.Any], typing.Dict[str, typing.Any]] = answers
         """ Possible answers to this question. """
 
+        self.group_id: typing.Union[str, None] = group_id
+        """ The id of the group this question belongs to (in context of the chosen quiz). """
+
     def to_query(self) -> ResolvedQuestionQuery:
         """ Get a query representation of this question. """
 
         return ResolvedQuestionQuery(self)
+
+    def get_label(self) -> str:
+        """ Get the label for this question. """
+
+        return f"{self.name} ({self.id})"
 
     # TEST - Supporting Files? Path Rewrites?
     def write(self, base_dir: str, force: bool = False) -> str:
@@ -99,7 +112,7 @@ class Question(lms.model.base.BaseType):
 
         base_dir = os.path.abspath(base_dir)
 
-        dirname = f"{self.name} ({self.id})"
+        dirname = self.get_label()
         out_dir = os.path.join(base_dir, dirname)
 
         if (os.path.exists(out_dir)):
@@ -110,12 +123,12 @@ class Question(lms.model.base.BaseType):
 
         edq.util.dirent.mkdir(out_dir)
 
-        question = self._to_quizcomp()
+        question = self._to_quizcomp_data()
         question.to_path(os.path.join(out_dir, quizcomp.constants.QUESTION_FILENAME))
 
         return out_dir
 
-    def _to_quizcomp(self) -> quizcomp.question.base.Question:
+    def _to_quizcomp_data(self) -> quizcomp.question.base.Question:
         """ Get a QuizComp representation of this question. """
 
         data = {
@@ -197,6 +210,34 @@ class QuestionGroup(lms.model.base.BaseType):
 
         return ResolvedQuestionGroupQuery(self)
 
+    def get_label(self) -> str:
+        """ Get the label for this group. """
+
+        return f"{self.name} ({self.id})"
+
+    def _to_quizcomp_data(self,
+            all_questions: typing.List[Question],
+            questions_rel_dir: str = QUESTIONS_DIRNAME,
+            ) -> typing.Dict[str, typing.Any]:
+        """
+        Get a QuizComp representation of this group.
+        The path to each question will be based on the base dir and the question's label.
+        """
+
+        group_question_paths = []
+        for question in all_questions:
+            if (self.id == question.group_id):
+                path = os.path.join(questions_rel_dir, question.get_label())
+                group_question_paths.append(path)
+
+        return {
+            'name': self.name,
+            'pick_count': self.pick_count,
+            'points': self.points,
+            'questions': group_question_paths,
+            'ids': {'lms': self.id},
+        }
+
 class QuizQuery(lms.model.query.BaseQuery):
     """
     A class for the different ways one can attempt to reference an LMS quiz.
@@ -233,3 +274,45 @@ class Quiz(lms.model.assignments.Assignment):
         """ Get a query representation of this quiz. """
 
         return ResolvedQuizQuery(self)
+
+    def write(self, base_dir: str, groups: typing.List[QuestionGroup], questions: typing.List[Question], force: bool = False) -> str:
+        """
+        Write this quiz to the given directory in Quiz Composer format and return the new directory for this quiz.
+        This will also write out all the questions to "questions" dir in the returned directory.
+        If `force` is true, then any existing directory with the same name will be overwritten,
+        otherwise an error will be raised.
+        """
+
+        base_dir = os.path.abspath(base_dir)
+
+        dirname = f"{self.name} ({self.id})"
+        out_dir = os.path.join(base_dir, dirname)
+
+        if (os.path.exists(out_dir)):
+            if (not force):
+                raise ValueError(f"Path to write quiz ('{dirname}') already exists: '{out_dir}'.")
+
+            edq.util.dirent.remove(out_dir)
+
+        edq.util.dirent.mkdir(out_dir)
+
+        quiz = self._to_quizcomp_data(groups, questions)
+        edq.util.json.dump_path(quiz, os.path.join(out_dir, quizcomp.constants.QUIZ_FILENAME), sort_keys = False, indent = 4)
+
+        questions_dir = os.path.join(out_dir, QUESTIONS_DIRNAME)
+        for question in questions:
+            question.write(questions_dir, force = force)
+
+        return out_dir
+
+    def _to_quizcomp_data(self, groups: typing.List[QuestionGroup], questions: typing.List[Question]) -> quizcomp.quiz.Quiz:
+        """ Get a QuizComp representation of this quiz. """
+
+        quizcomp_groups = [group._to_quizcomp_data(questions) for group in groups]
+
+        return {
+            'title': self.name,
+            'description': self.description,
+            'groups': quizcomp_groups,
+            'ids': {'lms': self.id},
+        }
