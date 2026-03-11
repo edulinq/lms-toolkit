@@ -28,8 +28,10 @@ This project is not affiliated with any LMS developer/provider.
        - [Upload Gradebook](#upload-gradebook)
      - Quizzes
        - [Retrieve Quizzes](#retrieve-quizzes)
+       - [Write Quizzes](#write-quizzes)
        - Questions
          - [Retrieve Quiz Questions](#retrieve-quiz-questions)
+         - [Write Quiz Questions](#write-quiz-questions)
        - Question Groups
          - [Retrieve Quiz Question Groups](#retrieve-quiz-question-groups)
      - Syllabus
@@ -291,6 +293,19 @@ You can get a single quiz with `lms.cli.courses.quizzes.get`:
 python3 -m lms.cli.courses.quizzes.get --course 'Course 101' 'Regular Expressions'
 ```
 
+### Write Quizzes
+
+Write all quizzes in a course to a directory (in the [Quiz Composer](https://github.com/edulinq/quiz-composer) format)
+with `lms.cli.courses.quizzes.write`:
+```sh
+python3 -m lms.cli.courses.quizzes.write --course 'Course 101' --out-dir 'out'
+```
+
+You can also specify specific quizzes to write instead of all quizzes:
+```sh
+python3 -m lms.cli.courses.quizzes.write --course 'Course 101' --out-dir 'out' 'Regular Expressions'
+```
+
 ### Retrieve Quiz Questions
 
 List all questions for a quiz with `lms.cli.courses.quizzes.questions.list`:
@@ -301,6 +316,19 @@ python3 -m lms.cli.courses.quizzes.questions.list --course 'Course 101' --quiz '
 You can get a single question with `lms.cli.courses.quizzes.questions.get`:
 ```sh
 python3 -m lms.cli.courses.quizzes.questions.get --course 'Course 101' --quiz 'Regular Expressions' 'Regex Golf'
+```
+
+### Write Quiz Questions
+
+Write all questions for a quiz to a directory (in the [Quiz Composer](https://github.com/edulinq/quiz-composer) format)
+with `lms.cli.courses.quizzes.questions.write`:
+```sh
+python3 -m lms.cli.courses.quizzes.questions.write --course 'Course 101' --quiz 'Regular Expressions' --out-dir 'out'
+```
+
+You can also specify specific questions to write instead of all questions:
+```sh
+python3 -m lms.cli.courses.quizzes.write --course 'Course 101' --quiz 'Regular Expressions' --out-dir 'out' 'Regex Golf'
 ```
 
 ### Retrieve Quiz Question Groups
@@ -546,10 +574,12 @@ Legend:
 | lms.cli.courses.groupsets.memberships.subtract  | `-`        | ✅     | `-`    |
 | lms.cli.courses.quizzes.get                     | `-`        | ✅     | `-`    |
 | lms.cli.courses.quizzes.list                    | `-`        | ✅     | `-`    |
+| lms.cli.courses.quizzes.write                   | `-`        | ✅     | `-`    |
 | lms.cli.courses.quizzes.groups.get              | `-`        | ✅     | `-`    |
 | lms.cli.courses.quizzes.groups.list             | `-`        | ✅     | `-`    |
 | lms.cli.courses.quizzes.questions.get           | `-`        | ✅     | `-`    |
 | lms.cli.courses.quizzes.questions.list          | `-`        | ✅     | `-`    |
+| lms.cli.courses.quizzes.questions.write         | `-`        | ✅     | `-`    |
 | lms.cli.courses.syllabus.get                    | `-`        | ✅     | `-`    |
 | lms.cli.courses.users.get                       | ✅         | ✅     | `-`    |
 | lms.cli.courses.users.list                      | ✅         | ✅     | `-`    |
