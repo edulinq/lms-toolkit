@@ -52,5 +52,6 @@ def cli_assert_quiz_questions(test: edq.testing.unittest.BaseTest, expected: str
     for question in expected_list:
         question.pop('extra_fields', None)
         question.pop('group_id', None)
+        question.pop('resources', None)
 
     test.assertListEqual(expected_list, actual_list)

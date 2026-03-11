@@ -193,9 +193,10 @@ class CanvasBackend(lms.model.backend.APIBackend):
 
     def courses_quizzes_list(self,
             course_id: str,
+            fetch_resources: bool = False,
             **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Quiz]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
-        return lms.backend.canvas.courses.quizzes.list.request(self, parsed_course_id)
+        return lms.backend.canvas.courses.quizzes.list.request(self, parsed_course_id, fetch_resources)
 
     def courses_quizzes_groups_list(self,
             course_id: str,
@@ -208,10 +209,11 @@ class CanvasBackend(lms.model.backend.APIBackend):
     def courses_quizzes_questions_list(self,
             course_id: str,
             quiz_id: str,
+            fetch_resources: bool = False,
             **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Question]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         parsed_quiz_id = lms.util.parse.required_int(quiz_id, 'quiz_id')
-        return lms.backend.canvas.courses.quizzes.questions.list.request(self, parsed_course_id, parsed_quiz_id)
+        return lms.backend.canvas.courses.quizzes.questions.list.request(self, parsed_course_id, parsed_quiz_id, fetch_resources)
 
     def courses_syllabus_fetch(self,
             course_id: str,

@@ -8,7 +8,8 @@ BASE_ENDPOINT = "/api/v1/courses/{course_id}/quizzes/{quiz_id}/questions?per_pag
 
 def request(backend: typing.Any,
         course_id: int,
-        quiz_id: int
+        quiz_id: int,
+        fetch_resources: bool = False,
         ) -> typing.List[lms.model.quizzes.Question]:
     """ List quiz questions. """
 
@@ -25,4 +26,4 @@ def request(backend: typing.Any,
 
         return []
 
-    return sorted([lms.backend.canvas.model.quiz_question(raw_object) for raw_object in raw_objects])
+    return sorted([lms.backend.canvas.model.quiz_question(backend, raw_object, fetch_resources) for raw_object in raw_objects])

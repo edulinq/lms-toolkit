@@ -33,7 +33,7 @@ def run_cli(args: argparse.Namespace) -> int:
     for quiz in quizzes:
         # Get the groups and questions for this quiz.
         groups = backend.courses_quizzes_groups_resolve_and_list(course_query, quiz.to_query())
-        questions = backend.courses_quizzes_questions_resolve_and_list(course_query, quiz.to_query())
+        questions = backend.courses_quizzes_questions_resolve_and_list(course_query, quiz.to_query(), fetch_resources = True)
 
         path = quiz.write(base_dir, groups, questions, force = args.force)
         print(f"Wrote quiz '{quiz.name}' to '{path}'.")

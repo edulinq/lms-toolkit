@@ -59,6 +59,7 @@ class Question(lms.model.base.BaseType):
             points: typing.Union[float, None] = None,
             answers: typing.Union[typing.List[typing.Any], typing.Dict[str, typing.Any], None] = None,
             group_id: typing.Union[str, None] = None,
+            resources: typing.Union[typing.List[str], None] = None,
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
 
@@ -81,7 +82,7 @@ class Question(lms.model.base.BaseType):
         """ The prompt of this question. """
 
         self.points: typing.Union[float, None] = points
-        """ The number of points possible for this queston. """
+        """ The number of points possible for this question. """
 
         if (answers is None):
             answers = []
@@ -91,6 +92,12 @@ class Question(lms.model.base.BaseType):
 
         self.group_id: typing.Union[str, None] = group_id
         """ The id of the group this question belongs to (in context of the chosen quiz). """
+
+        if (resources is None):
+            resources = []
+
+        self.resources: typing.List[str] = resources
+        """ Paths to additional resources (e.g., images) associated with this question. """
 
     def to_query(self) -> ResolvedQuestionQuery:
         """ Get a query representation of this question. """
@@ -102,7 +109,6 @@ class Question(lms.model.base.BaseType):
 
         return f"{self.name} ({self.id})"
 
-    # TEST - Supporting Files? Path Rewrites?
     def write(self, base_dir: str, force: bool = False) -> str:
         """
         Write this question to the given directory in Quiz Composer format and return the new directory for this question.
@@ -125,6 +131,10 @@ class Question(lms.model.base.BaseType):
 
         question = self._to_quizcomp_data()
         question.to_path(os.path.join(out_dir, quizcomp.constants.QUESTION_FILENAME))
+
+        # Write resources to the same dir.
+        for resource_path in self.resources:
+            edq.util.dirent.move(resource_path, out_dir)
 
         return out_dir
 
@@ -267,8 +277,15 @@ class Quiz(lms.model.assignments.Assignment):
     """
 
     def __init__(self,
+            resources: typing.Union[typing.List[str], None] = None,
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
+
+        if (resources is None):
+            resources = []
+
+        self.resources: typing.List[str] = resources
+        """ Paths to additional resources (e.g., images) associated with this quiz. """
 
     def to_query(self) -> ResolvedQuizQuery:  # type: ignore[override]
         """ Get a query representation of this quiz. """

@@ -1152,9 +1152,11 @@ class APIBackend():
 
     def courses_quizzes_list(self,
             course_id: str,
+            fetch_resources: bool = False,
             **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Quiz]:
         """
         List the quizzes associated with the given course.
+        If specified, additional resources associated with the quiz (e.g., images) may also be fetched.
         """
 
         raise NotImplementedError('courses_quizzes_list')
@@ -1288,9 +1290,11 @@ class APIBackend():
     def courses_quizzes_questions_list(self,
             course_id: str,
             quiz_id: str,
+            fetch_resources: bool = False,
             **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Question]:
         """
         List the quiz questions associated with the given course and quiz.
+        If specified, additional resources associated with the questions (e.g., images) may also be fetched.
         """
 
         raise NotImplementedError('courses_quizzes_questions_list')

@@ -1,7 +1,11 @@
 import logging
+import os
 import re
 import typing
 
+import bs4
+import edq.net.request
+import edq.util.dirent
 import html2text
 import quizcomp.question.base
 
@@ -46,6 +50,23 @@ QUESTION_TYPE_MAPPING: typing.Dict[typing.Union[str, None], quizcomp.question.ba
 
 _testing_override: bool = False  # pylint: disable=invalid-name
 """ A special override to signal testing. """
+
+class _ParsedText:
+    """ The result of parsing Canvas HTML into markdown. """
+
+    def __init__(self,
+            html: str,
+            text: str,
+            resources: typing.List[str],
+            ) -> None:
+        self.html: str = html
+        """ The original HTML. """
+
+        self.text: str = text
+        """ The parsed text. """
+
+        self.resources: typing.List[str] = resources
+        """ The path to any resources parsed from this text. """
 
 def assignment(data: typing.Dict[str, typing.Any]) -> lms.model.assignments.Assignment:
     """
@@ -166,7 +187,11 @@ def group_set(data: typing.Dict[str, typing.Any]) -> lms.model.groupsets.GroupSe
 
     return lms.model.groupsets.GroupSet(**data)
 
-def quiz(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Quiz:
+def quiz(
+        backend: lms.model.backend.APIBackend,
+        data: typing.Dict[str, typing.Any],
+        fetch_resources: bool = False,
+        ) -> lms.model.quizzes.Quiz:
     """
     Create a Canvas quiz associated with a course.
 
@@ -175,11 +200,17 @@ def quiz(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Quiz:
 
     _parse_assignment_data(data, 'quiz')
 
-    data['description'] = _canvas_html_to_markdown(data.get('description', None))
+    parsed_text = _canvas_html_to_markdown(backend, data.get('description', None), fetch_resources)
+    data['description'] = parsed_text.text
+    data['resources'] = parsed_text.resources
 
     return lms.model.quizzes.Quiz(**data)
 
-def quiz_question(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Question:
+def quiz_question(
+        backend: lms.model.backend.APIBackend,
+        data: typing.Dict[str, typing.Any],
+        fetch_resources: bool = False,
+        ) -> lms.model.quizzes.Question:
     """
     Create a Canvas quiz question.
 
@@ -202,11 +233,27 @@ def quiz_question(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.Quest
     data['question_type'] = question_type
     data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
     data['name'] = lms.util.parse.optional_string(data.get('question_name', None))
-    data['prompt'] = _canvas_html_to_markdown(data.get('question_text', None))
     data['points'] = lms.util.parse.optional_float(data.get('points_possible', None), 'points')
     data['raw_answers'] = data.get('answers', None)
-    data['answers'] = _parse_quiz_question_answers(data.get('answers', None), data.get('matching_answer_incorrect_matches', None), question_type)
     data['group_id'] = lms.util.parse.optional_string(data.get('quiz_group_id', None))
+
+    all_resource_paths = []
+
+    parsed_text = _canvas_html_to_markdown(backend, data.get('question_text', None), fetch_resources)
+    data['prompt'] = parsed_text.text
+    all_resource_paths += parsed_text.resources
+
+    (answers, resources) = _parse_quiz_question_answers(
+        backend,
+        data.get('answers', None),
+        data.get('matching_answer_incorrect_matches', None),
+        question_type,
+        fetch_resources,
+    )
+    data['answers'] = answers
+    all_resource_paths += resources
+
+    data['resources'] = all_resource_paths
 
     return lms.model.quizzes.Question(**data)
 
@@ -229,22 +276,30 @@ def quiz_question_group(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes
 
     return lms.model.quizzes.QuestionGroup(**data)
 
-def _canvas_html_to_markdown(text: typing.Union[str, None]) -> str:
+def _canvas_html_to_markdown(
+        backend: lms.model.backend.APIBackend,
+        html: typing.Union[str, None],
+        fetch_resources: bool = False,
+        ) -> _ParsedText:
     """
     Parse the text from a Canvas quiz question into markdown.
     We intend for the resulting markdown to have a little HTML as possible.
     This is an impossible task, but we want to do our best.
     """
 
-    if (text is None):
-        return ''
+    if (html is None):
+        return _ParsedText('', '', [])
+
+    resources: typing.List[str] = []
+    if (fetch_resources):
+        (html, resources) = _fetch_html_resources(backend, html)
 
     converter = html2text.HTML2Text()
 
     converter.body_width = 0
     converter.mark_code = True
 
-    text = converter.handle(text)
+    text = converter.handle(html)
     text = text.strip()
 
     # Replace code tags with fences.
@@ -253,19 +308,59 @@ def _canvas_html_to_markdown(text: typing.Union[str, None]) -> str:
     # Replace placeholders (e.g., for fill in the blank questions).
     text = re.sub(r'\[(\w+?)\]', r'<placeholder>\1</placeholder>', text)
 
-    return text
+    return _ParsedText(html, text, resources)
+
+def _fetch_html_resources(backend: lms.model.backend.APIBackend, html: str) -> typing.Tuple[str, typing.List[str]]:
+    """ Fetch any resources embedded in the HTML and re-write the links for these resources. """
+
+    document = bs4.BeautifulSoup(html, 'html.parser')
+
+    resources = []
+
+    # Look for Canvas-embeded images.
+    for image in document.select('img[data-api-endpoint]'):
+        path = _fetch_file(backend, str(image.get('data-api-endpoint')))
+        if (path is None):
+            continue
+
+        image['src'] = os.path.basename(path)
+
+        resources.append(path)
+
+    return str(document), resources
+
+def _fetch_file(backend: lms.model.backend.APIBackend, info_link: str) -> typing.Union[str, None]:
+    """ Fetch a file from Canvas, write it to disk, and return the path. """
+
+    headers = backend.get_standard_headers()
+    file_info = lms.backend.canvas.common.make_get_request(info_link, headers = headers)
+
+    if (file_info is None):
+        return None
+
+    response, _ = edq.net.request.make_get(file_info['url'], headers = headers)
+
+    temp_dir = edq.util.dirent.get_temp_dir('edq-lms-canvas-')
+    path = os.path.join(temp_dir, file_info['filename'])
+
+    edq.util.dirent.write_file_bytes(path, response.content)
+
+    return path
 
 def _parse_quiz_question_answers(
+        backend: lms.model.backend.APIBackend,
         raw_answers: typing.Union[typing.List[typing.Any], None],
         raw_distractors: typing.Union[str, None],
         question_type: quizcomp.question.base.QuestionType,
-        ) -> typing.Union[typing.List[typing.Any], typing.Dict[str, typing.Any]]:
+        fetch_resources: bool = False,
+        ) -> typing.Tuple[typing.Union[typing.List[typing.Any], typing.Dict[str, typing.Any]], typing.List[str]]:
     """ Parse question answers from Canvas responses. """
 
     if (raw_answers is None):
-        return []
+        return [], []
 
     answers: typing.Union[typing.List[typing.Any], typing.Dict[str, typing.Any]] = []
+    resources: typing.List[str] = []
 
     # Parse answers based on question type.
     if (question_type in {quizcomp.question.base.QuestionType.ESSAY, quizcomp.question.base.QuestionType.TEXT_ONLY}):
@@ -277,13 +372,20 @@ def _parse_quiz_question_answers(
             if (key not in answers):
                 answers[key] = []
 
-            answers[key].append(_parse_quiz_question_text(raw_answer))
+            parsed_text = _parse_quiz_question_text(backend, raw_answer, fetch_resources)
+
+            answers[key].append(parsed_text.text)
+            resources += parsed_text.resources
     elif (question_type == quizcomp.question.base.QuestionType.FITB):
         answers = []
         for raw_answer in raw_answers:
-            answers.append(_parse_quiz_question_text(raw_answer))
+            parsed_text = _parse_quiz_question_text(backend, raw_answer, fetch_resources)
+
+            answers.append(parsed_text.text)
+            resources += parsed_text.resources
     elif (question_type in {quizcomp.question.base.QuestionType.MA, quizcomp.question.base.QuestionType.MCQ}):
-        answers = _parse_quiz_question_choices(raw_answers)
+        (answers, choice_resources) = _parse_quiz_question_choices(backend, raw_answers, fetch_resources)
+        resources += choice_resources
     elif (question_type == quizcomp.question.base.QuestionType.MDD):
         # Divide up sections by blank ID (find all the possibilities for each blank).
         # {key: [raw_answer, ...]}
@@ -298,10 +400,13 @@ def _parse_quiz_question_answers(
         # Parse the choices for each section/blank.
         answers = {}
         for (section_key, section_raw_answers) in raw_sections.items():
+            (choices, choice_resources) = _parse_quiz_question_choices(backend, section_raw_answers, fetch_resources)
+
             answers[section_key] = {
                 'text': section_key,
-                'values': _parse_quiz_question_choices(section_raw_answers)
+                'values': choices
             }
+            resources += choice_resources
     elif (question_type == quizcomp.question.base.QuestionType.MATCHING):
         if (raw_distractors is None):
             raw_distractors = ''
@@ -348,32 +453,45 @@ def _parse_quiz_question_answers(
     else:
         _logger.warning("Cannot form question answers, unknown question type: '%s'.", question_type)
 
-    return answers
+    return answers, resources
 
-def _parse_quiz_question_choices(choices: list[typing.Dict[str, typing.Any]]) -> typing.List[typing.Dict[str, typing.Any]]:
+def _parse_quiz_question_choices(
+        backend: lms.model.backend.APIBackend,
+        choices: list[typing.Dict[str, typing.Any]],
+        fetch_resources: bool = False,
+        ) -> typing.Tuple[typing.List[typing.Dict[str, typing.Any]], typing.List[str]]:
     """
     Parse the quiz question choices.
     This works for multiple types, like MCQ and MA.
     """
 
     results = []
+    resources = []
+
     for choice in choices:
-        text = _parse_quiz_question_text(choice)
-        results.append({"correct": (choice['weight'] > 0), "text": text})
+        parsed_text = _parse_quiz_question_text(backend, choice, fetch_resources)
 
-    return results
+        results.append({"correct": (choice['weight'] > 0), "text": parsed_text.text})
+        resources += parsed_text.resources
 
-def _parse_quiz_question_text(choice: typing.Dict[str, typing.Any]) -> str:
+    return results, resources
+
+def _parse_quiz_question_text(
+        backend: lms.model.backend.APIBackend,
+        choice: typing.Dict[str, typing.Any],
+        fetch_resources: bool = False,
+        ) -> _ParsedText:
     """ Parse text out of a Canvas question choice field. """
 
     text = choice.get('text', '').strip()
     if (text is None):
         text = ''
 
+    parsed_text = _ParsedText('', text, [])
     if (len(text) == 0):
-        text = _canvas_html_to_markdown(choice.get('html', None))
+        parsed_text = _canvas_html_to_markdown(backend, choice.get('html', None), fetch_resources)
 
-    return text
+    return parsed_text
 
 def _parse_assignment_data(data: typing.Dict[str, typing.Any], label: str) -> None:
     """

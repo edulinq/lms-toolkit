@@ -28,10 +28,10 @@ def run_cli(args: argparse.Namespace) -> int:
 
     questions = []
     if (len(args.questions) == 0):
-        questions = backend.courses_quizzes_questions_resolve_and_list(course_query, quiz_query)
+        questions = backend.courses_quizzes_questions_resolve_and_list(course_query, quiz_query, fetch_resources = True)
     else:
         queries = backend.parse_quiz_question_queries(args.questions)
-        questions = backend.courses_quizzes_questions_get(course_query, quiz_query, queries)
+        questions = backend.courses_quizzes_questions_get(course_query, quiz_query, queries, fetch_resources = True)
 
     base_dir = os.path.abspath(args.out_dir)
     for question in questions:
