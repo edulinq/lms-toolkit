@@ -49,6 +49,7 @@ def course_user(data: typing.Dict[str, typing.Any]) -> lms.model.users.CourseUse
         id = parse_id(user['id']),
         name = user['name']['given'],
         email = user['contact']['email'],
+        student_id = user.get('studentId', None),
         raw_role = data['courseRoleId'],
         role = COURSE_ROLE_MAPPING.get(data['courseRoleId'], None),
     )
