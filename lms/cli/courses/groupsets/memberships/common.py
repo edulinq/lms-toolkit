@@ -1,45 +1,40 @@
 import typing
 
-import edq.util.dirent
-
 import lms.model.backend
 import lms.model.groups
+import lms.util.tsv
 
 def load_group_memberships(
         backend: lms.model.backend.APIBackend,
         path: str,
-        skip_rows: bool,
+        skip_rows: int,
         ) -> typing.List[lms.model.groups.GroupMembership]:
     """ Read a group membership TSV file. """
 
+    tsv = lms.util.tsv.read_tsv(path, ['group', 'user'], skip_rows)
     memberships: typing.List[lms.model.groups.GroupMembership] = []
 
-    with open(path, 'r', encoding = edq.util.dirent.DEFAULT_ENCODING) as file:
-        lineno = 0
-        real_rows = 0
-        for line in file:
-            lineno += 1
+    if (tsv.header_map['group'] is None or tsv.header_map['user'] is None):
+        raise ValueError(f"File '{path}' is missing required columns 'group' and/or 'user'.")
 
-            if (line.strip() == ''):
-                continue
+    max_required_index = max(tsv.header_map['group'], tsv.header_map['user'])
 
-            real_rows += 1
+    for row in tsv.rows:
+        if (tsv.headers is None):
+            if (len(row.parts) != 2):
+                raise ValueError(f"File '{path}' line {row.lineno} has the incorrect number of values. Expecting 2, found {len(row.parts)}.")
+        else:
+            if (len(row.parts) <= max_required_index):
+                raise ValueError(f"File '{path}' line {row.lineno} has the incorrect number of values. Expecting 2, found {len(row.parts)}.")
 
-            if (real_rows <= skip_rows):
-                continue
+        group_query = backend.parse_group_query(row.parts[tsv.header_map['group']])
+        if (group_query is None):
+            raise ValueError(f"File '{path}' line {row.lineno} has a group query that could not be parsed: '{row.parts[tsv.header_map['group']]}'.")
 
-            parts = [part.strip() for part in line.split("\t")]
-            if (len(parts) != 2):
-                raise ValueError(f"File '{path}' line {lineno} has the incorrect number of values. Expecting 2, found {len(parts)}.")
+        user_query = backend.parse_user_query(row.parts[tsv.header_map['user']])
+        if (user_query is None):
+            raise ValueError(f"File '{path}' line {row.lineno} has a user query that could not be parsed: '{row.parts[tsv.header_map['user']]}'.")
 
-            group_query = backend.parse_group_query(parts[0])
-            if (group_query is None):
-                raise ValueError(f"File '{path}' line {lineno} has a group query that could not be parsed: '{parts[0]}'.")
-
-            user_query = backend.parse_user_query(parts[1])
-            if (user_query is None):
-                raise ValueError(f"File '{path}' line {lineno} has a user query that could not be parsed: '{parts[1]}'.")
-
-            memberships.append(lms.model.groups.GroupMembership(group = group_query, user = user_query))
+        memberships.append(lms.model.groups.GroupMembership(group = group_query, user = user_query))
 
     return memberships

@@ -7,20 +7,18 @@ import ast
 import sys
 import typing
 
-import edq.util.dirent
-
 import lms.backend.instance
 import lms.cli.common
 import lms.cli.parser
 import lms.model.backend
 import lms.model.scores
 import lms.model.users
+import lms.util.tsv
 
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
     config = args._config
-
     backend = lms.backend.instance.get_backend(**config)
 
     course_query = lms.cli.common.check_required_course(backend, config)
@@ -43,44 +41,46 @@ def run_cli(args: argparse.Namespace) -> int:
 def _load_scores(
         backend: lms.model.backend.APIBackend,
         path: str,
-        skip_rows: bool,
+        skip_rows: int,
         ) -> typing.Dict[lms.model.users.UserQuery, lms.model.scores.ScoreFragment]:
+    """ Load scores from a TSV file. """
+
+    tsv = lms.util.tsv.read_tsv(path, ['user', 'score', 'comment'], skip_rows)
     scores = {}
 
-    with open(path, 'r', encoding = edq.util.dirent.DEFAULT_ENCODING) as file:
-        lineno = 0
-        real_rows = 0
-        for line in file:
-            lineno += 1
+    user_index = tsv.header_map['user']
+    score_index = tsv.header_map['score']
+    comment_index = tsv.header_map.get('comment')
 
-            if (line.strip() == ''):
-                continue
+    if (user_index is None or score_index is None):
+        raise ValueError(f"File '{path}' is missing required columns 'user' and/or 'score'.")
 
-            real_rows += 1
+    max_required_index = max(user_index, score_index)
 
-            if (real_rows <= skip_rows):
-                continue
+    for row in tsv.rows:
+        if (tsv.headers is None):
+            if (len(row.parts) not in [2, 3]):
+                raise ValueError(f"File '{path}' line {row.lineno} has the incorrect number of values. Expecting 2-3, found {len(row.parts)}.")
+        else:
+            if (len(row.parts) <= max_required_index):
+                raise ValueError(f"File '{path}' line {row.lineno} has the incorrect number of values. Expecting 2-3, found {len(row.parts)}.")
 
-            parts = [part.strip() for part in line.split("\t")]
-            if (len(parts) not in [2, 3]):
-                raise ValueError(f"File '{path}' line {lineno} has the incorrect number of values. Expecting 2-3, found {len(parts)}.")
+        user_value = row.parts[user_index]
+        user_query = backend.parse_user_query(user_value)
+        if (user_query is None):
+            raise ValueError(f"File '{path}' line {row.lineno} has a user query that could not be parsed: '{user_value}'.")
 
-            user_query = backend.parse_user_query(parts[0])
-            if (user_query is None):
-                raise ValueError(f"File '{path}' line {lineno} has a user query that could not be parsed: '{parts[0]}'.")
+        score_value = row.parts[score_index]
+        score = None
+        if (score_value != ''):
+            try:
+                score = float(ast.literal_eval(score_value))
+            except Exception:
+                raise ValueError(f"File '{path}' line {row.lineno} has a score that cannot be converted to a number: '{score_value}'.")  # pylint: disable=raise-missing-from
 
-            score = None
-            if (parts[1] != ''):
-                try:
-                    score = float(ast.literal_eval(parts[1]))
-                except Exception:
-                    raise ValueError(f"File '{path}' line {lineno} has a score that cannot be converted to a number: '{parts[1]}'.")  # pylint: disable=raise-missing-from
+        comment = (row.parts[comment_index] if (comment_index is not None and comment_index < len(row.parts)) else '') or None
 
-            comment = None
-            if (len(parts) == 3):
-                comment = parts[2]
-
-            scores[user_query] = lms.model.scores.ScoreFragment(score = score, comment = comment)
+        scores[user_query] = lms.model.scores.ScoreFragment(score = score, comment = comment)
 
     return scores
 
