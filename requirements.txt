@@ -1,5 +1,5 @@
 beautifulsoup4>=4.10.0
 edq-quizcomp>=0.4.4
-edq-utils>=0.4.3
+edq-utils>=0.4.4
 html2text>=2025.4.15
 requests>=2.31.0

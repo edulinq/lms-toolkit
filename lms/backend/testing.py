@@ -233,20 +233,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
     def get_test_basename(cls, path: str) -> str:
         """ Get the test's name based off of its filename and location. """
 
-        path = os.path.abspath(path)
-
-        name = os.path.splitext(os.path.basename(path))[0]
-
-        ancestors = os.path.dirname(path).replace(CLI_TESTS_DIR, '')
-        prefix = ancestors.replace(os.sep, '_')
-
-        if (prefix.startswith('_')):
-            prefix = prefix.replace('_', '', 1)
-
-        if (len(prefix) > 0):
-            name =  f"{prefix}_{name}"
-
-        return name
+        return edq.testing.cli.compute_ancestor_basename(path, CLI_TESTS_DIR)
 
 @typing.runtime_checkable
 class BackendTestFunction(typing.Protocol):
