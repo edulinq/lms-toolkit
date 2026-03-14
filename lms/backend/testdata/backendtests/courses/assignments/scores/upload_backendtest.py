@@ -18,6 +18,17 @@ def test_courses_assignments_scores_upload_base(test: lms.backend.testing.Backen
             1,
             None,
         ),
+        (
+            {
+                'course_id': '110000000',
+                'assignment_id': '110000100',
+                'scores': {
+                    '6': lms.model.scores.ScoreFragment(score = 1.0, status = 'late'),
+                },
+            },
+            1,
+            None,
+        ),
 
         # Empty
         (

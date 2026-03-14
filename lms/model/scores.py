@@ -13,6 +13,7 @@ class ScoreFragment(edq.util.json.DictConverter):
     def __init__(self,
             score: typing.Union[float, None] = None,
             comment: typing.Union[str, None] = None,
+            status: typing.Optional[str] = None,
             **kwargs: typing.Any) -> None:
         self.score: typing.Union[float, None] = score
         """
@@ -22,6 +23,8 @@ class ScoreFragment(edq.util.json.DictConverter):
 
         self.comment: typing.Union[str, None] = comment
         """ An optional comment for this score. """
+        self.status: typing.Optional[str] = status
+        """ The status of the score (e.g., 'late', 'missing'). """
 
 class AssignmentScore(lms.model.base.BaseType):
     """
@@ -29,12 +32,13 @@ class AssignmentScore(lms.model.base.BaseType):
     """
 
     CORE_FIELDS = [
-        'id', 'user', 'assignment', 'score', 'submission_date', 'graded_date', 'comment',
+        'id', 'user', 'assignment', 'score', 'submission_date', 'graded_date', 'comment','status',
     ]
 
     def __init__(self,
             id: typing.Union[str, None] = None,
             score: typing.Union[float, None] = None,
+            status: typing.Union[str, None] = None,
             submission_date: typing.Union[edq.util.time.Timestamp, None] = None,
             graded_date: typing.Union[edq.util.time.Timestamp, None] = None,
             comment: typing.Union[str, None] = None,
@@ -54,7 +58,10 @@ class AssignmentScore(lms.model.base.BaseType):
 
         self.score: typing.Union[float, None] = score
         """ The assignment score. """
-
+        
+        self.status: typing.Union[str, None] = status
+        """ The assignment status. """
+        
         self.submission_date: typing.Union[edq.util.time.Timestamp, None] = submission_date
         """ The datetime that the submission that received this score was submitted. """
 
@@ -67,7 +74,7 @@ class AssignmentScore(lms.model.base.BaseType):
     def to_fragment(self) -> ScoreFragment:
         """ Get a score fragment from this assignment score. """
 
-        return ScoreFragment(score = self.score, comment = self.comment)
+        return ScoreFragment(score = self.score, comment = self.comment, status = self.status)
 
 class Gradebook(lms.model.base.BaseType):
     """
