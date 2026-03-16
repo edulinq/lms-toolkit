@@ -37,9 +37,14 @@ def run_cli(args: argparse.Namespace) -> int:
 def _load_gradebook(
         backend: lms.model.backend.APIBackend,
         path: str,
+        extra_fields: list = None
         ) -> lms.model.scores.Gradebook:
     assignments = []
     users = []
+    field_mapping = {}
+    if extra_fields:
+        for field_name, col_idx in extra_fields:
+            field_mapping[field_name] = int(col_idx)
     scores = []
 
     with open(path, 'r', encoding = edq.util.dirent.DEFAULT_ENCODING) as file:
@@ -85,6 +90,18 @@ def _load_gradebook(
             parts = parts[1:]
 
             for (i, part) in enumerate(parts):
+                extra_data = {}
+                for field_name, col_idx in field_mapping.items():
+                    full_line_parts = [p.strip() for p in line.split("\t")]
+                    if len(full_line_parts) > col_idx:
+                        extra_data[field_name] = full_line_parts[col_idx]
+
+                assignment_score = lms.model.scores.AssignmentScore(
+                    score = float_score, 
+                    assignment = assignments[i], 
+                    user = user,
+                    **extra_data  
+                )
                 part = part.strip()
                 if (len(part) == 0):
                     continue
@@ -115,6 +132,8 @@ def _get_parser() -> argparse.ArgumentParser:
             include_course = True,
             include_strict = True,
     )
+    parser.add_argument('--extra-field', nargs=2, action='append', metavar=('FIELD', 'COLUMN_INDEX'),
+        help="Map a specific AssignmentScore field to a 0-based column index.")
 
     parser.add_argument('path', metavar = 'PATH',
         action = 'store', type = str,

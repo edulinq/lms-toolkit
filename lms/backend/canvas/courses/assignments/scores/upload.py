@@ -32,6 +32,9 @@ def request(backend: typing.Any,
         if ((score.comment is not None) and (len(score.comment) > 0)):
             data[f"grade_data[{user_id}][text_comment]"] = score.comment
 
+        if hasattr(score, 'status') and score.status:
+            data[f"grade_data[{user_id}][late_policy_status]"] = score.status    
+
     response = lms.backend.canvas.common.make_post_request(url, headers = headers, data = data)
     if (response is None):
         return 0
