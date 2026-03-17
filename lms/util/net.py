@@ -2,6 +2,7 @@
 Utilities for network and HTTP.
 """
 
+import re
 import typing
 import urllib.parse
 
@@ -166,6 +167,30 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
 
     body = _clean_base_response(response, body)
 
+    # Standardize timestamp.
+    timestamp = "123456789"
+    current_timestamp_match = re.search(r"boost/theme/(\d{10})/favicon", body)
+    if (current_timestamp_match is not None):
+        body = body.replace(current_timestamp_match.group(1), timestamp)
+
+    # Standardize session key.
+    session_key = "abcABC123"
+    session_key_match = re.search(r'"sesskey":"([^"]+)"', body)
+    if (session_key_match is not None):
+        body = body.replace(session_key_match.group(1), session_key)
+
+    # Standardize "random" string.
+    random_string = "abc123"
+    random_string_match = re.search(r"'random([a-z0-9]+)'", body)
+    if (random_string_match is not None):
+        body = body.replace(random_string_match.group(1), random_string)
+
+    # Standardize logintoken.
+    token = session_key
+    logintoken_match = re.search(r'name="logintoken" value="(\w+)"', body)
+    if (logintoken_match  is not None):
+        body = body.replace(logintoken_match.group(1), token)
+
     # Work on both request and response headers.
     for headers in [response.headers, response.request.headers]:
         for key in list(headers.keys()):
@@ -175,7 +200,7 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
     return body
 
 def finalize_moodle_exchange(exchange: edq.util.net.HTTPExchange) -> edq.util.net.HTTPExchange:
-    """ Finalize Moodle exhanges. """
+    """ Finalize Moodle exchanges. """
 
     for param in MOODLE_FINALIZE_REMOVE_PARAMS:
         exchange.parameters.pop(param, None)
