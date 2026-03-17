@@ -5,8 +5,8 @@ A suite of tools and a Python interface for interacting with different
 
 This project is not affiliated with any LMS developer/provider.
 
-Links:
  - [API Reference](https://edulinq.github.io/lms-toolkit)
+ - [CLI Reference](https://edulinq.github.io/lms-toolkit/docs/latest/lms/cli.html)
  - [Development Notes](docs/development.md)
  - [Installation](#installation)
  - [Usage Notes](#usage-notes)
@@ -26,6 +26,14 @@ Links:
      - Gradebook
        - [Retrieve Gradebook](#retrieve-gradebook)
        - [Upload Gradebook](#upload-gradebook)
+     - Quizzes
+       - [Retrieve Quizzes](#retrieve-quizzes)
+       - [Write Quizzes](#write-quizzes)
+       - Questions
+         - [Retrieve Quiz Questions](#retrieve-quiz-questions)
+         - [Write Quiz Questions](#write-quiz-questions)
+       - Question Groups
+         - [Retrieve Quiz Question Groups](#retrieve-quiz-question-groups)
      - Syllabus
        - [Retrieve Syllabus](#retrieve-syllabus)
      - User Groupings
@@ -97,17 +105,17 @@ Note that values only need to be provided once (in the config or CLI).
 For example, a Canvas config file may look like:
 ```json
 {
-    "server": "canvas.edulinq.org",
-    "token" "abc123"
+    "server": "https://canvas.edulinq.org",
+    "token": "abc123"
 }
 ```
 
 Whereas a Blackboard/Moodle config file may look like:
 ```json
 {
-    "server": "canvas.edulinq.org",
+    "server": "https://canvas.edulinq.org",
     "auth_user": "sammy",
-    "auth_password" "abc123"
+    "auth_password": "abc123"
 }
 ```
 
@@ -190,37 +198,37 @@ python3 -m lms.cli.courses.get 'Course 101'
 
 ### Retrieve Assignments
 
-List all assignments associated with a course with `lms.cli.assignments.list`:
+List all assignments associated with a course with `lms.cli.courses.assignments.list`:
 ```sh
-python3 -m lms.cli.assignments.list --course 'Course 101'
+python3 -m lms.cli.courses.assignments.list --course 'Course 101'
 ```
 
-You can get a single assignment with `lms.cli.assignments.get`:
+You can get a single assignment with `lms.cli.courses.assignments.get`:
 ```sh
-python3 -m lms.cli.assignments.get --course 'Course 101' 'Homework 0'
+python3 -m lms.cli.courses.assignments.get --course 'Course 101' 'Homework 0'
 ```
 
 ### Retrieve Assignment Scores
 
-List all student scores for an assignment with `lms.cli.assignments.scores.list`:
+List all student scores for an assignment with `lms.cli.courses.assignments.scores.list`:
 ```sh
-python3 -m lms.cli.assignments.scores.list --course 'Course 101' --assignment 'Homework 0'
+python3 -m lms.cli.courses.assignments.scores.list --course 'Course 101' --assignment 'Homework 0'
 ```
 
 The `table` format is especially useful for listing scores:
 ```sh
-python3 -m lms.cli.assignments.scores.list --course 'Course 101' --assignment 'Homework 0' --format table
+python3 -m lms.cli.courses.assignments.scores.list --course 'Course 101' --assignment 'Homework 0' --format table
 ```
 
 ### Upload Assignment Scores
 
-Upload a single score for an assignment and user with `lms.cli.assignments.scores.upload-score`.
+Upload a single score for an assignment and user with `lms.cli.courses.assignments.scores.upload-score`.
 For example, to upload a score of `1.0` for user `course-student` and assignment `Homework 0', use:
 ```sh
-python3 -m lms.cli.assignments.scores.upload-score --course 'Course 101' --assignment 'Homework 0' --user 'course-student' 1.0
+python3 -m lms.cli.courses.assignments.scores.upload-score --course 'Course 101' --assignment 'Homework 0' --user 'course-student' 1.0
 ```
 
-To upload multiple scores for a single assignment, use `lms.cli.assignments.scores.upload`.
+To upload multiple scores for a single assignment, use `lms.cli.courses.assignments.scores.upload`.
 This tool takes a TSV file as input.
 Each data row can have two or three columns (different rows can have different number of columns).
 The values are as follows:
@@ -239,7 +247,7 @@ extra-course-student-4@test.edulinq.org	2.5	foo
 
 We can upload these scores for `Assignment 1` in the course `Extra Course` using:
 ```sh
-python3 -m lms.cli.assignments.scores.upload --course 'Extra Course' --assignment 'Assignment 1' scores.txt
+python3 -m lms.cli.courses.assignments.scores.upload --course 'Extra Course' --assignment 'Assignment 1' scores.txt
 ```
 
 ### Retrieve Gradebook
@@ -272,6 +280,73 @@ A gradebook does not need to represent all assignments or students in a course.
 Only the assignments and students of interest need to be included.
 An empty cell (missing score) will be ignored,
 but all rows must have the correct number of cells (tabs).
+
+### Retrieve Quizzes
+
+List all quizzes associated with a course with `lms.cli.courses.quizzes.list`:
+```sh
+python3 -m lms.cli.courses.quizzes.list --course 'Course 101'
+```
+
+You can get a single quiz with `lms.cli.courses.quizzes.get`:
+```sh
+python3 -m lms.cli.courses.quizzes.get --course 'Course 101' 'Regular Expressions'
+```
+
+### Write Quizzes
+
+Write all quizzes in a course to a directory (in the [Quiz Composer](https://github.com/edulinq/quiz-composer) format)
+with `lms.cli.courses.quizzes.write`:
+```sh
+python3 -m lms.cli.courses.quizzes.write --course 'Course 101' --out-dir 'out'
+```
+
+You can also specify specific quizzes to write instead of all quizzes:
+```sh
+python3 -m lms.cli.courses.quizzes.write --course 'Course 101' --out-dir 'out' 'Regular Expressions'
+```
+
+### Retrieve Quiz Questions
+
+List all questions for a quiz with `lms.cli.courses.quizzes.questions.list`:
+```sh
+python3 -m lms.cli.courses.quizzes.questions.list --course 'Course 101' --quiz 'Regular Expressions'
+```
+
+You can get a single question with `lms.cli.courses.quizzes.questions.get`:
+```sh
+python3 -m lms.cli.courses.quizzes.questions.get --course 'Course 101' --quiz 'Regular Expressions' 'Regex Golf'
+```
+
+### Write Quiz Questions
+
+Write all questions for a quiz to a directory (in the [Quiz Composer](https://github.com/edulinq/quiz-composer) format)
+with `lms.cli.courses.quizzes.questions.write`:
+```sh
+python3 -m lms.cli.courses.quizzes.questions.write --course 'Course 101' --quiz 'Regular Expressions' --out-dir 'out'
+```
+
+You can also specify specific questions to write instead of all questions:
+```sh
+python3 -m lms.cli.courses.quizzes.write --course 'Course 101' --quiz 'Regular Expressions' --out-dir 'out' 'Regex Golf'
+```
+
+### Retrieve Quiz Question Groups
+
+A "question group" (or just "group") is a collection of possible quiz questions.
+When creating a quiz, questions are placed into a group.
+Then, when the quiz is printed/generated/taken, a subset of a group's questions are chosen (usually at random).
+This allows for different quiz variants.
+
+List all question groups for a quiz with `lms.cli.courses.quizzes.groups.list`:
+```sh
+python3 -m lms.cli.courses.quizzes.groups.list --course 'Course 101' --quiz 'Regular Expressions'
+```
+
+You can get a single question group with `lms.cli.courses.quizzes.groups.get`:
+```sh
+python3 -m lms.cli.courses.quizzes.groups.get --course 'Course 101' --quiz 'Regular Expressions' 'General Quantification'
+```
 
 ### Retrieve Syllabus
 
@@ -437,26 +512,26 @@ This operation will add and subtract any users necessary to make the group have 
 
 ### Retrieve Users
 
-List all users associated with a course with `lms.cli.users.list`:
+List all users associated with a course with `lms.cli.courses.users.list`:
 ```sh
-python3 -m lms.cli.users.list --course 'Course 101'
+python3 -m lms.cli.courses.users.list --course 'Course 101'
 ```
 
-You can get a single user with `lms.cli.users.get`:
+You can get a single user with `lms.cli.courses.users.get`:
 ```sh
-python3 -m lms.cli.users.get --course 'Course 101' 'course-student'
+python3 -m lms.cli.courses.users.get --course 'Course 101' 'course-student'
 ```
 
 ### Retrieve User Scores
 
-List all scores for a student with `lms.cli.users.scores.list`:
+List all scores for a student with `lms.cli.courses.users.scores.list`:
 ```sh
-python3 -m lms.cli.users.scores.list --course 'Extra Course' --user 'extra-course-student-1'
+python3 -m lms.cli.courses.users.scores.list --course 'Extra Course' --user 'extra-course-student-1'
 ```
 
 The `table` format is especially useful for listing scores:
 ```sh
-python3 -m lms.cli.users.scores.list --course 'Extra Course' --user 'extra-course-student-1' --format table
+python3 -m lms.cli.courses.users.scores.list --course 'Extra Course' --user 'extra-course-student-1' --format table
 ```
 
 ## LMS Coverage
@@ -464,42 +539,50 @@ python3 -m lms.cli.users.scores.list --course 'Extra Course' --user 'extra-cours
 The LMS Toolkit is constantly expanding its support with hopes for supporting all major LMSs.
 
 Legend:
- - `+` -- Supported
+ - ✅ -- Supported
  - `-` -- Not Yet Supported
  - `x` -- Support Impossible (See Notes)
 
 | Tool                                            | Blackboard | Canvas | Moodle |
 |-------------------------------------------------|------------|--------|--------|
-| lms.cli.courses.get                             | `+`        | `+`    | `+`    |
-| lms.cli.courses.list                            | `+`        | `+`    | `+`    |
-| lms.cli.courses.assignments.get                 | `-`        | `+`    | `-`    |
-| lms.cli.courses.assignments.list                | `-`        | `+`    | `-`    |
-| lms.cli.courses.assignments.scores.get          | `-`        | `+`    | `-`    |
-| lms.cli.courses.assignments.scores.list         | `-`        | `+`    | `-`    |
-| lms.cli.courses.assignments.scores.upload       | `-`        | `+`    | `-`    |
-| lms.cli.courses.assignments.scores.upload-score | `-`        | `+`    | `-`    |
-| lms.cli.courses.gradebook.get                   | `-`        | `+`    | `-`    |
-| lms.cli.courses.gradebook.list                  | `-`        | `+`    | `-`    |
-| lms.cli.courses.gradebook.upload                | `-`        | `+`    | `-`    |
-| lms.cli.courses.groups.create                   | `-`        | `+`    | `-`    |
-| lms.cli.courses.groups.delete                   | `-`        | `+`    | `-`    |
-| lms.cli.courses.groups.get                      | `-`        | `+`    | `-`    |
-| lms.cli.courses.groups.list                     | `-`        | `+`    | `-`    |
-| lms.cli.courses.groups.memberships.add          | `-`        | `+`    | `-`    |
-| lms.cli.courses.groups.memberships.list         | `-`        | `+`    | `-`    |
-| lms.cli.courses.groups.memberships.set          | `-`        | `+`    | `-`    |
-| lms.cli.courses.groups.memberships.subtract     | `-`        | `+`    | `-`    |
-| lms.cli.courses.groupsets.create                | `-`        | `+`    | `-`    |
-| lms.cli.courses.groupsets.delete                | `-`        | `+`    | `-`    |
-| lms.cli.courses.groupsets.get                   | `-`        | `+`    | `-`    |
-| lms.cli.courses.groupsets.list                  | `-`        | `+`    | `-`    |
-| lms.cli.courses.groupsets.memberships.add       | `-`        | `+`    | `-`    |
-| lms.cli.courses.groupsets.memberships.list      | `-`        | `+`    | `-`    |
-| lms.cli.courses.groupsets.memberships.set       | `-`        | `+`    | `-`    |
-| lms.cli.courses.groupsets.memberships.subtract  | `-`        | `+`    | `-`    |
-| lms.cli.courses.syllabus.get                    | `-`        | `+`    | `-`    |
-| lms.cli.courses.users.get                       | `+`        | `+`    | `-`    |
-| lms.cli.courses.users.list                      | `+`        | `+`    | `-`    |
-| lms.cli.courses.users.scores.get                | `-`        | `+`    | `-`    |
-| lms.cli.courses.users.scores.list               | `-`        | `+`    | `-`    |
-| lms.cli.server.identify                         | `+`        | `+`    | `+`    |
+| lms.cli.courses.get                             | ✅         | ✅     | ✅     |
+| lms.cli.courses.list                            | ✅         | ✅     | ✅     |
+| lms.cli.courses.assignments.get                 | `-`        | ✅     | `-`    |
+| lms.cli.courses.assignments.list                | `-`        | ✅     | `-`    |
+| lms.cli.courses.assignments.scores.get          | `-`        | ✅     | `-`    |
+| lms.cli.courses.assignments.scores.list         | `-`        | ✅     | `-`    |
+| lms.cli.courses.assignments.scores.upload       | `-`        | ✅     | `-`    |
+| lms.cli.courses.assignments.scores.upload-score | `-`        | ✅     | `-`    |
+| lms.cli.courses.gradebook.get                   | `-`        | ✅     | `-`    |
+| lms.cli.courses.gradebook.list                  | `-`        | ✅     | `-`    |
+| lms.cli.courses.gradebook.upload                | `-`        | ✅     | `-`    |
+| lms.cli.courses.groups.create                   | `-`        | ✅     | `-`    |
+| lms.cli.courses.groups.delete                   | `-`        | ✅     | `-`    |
+| lms.cli.courses.groups.get                      | `-`        | ✅     | `-`    |
+| lms.cli.courses.groups.list                     | `-`        | ✅     | `-`    |
+| lms.cli.courses.groups.memberships.add          | `-`        | ✅     | `-`    |
+| lms.cli.courses.groups.memberships.list         | `-`        | ✅     | `-`    |
+| lms.cli.courses.groups.memberships.set          | `-`        | ✅     | `-`    |
+| lms.cli.courses.groups.memberships.subtract     | `-`        | ✅     | `-`    |
+| lms.cli.courses.groupsets.create                | `-`        | ✅     | `-`    |
+| lms.cli.courses.groupsets.delete                | `-`        | ✅     | `-`    |
+| lms.cli.courses.groupsets.get                   | `-`        | ✅     | `-`    |
+| lms.cli.courses.groupsets.list                  | `-`        | ✅     | `-`    |
+| lms.cli.courses.groupsets.memberships.add       | `-`        | ✅     | `-`    |
+| lms.cli.courses.groupsets.memberships.list      | `-`        | ✅     | `-`    |
+| lms.cli.courses.groupsets.memberships.set       | `-`        | ✅     | `-`    |
+| lms.cli.courses.groupsets.memberships.subtract  | `-`        | ✅     | `-`    |
+| lms.cli.courses.quizzes.get                     | `-`        | ✅     | `-`    |
+| lms.cli.courses.quizzes.list                    | `-`        | ✅     | `-`    |
+| lms.cli.courses.quizzes.write                   | `-`        | ✅     | `-`    |
+| lms.cli.courses.quizzes.groups.get              | `-`        | ✅     | `-`    |
+| lms.cli.courses.quizzes.groups.list             | `-`        | ✅     | `-`    |
+| lms.cli.courses.quizzes.questions.get           | `-`        | ✅     | `-`    |
+| lms.cli.courses.quizzes.questions.list          | `-`        | ✅     | `-`    |
+| lms.cli.courses.quizzes.questions.write         | `-`        | ✅     | `-`    |
+| lms.cli.courses.syllabus.get                    | `-`        | ✅     | `-`    |
+| lms.cli.courses.users.get                       | ✅         | ✅     | `-`    |
+| lms.cli.courses.users.list                      | ✅         | ✅     | `-`    |
+| lms.cli.courses.users.scores.get                | `-`        | ✅     | `-`    |
+| lms.cli.courses.users.scores.list               | `-`        | ✅     | `-`    |
+| lms.cli.server.identify                         | ✅         | ✅     | ✅     |

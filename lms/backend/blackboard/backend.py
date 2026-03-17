@@ -2,7 +2,7 @@
 
 import typing
 
-import edq.util.net
+import edq.net.request
 
 import lms.backend.blackboard.model
 import lms.model.backend
@@ -44,7 +44,7 @@ class BlackboardBackend(lms.model.backend.APIBackend):
         if (self._session_headers is not None):
             return
 
-        response, _ = edq.util.net.make_get(self.server)
+        response, _ = edq.net.request.make_get(self.server)
         cookies, router_params = self._parse_bb_cookies(response.headers.get('set-cookie', None))
 
         new_cookies = {
@@ -62,7 +62,7 @@ class BlackboardBackend(lms.model.backend.APIBackend):
             'blackboard.platform.security.NonceUtil.nonce.ajax': router_params['xsrf'],
         }
 
-        response, _ = edq.util.net.make_post(self.server + '/webapps/login/',
+        response, _ = edq.net.request.make_post(self.server + '/webapps/login/',
                 headers = headers, data = data,
                 # Don't store the nonce in exchanges.
                 params_to_skip = ['blackboard.platform.security.NonceUtil.nonce.ajax'],
@@ -115,7 +115,7 @@ class BlackboardBackend(lms.model.backend.APIBackend):
         data = {
             'availability.available': 'Yes',
         }
-        response, _ = edq.util.net.make_get(url, headers = self._session_headers, data = data)
+        response, _ = edq.net.request.make_get(url, headers = self._session_headers, data = data)
 
         courses = []
         for raw_course in response.json().get('results', []):
@@ -139,7 +139,7 @@ class BlackboardBackend(lms.model.backend.APIBackend):
             'expand': 'user',
         }
 
-        response, _ = edq.util.net.make_get(url, headers = self._session_headers, data = data)
+        response, _ = edq.net.request.make_get(url, headers = self._session_headers, data = data)
 
         users = []
         for raw_user in response.json().get('results', []):

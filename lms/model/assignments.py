@@ -63,10 +63,10 @@ class Assignment(lms.model.base.BaseType):
         """ The description of this assignment. """
 
         self.open_date: typing.Union[edq.util.time.Timestamp, None] = open_date
-        """ The datetime that this assignment becomes open at. """
+        """ The datetime that this assignment opens at. """
 
         self.close_date: typing.Union[edq.util.time.Timestamp, None] = close_date
-        """ The datetime that this assignment becomes close at. """
+        """ The datetime that this assignment closes at. """
 
         self.due_date: typing.Union[edq.util.time.Timestamp, None] = due_date
         """ The datetime that this assignment is due at. """
@@ -78,3 +78,8 @@ class Assignment(lms.model.base.BaseType):
         """ Get a query representation of this assignment. """
 
         return ResolvedAssignmentQuery(self)
+
+    def get_label(self) -> str:
+        """ Get the label for this assignment. """
+
+        return f"{self.name} ({self.id})"

@@ -1,0 +1,12 @@
+{
+    "cli": "lms.cli.courses.assignments.scores.upload-score",
+    "arguments": [
+        "--course", "Course 101",
+        "--assignment", "Homework 0",
+        "--user", "course-student",
+        "--strict",
+        "1.0"
+    ],
+}
+---
+Uploaded 1 Scores

@@ -1,6 +1,7 @@
 import typing
 
 import edq.util.json
+import edq.util.time
 
 import lms.model.constants
 import lms.util.string
@@ -100,6 +101,8 @@ class BaseType(edq.util.json.DictConverter):
         """
 
         rows = []
+
+        kwargs['pretty_timestamps'] = True
 
         for (field_name, row) in self._get_fields(**kwargs).items():
             if (not skip_headers):
@@ -202,6 +205,7 @@ class BaseType(edq.util.json.DictConverter):
     def _value_to_text(self,
             value: typing.Any,
             indent: typing.Union[int, None] = None,
+            pretty_timestamps: bool = False,
             **kwargs: typing.Any) -> str:
         """
         Convert some arbitrary value (usually found within a BaseType) to a string.
@@ -216,6 +220,9 @@ class BaseType(edq.util.json.DictConverter):
 
         if (isinstance(value, (edq.util.json.DictConverter, dict, list, tuple))):
             return str(edq.util.json.dumps(value, indent = indent))
+
+        if (pretty_timestamps and isinstance(value, edq.util.time.Timestamp)):
+            return value.pretty(short = True)
 
         return str(value)
 

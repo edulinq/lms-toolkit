@@ -17,6 +17,9 @@ import lms.backend.canvas.courses.groups.memberships.add
 import lms.backend.canvas.courses.groups.memberships.list
 import lms.backend.canvas.courses.groups.memberships.subtract
 import lms.backend.canvas.courses.list
+import lms.backend.canvas.courses.quizzes.list
+import lms.backend.canvas.courses.quizzes.groups.list
+import lms.backend.canvas.courses.quizzes.questions.list
 import lms.backend.canvas.courses.syllabus.fetch
 import lms.backend.canvas.courses.users.list
 import lms.backend.canvas.courses.users.scores.list
@@ -26,6 +29,7 @@ import lms.model.constants
 import lms.model.courses
 import lms.model.groups
 import lms.model.groupsets
+import lms.model.quizzes
 import lms.model.scores
 import lms.model.users
 import lms.util.parse
@@ -186,6 +190,30 @@ class CanvasBackend(lms.model.backend.APIBackend):
         parsed_user_ids = [lms.util.parse.required_int(user_id, 'user_id') for user_id in user_ids]
         return lms.backend.canvas.courses.groups.memberships.subtract.request(self,
                 parsed_course_id, parsed_groupset_id, parsed_group_id, parsed_user_ids)
+
+    def courses_quizzes_list(self,
+            course_id: str,
+            fetch_resources: bool = False,
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Quiz]:
+        parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
+        return lms.backend.canvas.courses.quizzes.list.request(self, parsed_course_id, fetch_resources)
+
+    def courses_quizzes_groups_list(self,
+            course_id: str,
+            quiz_id: str,
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.QuestionGroup]:
+        parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
+        parsed_quiz_id = lms.util.parse.required_int(quiz_id, 'quiz_id')
+        return lms.backend.canvas.courses.quizzes.groups.list.request(self, parsed_course_id, parsed_quiz_id)
+
+    def courses_quizzes_questions_list(self,
+            course_id: str,
+            quiz_id: str,
+            fetch_resources: bool = False,
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Question]:
+        parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
+        parsed_quiz_id = lms.util.parse.required_int(quiz_id, 'quiz_id')
+        return lms.backend.canvas.courses.quizzes.questions.list.request(self, parsed_course_id, parsed_quiz_id, fetch_resources)
 
     def courses_syllabus_fetch(self,
             course_id: str,

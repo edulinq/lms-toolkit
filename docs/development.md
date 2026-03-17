@@ -61,7 +61,7 @@ Here is a suggested order for handling things.
 ## Test Data
 
 The majority of the data needed for testing takes the form of
-[HTTP Exchanges](https://github.com/edulinq/python-utils/blob/main/edq/util/net.py) from LMS servers.
+[HTTP Exchanges](https://github.com/edulinq/python-utils/blob/main/edq/net/exchange.py) from LMS servers.
 These test exchanges are generally provided by repos that specialize in creating a Docker image for a specific LMS and loading it with data.
 For example, the [lms-docker-canvas-testdata repo](https://github.com/edulinq/lms-docker-canvas-testdata)
 creates a Docker image with a running Canvas instance loaded with standardized test data.

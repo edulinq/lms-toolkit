@@ -1,8 +1,8 @@
 import os
 import typing
 
+import edq.net.request
 import edq.testing.cli
-import edq.util.net
 
 import lms.backend.testing
 import lms.model.constants
@@ -46,7 +46,7 @@ class BlackboardBackendTest(lms.backend.testing.BackendTest):
             'x-blackboard-xsrf',
         ]
 
-        edq.util.net._disable_https_verification()
+        edq.net.request._disable_https_verification()
 
     def modify_cli_test_info(self, test_info: edq.testing.cli.CLITestInfo) -> None:
         super().modify_cli_test_info(test_info)

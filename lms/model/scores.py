@@ -29,7 +29,7 @@ class AssignmentScore(lms.model.base.BaseType):
     """
 
     CORE_FIELDS = [
-        'id', 'user_query', 'assignment_query', 'score', 'submission_date', 'graded_date', 'comment',
+        'id', 'user', 'assignment', 'score', 'submission_date', 'graded_date', 'comment',
     ]
 
     def __init__(self,
@@ -38,18 +38,18 @@ class AssignmentScore(lms.model.base.BaseType):
             submission_date: typing.Union[edq.util.time.Timestamp, None] = None,
             graded_date: typing.Union[edq.util.time.Timestamp, None] = None,
             comment: typing.Union[str, None] = None,
-            assignment_query: typing.Union[lms.model.assignments.AssignmentQuery, None] = None,
-            user_query: typing.Union[lms.model.users.UserQuery, None] = None,
+            assignment: typing.Union[lms.model.assignments.AssignmentQuery, None] = None,
+            user: typing.Union[lms.model.users.UserQuery, None] = None,
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
 
         self.id: typing.Union[str, None] = id
         """ The LMS's identifier for this score. """
 
-        self.assignment_query: typing.Union[lms.model.assignments.AssignmentQuery, None] = assignment_query
+        self.assignment: typing.Union[lms.model.assignments.AssignmentQuery, None] = assignment
         """ The assignment associated with this score. """
 
-        self.user_query: typing.Union[lms.model.users.UserQuery, None] = user_query
+        self.user: typing.Union[lms.model.users.UserQuery, None] = user
         """ The user associated with this score. """
 
         self.score: typing.Union[float, None] = score
@@ -156,25 +156,25 @@ class Gradebook(lms.model.base.BaseType):
 
         found_assignment = None
         for assignment in self.assignments:
-            if (assignment.match(score.assignment_query)):
+            if (assignment.match(score.assignment)):
                 found_assignment = assignment
                 break
 
         if (found_assignment is None):
-            raise ValueError(f"Could not match gradebook assignment to score's assignment '{score.assignment_query}'.")
+            raise ValueError(f"Could not match gradebook assignment to score's assignment '{score.assignment}'.")
 
         found_user = None
         for user in self.users:
-            if (user.match(score.user_query)):
+            if (user.match(score.user)):
                 found_user = user
                 break
 
         if (found_user is None):
-            raise ValueError(f"Could not match gradebook user to score's user '{score.user_query}'.")
+            raise ValueError(f"Could not match gradebook user to score's user '{score.user}'.")
 
         # Update the score's queries.
-        score.assignment_query = found_assignment
-        score.user_query = found_user
+        score.assignment = found_assignment
+        score.user = found_user
 
         self._entries[self._make_key(found_assignment, found_user)] = score
 
@@ -191,11 +191,11 @@ class Gradebook(lms.model.base.BaseType):
         self.users = [user_map.get(user.id, user) for user in self.users]
 
         for score in self._entries.values():
-            if (score.assignment_query is not None):
-                score.assignment_query = assignment_map.get(score.assignment_query.id, score.assignment_query)
+            if (score.assignment is not None):
+                score.assignment = assignment_map.get(score.assignment.id, score.assignment)
 
-            if (score.user_query is not None):
-                score.user_query = user_map.get(score.user_query.id, score.user_query)
+            if (score.user is not None):
+                score.user = user_map.get(score.user.id, score.user)
 
     def as_text_rows(self,
             skip_headers: bool = False,

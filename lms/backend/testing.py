@@ -3,6 +3,7 @@ import os
 import typing
 
 import edq.core.log
+import edq.net.exchangeserver
 import edq.testing.cli
 import edq.testing.unittest
 import edq.testing.httpserver
@@ -80,7 +81,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
         """
 
     @classmethod
-    def setup_server(cls, server: edq.testing.httpserver.HTTPTestServer) -> None:
+    def setup_server(cls, server: edq.net.exchangeserver.HTTPExchangeServer) -> None:
         if (cls.server_key == ''):
             raise ValueError("BackendTest subclass did not set server key properly.")
 
@@ -101,7 +102,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
             server.match_options[key] += values
 
     @classmethod
-    def post_start_server(cls, server: edq.testing.httpserver.HTTPTestServer) -> None:
+    def post_start_server(cls, server: edq.net.exchangeserver.HTTPExchangeServer) -> None:
         cls.backend = lms.backend.instance.get_backend(cls.get_server_url(), backend_type = cls.backend_type, **cls.backend_args)
 
     @classmethod
@@ -232,20 +233,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
     def get_test_basename(cls, path: str) -> str:
         """ Get the test's name based off of its filename and location. """
 
-        path = os.path.abspath(path)
-
-        name = os.path.splitext(os.path.basename(path))[0]
-
-        ancestors = os.path.dirname(path).replace(CLI_TESTS_DIR, '')
-        prefix = ancestors.replace(os.sep, '_')
-
-        if (prefix.startswith('_')):
-            prefix = prefix.replace('_', '', 1)
-
-        if (len(prefix) > 0):
-            name =  f"{prefix}_{name}"
-
-        return name
+        return edq.testing.cli.compute_ancestor_basename(path, CLI_TESTS_DIR)
 
 @typing.runtime_checkable
 class BackendTestFunction(typing.Protocol):

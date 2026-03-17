@@ -55,12 +55,12 @@ def _get_base_gradebook():
     base_gradebook = lms.model.scores.Gradebook(base_assignments, base_users)
 
     base_gradebook.add(lms.model.scores.AssignmentScore(score = 1.0,
-            assignment_query = base_assignments[0], user_query = base_users[0]))
+            assignment = base_assignments[0], user = base_users[0]))
     base_gradebook.add(lms.model.scores.AssignmentScore(score = 0.5,
-            assignment_query = base_assignments[0], user_query = base_users[1]))
+            assignment = base_assignments[0], user = base_users[1]))
     base_gradebook.add(lms.model.scores.AssignmentScore(score = 1.0, comment = 'extra-course-student-1 comment',
-            assignment_query = base_assignments[1], user_query = base_users[0]))
+            assignment = base_assignments[1], user = base_users[0]))
     base_gradebook.add(lms.model.scores.AssignmentScore(score = 0.5, comment = 'extra-course-student-2 comment',
-            assignment_query = base_assignments[1], user_query = base_users[1]))
+            assignment = base_assignments[1], user = base_users[1]))
 
     return base_gradebook

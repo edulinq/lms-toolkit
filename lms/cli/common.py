@@ -4,6 +4,7 @@ import lms.model.backend
 import lms.model.assignments
 import lms.model.courses
 import lms.model.groupsets
+import lms.model.quizzes
 import lms.model.users
 import lms.util.parse
 
@@ -91,6 +92,27 @@ def check_required_group(
 
     return query
 
+def check_required_quiz(
+        backend: lms.model.backend.APIBackend,
+        config: typing.Dict[str, typing.Any],
+        ) -> typing.Union[lms.model.quizzes.QuizQuery, None]:
+    """
+    Fetch and ensure that a quiz is provided in the config.
+    If no quiz is provided, print a message and return None.
+    """
+
+    quiz = lms.util.parse.optional_string(config.get('quiz', None))
+    if (quiz is None):
+        print('ERROR: No quiz has been provided.')
+        return None
+
+    query = backend.parse_quiz_query(quiz)
+    if (query is None):
+        print('ERROR: Quiz query is malformed.')
+        return None
+
+    return query
+
 def check_required_user(
         backend: lms.model.backend.APIBackend,
         config: typing.Dict[str, typing.Any],
@@ -111,3 +133,26 @@ def check_required_user(
         return None
 
     return query
+
+DEFAULT_STRICT_EXIT_CODE: int = 101
+
+def strict_check(
+        strict: bool,
+        has_error: bool,
+        message: str,
+        exit_code: int = DEFAULT_STRICT_EXIT_CODE,
+        ) -> int:
+    """
+    Check if strict mode is enabled and if the operation encountered an error.
+    If strict mode is triggered, print an error message and return a suggested exit status.
+    Otherwise, return 0.
+    """
+
+    if (not strict):
+        return 0
+
+    if (has_error):
+        print(f"ERROR (Strict Mode): {message}")
+        return exit_code
+
+    return 0

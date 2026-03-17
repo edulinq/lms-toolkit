@@ -1,0 +1,13 @@
+{
+    "cli": "lms.cli.courses.quizzes.groups.get",
+    "arguments": [
+        "--course", "Course 101",
+        "--quiz", "Regular Expressions",
+        "Regular Expression in Programming Languages",
+    ],
+}
+---
+id: 110000202
+name: Regular Expression in Programming Languages
+pick_count: 1
+points: 5.0

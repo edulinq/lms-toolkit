@@ -1,0 +1,12 @@
+{
+    "cli": "lms.cli.courses.assignments.scores.upload",
+    "arguments": [
+        "--course", "Course 101",
+        "--assignment", "Homework 0",
+        "--skip-rows", "1",
+        "--strict",
+        "__DATA_DIR__(scores/course101_hw0_base.txt)",
+    ],
+}
+---
+Uploaded 1 Scores

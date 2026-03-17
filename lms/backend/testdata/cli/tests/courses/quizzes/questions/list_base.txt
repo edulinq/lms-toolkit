@@ -1,0 +1,10 @@
+{
+    "cli": "lms.cli.courses.quizzes.questions.list",
+    "stdout_assertion_func": "lms.util.testing.cli_assert_quiz_questions",
+    "arguments": [
+        "--course", "Course 101",
+        "--quiz", "Regular Expressions",
+        "--format", "json",
+    ],
+}
+---

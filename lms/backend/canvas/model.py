@@ -1,4 +1,13 @@
+import logging
+import os
+import re
 import typing
+
+import bs4
+import edq.net.request
+import edq.util.dirent
+import html2text
+import quizcomp.question.base
 
 import lms.backend.canvas.common
 import lms.model.assignments
@@ -6,9 +15,12 @@ import lms.model.backend
 import lms.model.courses
 import lms.model.groups
 import lms.model.groupsets
+import lms.model.quizzes
 import lms.model.scores
 import lms.model.users
 import lms.util.parse
+
+_logger = logging.getLogger(__name__)
 
 ENROLLMENT_TYPE_TO_ROLE: typing.Dict[str, lms.model.users.CourseRole] = {
     'ObserverEnrollment': lms.model.users.CourseRole.OTHER,
@@ -23,8 +35,38 @@ This map is ordered by priority/power.
 The later in the dict, the more power.
 """
 
+QUESTION_TYPE_MAPPING: typing.Dict[typing.Union[str, None], quizcomp.question.base.QuestionType] = {
+    'essay_question': quizcomp.question.base.QuestionType.ESSAY,
+    'fill_in_multiple_blanks_question': quizcomp.question.base.QuestionType.FIMB,
+    'matching_question': quizcomp.question.base.QuestionType.MATCHING,
+    'multiple_answers_question': quizcomp.question.base.QuestionType.MA,
+    'multiple_choice_question': quizcomp.question.base.QuestionType.MCQ,
+    'multiple_dropdowns_question': quizcomp.question.base.QuestionType.MDD,
+    'numerical_question': quizcomp.question.base.QuestionType.NUMERICAL,
+    'short_answer_question': quizcomp.question.base.QuestionType.FITB,
+    'text_only_question': quizcomp.question.base.QuestionType.TEXT_ONLY,
+    'true_false_question': quizcomp.question.base.QuestionType.TF,
+}
+
 _testing_override: bool = False  # pylint: disable=invalid-name
 """ A special override to signal testing. """
+
+class _ParsedText:
+    """ The result of parsing Canvas HTML into markdown. """
+
+    def __init__(self,
+            html: str,
+            text: str,
+            resources: typing.List[str],
+            ) -> None:
+        self.html: str = html
+        """ The original HTML. """
+
+        self.text: str = text
+        """ The parsed text. """
+
+        self.resources: typing.List[str] = resources
+        """ The path to any resources parsed from this text. """
 
 def assignment(data: typing.Dict[str, typing.Any]) -> lms.model.assignments.Assignment:
     """
@@ -33,16 +75,7 @@ def assignment(data: typing.Dict[str, typing.Any]) -> lms.model.assignments.Assi
     See: https://developerdocs.instructure.com/services/canvas/resources/assignments
     """
 
-    for field in ['id']:
-        if (field not in data):
-            raise ValueError(f"Canvas assignment is missing '{field}' field.")
-
-    # Modify specific arguments before creation.
-    data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
-    data['due_date'] = lms.backend.canvas.common.parse_timestamp(data.get('due_at', None))
-    data['open_date'] = lms.backend.canvas.common.parse_timestamp(data.get('unlock_at', None))
-    data['close_date'] = lms.backend.canvas.common.parse_timestamp(data.get('lock_at', None))
-
+    _parse_assignment_data(data, 'assignment')
     return lms.model.assignments.Assignment(**data)
 
 def assignment_score(data: typing.Dict[str, typing.Any]) -> lms.model.scores.AssignmentScore:
@@ -65,10 +98,10 @@ def assignment_score(data: typing.Dict[str, typing.Any]) -> lms.model.scores.Ass
     data['graded_date'] = lms.backend.canvas.common.parse_timestamp(data.get('graded_at', None))
 
     assignment_id = lms.util.parse.required_string(data.get('assignment_id', None), 'assignment_id')
-    data['assignment_query'] = lms.model.assignments.AssignmentQuery(id = assignment_id)
+    data['assignment'] = lms.model.assignments.AssignmentQuery(id = assignment_id)
 
     user_id = lms.util.parse.required_string(data.get('user_id', None), 'user_id')
-    data['user_query'] = lms.model.users.UserQuery(id = user_id)
+    data['user'] = lms.model.users.UserQuery(id = user_id)
 
     return lms.model.scores.AssignmentScore(**data)
 
@@ -153,6 +186,331 @@ def group_set(data: typing.Dict[str, typing.Any]) -> lms.model.groupsets.GroupSe
     data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
 
     return lms.model.groupsets.GroupSet(**data)
+
+def quiz(
+        backend: lms.model.backend.APIBackend,
+        data: typing.Dict[str, typing.Any],
+        fetch_resources: bool = False,
+        ) -> lms.model.quizzes.Quiz:
+    """
+    Create a Canvas quiz associated with a course.
+
+    See: https://developerdocs.instructure.com/services/canvas/resources/quizzes
+    """
+
+    _parse_assignment_data(data, 'quiz')
+
+    parsed_text = _canvas_html_to_markdown(backend, data.get('description', None), fetch_resources)
+    data['description'] = parsed_text.text
+    data['resources'] = parsed_text.resources
+
+    return lms.model.quizzes.Quiz(**data)
+
+def quiz_question(
+        backend: lms.model.backend.APIBackend,
+        data: typing.Dict[str, typing.Any],
+        fetch_resources: bool = False,
+        ) -> lms.model.quizzes.Question:
+    """
+    Create a Canvas quiz question.
+
+    See: https://developerdocs.instructure.com/services/canvas/resources/quiz_questions
+    """
+
+    # Check for important fields.
+    for field in ['id']:
+        if (field not in data):
+            raise ValueError(f"Canvas quiz question is missing '{field}' field.")
+
+    raw_question_type = data.get('question_type', None)
+    if (raw_question_type is None):
+        raise ValueError('No question type provided.')
+
+    question_type = QUESTION_TYPE_MAPPING.get(raw_question_type, None)
+    if (question_type is None):
+        raise ValueError(f"Unknown Canvas question type: '{raw_question_type}'.")
+
+    data['question_type'] = question_type
+    data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
+    data['name'] = lms.util.parse.optional_string(data.get('question_name', None))
+    data['points'] = lms.util.parse.optional_float(data.get('points_possible', None), 'points')
+    data['raw_answers'] = data.get('answers', None)
+    data['group_id'] = lms.util.parse.optional_string(data.get('quiz_group_id', None))
+
+    all_resource_paths = []
+
+    parsed_text = _canvas_html_to_markdown(backend, data.get('question_text', None), fetch_resources)
+    data['prompt'] = parsed_text.text
+    all_resource_paths += parsed_text.resources
+
+    (answers, resources) = _parse_quiz_question_answers(
+        backend,
+        data.get('answers', None),
+        data.get('matching_answer_incorrect_matches', None),
+        question_type,
+        fetch_resources,
+    )
+    data['answers'] = answers
+    all_resource_paths += resources
+
+    data['resources'] = all_resource_paths
+
+    return lms.model.quizzes.Question(**data)
+
+def quiz_question_group(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes.QuestionGroup:
+    """
+    Create a Canvas quiz question group.
+
+    See: https://developerdocs.instructure.com/services/canvas/resources/quiz_question_groups
+    """
+
+    # Check for important fields.
+    for field in ['id']:
+        if (field not in data):
+            raise ValueError(f"Canvas quiz question group is missing '{field}' field.")
+
+    data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
+    data['name'] = lms.util.parse.optional_string(data.get('name', None))
+    data['points'] = lms.util.parse.optional_float(data.get('question_points', None), 'points')
+    data['pick_count'] = lms.util.parse.required_int(data.get('pick_count', None), 'pick_count')
+
+    return lms.model.quizzes.QuestionGroup(**data)
+
+def _canvas_html_to_markdown(
+        backend: lms.model.backend.APIBackend,
+        html: typing.Union[str, None],
+        fetch_resources: bool = False,
+        ) -> _ParsedText:
+    """
+    Parse the text from a Canvas quiz question into markdown.
+    We intend for the resulting markdown to have a little HTML as possible.
+    This is an impossible task, but we want to do our best.
+    """
+
+    if (html is None):
+        return _ParsedText('', '', [])
+
+    resources: typing.List[str] = []
+    if (fetch_resources):
+        (html, resources) = _fetch_html_resources(backend, html)
+
+    converter = html2text.HTML2Text()
+
+    converter.body_width = 0
+    converter.mark_code = True
+
+    text = converter.handle(html)
+    text = text.strip()
+
+    # Replace code tags with fences.
+    text = re.sub(r'\[/?code\]', '```', text)
+
+    # Replace placeholders (e.g., for fill in the blank questions).
+    text = re.sub(r'\[(\w+?)\]', r'<placeholder>\1</placeholder>', text)
+
+    return _ParsedText(html, text, resources)
+
+def _fetch_html_resources(backend: lms.model.backend.APIBackend, html: str) -> typing.Tuple[str, typing.List[str]]:
+    """ Fetch any resources embedded in the HTML and re-write the links for these resources. """
+
+    document = bs4.BeautifulSoup(html, 'html.parser')
+
+    resources = []
+
+    # Look for Canvas-embeded images.
+    for image in document.select('img[data-api-endpoint]'):
+        path = _fetch_file(backend, str(image.get('data-api-endpoint')))
+        if (path is None):
+            continue
+
+        image['src'] = os.path.basename(path)
+
+        resources.append(path)
+
+    return str(document), resources
+
+def _fetch_file(backend: lms.model.backend.APIBackend, info_link: str) -> typing.Union[str, None]:
+    """ Fetch a file from Canvas, write it to disk, and return the path. """
+
+    headers = backend.get_standard_headers()
+    file_info = lms.backend.canvas.common.make_get_request(info_link, headers = headers)
+
+    if (file_info is None):
+        return None
+
+    response, _ = edq.net.request.make_get(file_info['url'], headers = headers)
+
+    temp_dir = edq.util.dirent.get_temp_dir('edq-lms-canvas-')
+    path = os.path.join(temp_dir, file_info['filename'])
+
+    edq.util.dirent.write_file_bytes(path, response.content)
+
+    return path
+
+def _parse_quiz_question_answers(
+        backend: lms.model.backend.APIBackend,
+        raw_answers: typing.Union[typing.List[typing.Any], None],
+        raw_distractors: typing.Union[str, None],
+        question_type: quizcomp.question.base.QuestionType,
+        fetch_resources: bool = False,
+        ) -> typing.Tuple[typing.Union[typing.List[typing.Any], typing.Dict[str, typing.Any]], typing.List[str]]:
+    """ Parse question answers from Canvas responses. """
+
+    if (raw_answers is None):
+        return [], []
+
+    answers: typing.Union[typing.List[typing.Any], typing.Dict[str, typing.Any]] = []
+    resources: typing.List[str] = []
+
+    # Parse answers based on question type.
+    if (question_type in {quizcomp.question.base.QuestionType.ESSAY, quizcomp.question.base.QuestionType.TEXT_ONLY}):
+        pass
+    elif (question_type == quizcomp.question.base.QuestionType.FIMB):
+        answers = {}
+        for raw_answer in raw_answers:
+            key = raw_answer.get('blank_id', '')
+            if (key not in answers):
+                answers[key] = []
+
+            parsed_text = _parse_quiz_question_text(backend, raw_answer, fetch_resources)
+
+            answers[key].append(parsed_text.text)
+            resources += parsed_text.resources
+    elif (question_type == quizcomp.question.base.QuestionType.FITB):
+        answers = []
+        for raw_answer in raw_answers:
+            parsed_text = _parse_quiz_question_text(backend, raw_answer, fetch_resources)
+
+            answers.append(parsed_text.text)
+            resources += parsed_text.resources
+    elif (question_type in {quizcomp.question.base.QuestionType.MA, quizcomp.question.base.QuestionType.MCQ}):
+        (answers, choice_resources) = _parse_quiz_question_choices(backend, raw_answers, fetch_resources)
+        resources += choice_resources
+    elif (question_type == quizcomp.question.base.QuestionType.MDD):
+        # Divide up sections by blank ID (find all the possibilities for each blank).
+        # {key: [raw_answer, ...]}
+        raw_sections: typing.Dict[str, typing.List[typing.Dict[str, typing.Any]]] = {}
+        for raw_answer in raw_answers:
+            key = raw_answer.get('blank_id', '')
+            if (key not in raw_sections):
+                raw_sections[key] = []
+
+            raw_sections[key].append(raw_answer)
+
+        # Parse the choices for each section/blank.
+        answers = {}
+        for (section_key, section_raw_answers) in raw_sections.items():
+            (choices, choice_resources) = _parse_quiz_question_choices(backend, section_raw_answers, fetch_resources)
+
+            answers[section_key] = {
+                'text': section_key,
+                'values': choices
+            }
+            resources += choice_resources
+    elif (question_type == quizcomp.question.base.QuestionType.MATCHING):
+        if (raw_distractors is None):
+            raw_distractors = ''
+
+        matches = []
+        distractors = [value.strip() for value in raw_distractors.split("\n")]
+
+        for raw_answer in raw_answers:
+            matches.append([raw_answer.get('left', ''), raw_answer.get('right', '')])
+
+        answers = {
+            'matches': matches,
+            'distractors': distractors,
+        }
+    elif (question_type == quizcomp.question.base.QuestionType.NUMERICAL):
+        answers = []
+        for raw_answer in raw_answers:
+            raw_type = raw_answer.get('numerical_answer_type', None)
+
+            answer_type = str(raw_type).removesuffix('_answer')
+            answer = {'type': answer_type}
+
+            if (answer_type == quizcomp.constants.NUMERICAL_ANSWER_TYPE_EXACT):
+                answer['value'] = raw_answer.get('exact', None)
+                answer['margin'] = raw_answer.get('error_margin', 0)
+            elif (answer_type == quizcomp.constants.NUMERICAL_ANSWER_TYPE_RANGE):
+                answer['min'] = raw_answer.get('range_start', None)
+                answer['max'] = raw_answer.get('range_end', None)
+            elif (answer_type == quizcomp.constants.NUMERICAL_ANSWER_TYPE_PRECISION):
+                answer['value'] = raw_answer.get('approximate', None)
+                answer['precision'] = raw_answer.get('precision', None)
+            else:
+                raise ValueError(f"Unknown numerical answer type: '{raw_type}'.")
+
+            answers.append(answer)
+    elif (question_type == quizcomp.question.base.QuestionType.TF):
+        if (len(raw_answers) != 2):
+            raise ValueError(f"Unexpected length for T/F answers. Expected 2, found {len(raw_answers)}.")
+
+        answers = [
+            {"correct": (raw_answers[0]['weight'] > 0), "text": "True"},
+            {"correct": (raw_answers[1]['weight'] > 0), "text": "False"},
+        ]
+    else:
+        _logger.warning("Cannot form question answers, unknown question type: '%s'.", question_type)
+
+    return answers, resources
+
+def _parse_quiz_question_choices(
+        backend: lms.model.backend.APIBackend,
+        choices: list[typing.Dict[str, typing.Any]],
+        fetch_resources: bool = False,
+        ) -> typing.Tuple[typing.List[typing.Dict[str, typing.Any]], typing.List[str]]:
+    """
+    Parse the quiz question choices.
+    This works for multiple types, like MCQ and MA.
+    """
+
+    results = []
+    resources = []
+
+    for choice in choices:
+        parsed_text = _parse_quiz_question_text(backend, choice, fetch_resources)
+
+        results.append({"correct": (choice['weight'] > 0), "text": parsed_text.text})
+        resources += parsed_text.resources
+
+    return results, resources
+
+def _parse_quiz_question_text(
+        backend: lms.model.backend.APIBackend,
+        choice: typing.Dict[str, typing.Any],
+        fetch_resources: bool = False,
+        ) -> _ParsedText:
+    """ Parse text out of a Canvas question choice field. """
+
+    text = choice.get('text', '').strip()
+    if (text is None):
+        text = ''
+
+    parsed_text = _ParsedText('', text, [])
+    if (len(text) == 0):
+        parsed_text = _canvas_html_to_markdown(backend, choice.get('html', None), fetch_resources)
+
+    return parsed_text
+
+def _parse_assignment_data(data: typing.Dict[str, typing.Any], label: str) -> None:
+    """
+    Parse core assignment data.
+    """
+
+    for field in ['id']:
+        if (field not in data):
+            raise ValueError(f"Canvas {label} is missing '{field}' field.")
+
+    # Modify specific arguments before creation.
+    data['id'] = lms.util.parse.required_string(data.get('id', None), 'id')
+    data['due_date'] = lms.backend.canvas.common.parse_timestamp(data.get('due_at', None))
+    data['open_date'] = lms.backend.canvas.common.parse_timestamp(data.get('unlock_at', None))
+    data['close_date'] = lms.backend.canvas.common.parse_timestamp(data.get('lock_at', None))
+
+    # If there is no name, look for a title.
+    if (data.get('name', None) is None):
+        data['name'] = lms.util.parse.optional_string(data.get('title', None))
 
 def _parse_role_from_enrollments(enrollments: typing.Any) -> typing.Union[str, None]:
     """

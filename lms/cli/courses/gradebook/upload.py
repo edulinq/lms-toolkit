@@ -31,7 +31,8 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(f"Uploaded {count} Scores")
 
-    return 0
+    return lms.cli.common.strict_check(args.strict, (count != len(gradebook)),
+        f"Expected to upload {len(gradebook)} scores, but uploaded {count}.", 2)
 
 def _load_gradebook(
         backend: lms.model.backend.APIBackend,
@@ -93,7 +94,7 @@ def _load_gradebook(
                 except Exception:
                     raise ValueError(f"File '{path}' line {lineno} has a score that cannot be converted to a number: '{part}'.")  # pylint: disable=raise-missing-from
 
-                assignment_score = lms.model.scores.AssignmentScore(score = float_score, assignment_query = assignments[i], user_query = user)
+                assignment_score = lms.model.scores.AssignmentScore(score = float_score, assignment = assignments[i], user = user)
                 scores.append(assignment_score)
 
     gradebook = lms.model.scores.Gradebook(assignments, users)
@@ -112,6 +113,7 @@ def _get_parser() -> argparse.ArgumentParser:
 
     parser = lms.cli.parser.get_parser(__doc__.strip(),
             include_course = True,
+            include_strict = True,
     )
 
     parser.add_argument('path', metavar = 'PATH',

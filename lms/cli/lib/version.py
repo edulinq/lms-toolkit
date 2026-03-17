@@ -8,6 +8,7 @@ import sys
 import lms
 import lms.cli.parser
 
+
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
@@ -16,6 +17,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """
+
     args, _ = _get_parser().parse_known_args()
     return run_cli(args)
 

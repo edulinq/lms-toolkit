@@ -1,0 +1,22 @@
+{
+    "cli": "lms.cli.courses.quizzes.get",
+    "arguments": [
+        "--course", "Course 101",
+        "Regular Expressions",
+    ],
+}
+---
+id: 110000200
+name: Regular Expressions
+description: This quiz is open note, open book, and open world. Assume all regular expressions are done in Python using the `re` standard library. Good luck!
+
+  
+
+
+* * *
+
+Version: UNKNOWN
+open_date: 
+close_date: 
+due_date: 
+points_possible: 0.0
