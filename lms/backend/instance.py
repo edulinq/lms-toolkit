@@ -20,7 +20,12 @@ def get_backend(
     """
 
     if (server is None):
-        raise ValueError("No LMS server address provided.")
+        raise ValueError(
+    "No LMS server address provided.\n"
+    "Please provide server via config file or --server option.\n"
+    "Example config:\n"
+    '{ "server": "https://canvas.example.com", "token": "YOUR_TOKEN" }'
+)
 
     server = server.strip()
     if (not server.startswith('http')):
