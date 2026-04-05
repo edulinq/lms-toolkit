@@ -174,7 +174,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
             **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
         # Moodle shows 5000 users per page when asked to fetch all results.
         url = self.server + f"/user/index.php?id={course_id}&perpage=5000"
-        response, _ = edq.util.net.make_get(url, headers = self._session_headers)
+        response, _ = edq.net.request.make_get(url, headers = self._session_headers)
 
         document = bs4.BeautifulSoup(response.text, 'html.parser')
 
