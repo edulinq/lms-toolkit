@@ -108,9 +108,9 @@ def clean_blackboard_response(response: requests.Response, body: str) -> str:
 
     # Work on both request and response headers.
     for headers in [response.headers, response.request.headers]:
-        for key in list(headers.keys()):
+        for key in list(headers.keys()):  # type: ignore[attr-defined]
             if (key.strip().lower() in BLACKBOARD_CLEAN_REMOVE_HEADERS):
-                headers.pop(key, None)
+                headers.pop(key, None)  # type: ignore[attr-defined]
 
     # Most blackboard responses are JSON.
     try:
@@ -149,7 +149,7 @@ def clean_canvas_response(response: requests.Response, body: str) -> str:
 
     # Remove special fields.
 
-    if ('submissions/update_grades' in response.request.url):
+    if ('submissions/update_grades' in str(response.request.url)):
         data.pop('id', None)
 
     # Convert body back to a string.
@@ -168,9 +168,9 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
 
     # Work on both request and response headers.
     for headers in [response.headers, response.request.headers]:
-        for key in list(headers.keys()):
+        for key in list(headers.keys()):  # type: ignore[attr-defined]
             if (key.strip().lower() in MOODLE_CLEAN_REMOVE_HEADERS):
-                headers.pop(key, None)
+                headers.pop(key, None)  # type: ignore[attr-defined]
 
     return body
 

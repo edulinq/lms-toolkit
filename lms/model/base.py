@@ -1,6 +1,7 @@
 import typing
 
 import edq.util.json
+import edq.util.serial
 import edq.util.time
 
 import lms.model.constants
@@ -11,7 +12,7 @@ TEXT_EMPTY_VALUE: str = ''
 
 T = typing.TypeVar('T', bound = 'BaseType')
 
-class BaseType(edq.util.json.DictConverter):
+class BaseType(edq.util.serial.DictConverter):
     """
     The base class for all core LMS types.
     This class ensures that all children have the core functionality necessary for this package.
@@ -158,7 +159,11 @@ class BaseType(edq.util.json.DictConverter):
         because this method may not include all fields, may flatten or alter fields, and will order fields differently.
         """
 
-        return {field_name: self._get_field_value(field_name) for field_name in self._get_fields(**kwargs)}
+        return {
+            field_name: self._get_field_value(field_name)
+            for field_name
+            in self._get_fields(**kwargs)
+        }
 
     def _get_fields(self,
             include_extra_fields: bool = False,
@@ -218,11 +223,11 @@ class BaseType(edq.util.json.DictConverter):
         if (hasattr(value, '_to_text')):
             return str(value._to_text())
 
-        if (isinstance(value, (edq.util.json.DictConverter, dict, list, tuple))):
-            return str(edq.util.json.dumps(value, indent = indent))
-
         if (pretty_timestamps and isinstance(value, edq.util.time.Timestamp)):
             return value.pretty(short = True)
+
+        if (isinstance(value, (edq.util.serial.PODSerializer, dict, list, tuple))):
+            return str(edq.util.json.dumps(value, indent = indent))
 
         return str(value)
 

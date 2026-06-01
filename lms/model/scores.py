@@ -1,13 +1,13 @@
 import typing
 
-import edq.util.json
+import edq.util.serial
 import edq.util.time
 
 import lms.model.assignments
 import lms.model.base
 import lms.model.users
 
-class ScoreFragment(edq.util.json.DictConverter):
+class ScoreFragment(edq.util.serial.DictConverter):
     """ A small subset of information about a score. """
 
     def __init__(self,
