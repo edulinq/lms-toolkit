@@ -186,11 +186,16 @@ class MoodleBackend(lms.model.backend.APIBackend):
             if (column_classes is None):
                 continue
 
-            if ('header' in column_classes):
-                column_classes.remove('header')
+            if (isinstance(column_classes, str)):
+                column_class = column_classes
+            else:
+                if ('header' in column_classes):
+                    column_classes.remove('header')
 
-            if (len(column_classes) != 1):
-                continue
+                if (len(column_classes) != 1):
+                    continue
+
+                column_class = column_classes[0]
 
             elements = header.select('div.commands a')
             for element in elements:
@@ -198,16 +203,20 @@ class MoodleBackend(lms.model.backend.APIBackend):
                 if (attribute is None):
                     continue
 
-                classes[attribute] = column_classes[0]
+                classes[attribute] = column_class
 
         rows = document.select('table#participants tbody tr:not(.emptyrow)')
 
         users = []
         for row in rows:
-            id = row.select(f'.cell input[type="checkbox"]')[0].get('id', None).removeprefix('user')
-            name = row.select(f'.cell.{classes["fullname"]} a span')[0].get('title', None).removeprefix('__EMPTY_NAME__ ')
-            email = row.select(f'.cell.{classes["email"]}')[0].get_text()
-            raw_role = row.select(f'.cell.{classes["roles"]} span a')[0].get_text().strip().lower()
+            try:
+                id = row.select_one('.cell input[type="checkbox"]').get('id', None).removeprefix('user')  # type: ignore[union-attr]
+                name = row.select_one(f'.cell.{classes["fullname"]} a span').get('title', None).removeprefix('__EMPTY_NAME__ ')  # type: ignore[union-attr] # pylint: disable=line-too-long
+                email = row.select_one(f'.cell.{classes["email"]}').get_text()  # type: ignore[union-attr]
+                raw_role = row.select_one(f'.cell.{classes["roles"]} span a').get_text().strip().lower()  # type: ignore[union-attr]
+            except AttributeError as _:
+                _logger.warning("Unable to list users. Moodle data structure has changed. Contact project developers.")
+                continue
 
             # Moodle did not allow the Guest role when loading test data.
             # We need to patch this during testing.
@@ -224,4 +233,3 @@ class MoodleBackend(lms.model.backend.APIBackend):
             ))
 
         return users
-

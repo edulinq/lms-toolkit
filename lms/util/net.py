@@ -6,6 +6,7 @@ import re
 import typing
 import urllib.parse
 
+import bs4
 import edq.net.exchange
 import edq.util.json
 import requests
@@ -196,6 +197,20 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
         for key in list(headers.keys()):
             if (key.strip().lower() in MOODLE_CLEAN_REMOVE_HEADERS):
                 headers.pop(key, None)
+
+    # Endpoint-Specific Tasks
+
+    if re.search(r"/user/index\.php\?id=(\d+)", response.url.strip()):
+        document = bs4.BeautifulSoup(body, 'html.parser')
+
+        rows = document.select('tr.emptyrow')
+        for row in rows:
+            row.decompose()
+
+        body = str(document.select('table#participants'))
+
+        # Remove Chunk Header
+        response.headers.pop("transfer-encoding", None)
 
     return body
 
