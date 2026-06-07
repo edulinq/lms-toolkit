@@ -12,7 +12,7 @@ import lms.cli.parser
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
-    config = args._config_info.config
+    config = args._config_info.raw_config
 
     backend_type = lms.backend.instance.guess_backend_type(**config)
     if (backend_type is None):

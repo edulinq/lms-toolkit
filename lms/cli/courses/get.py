@@ -13,7 +13,7 @@ import lms.model.base
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
-    config = args._config_info.config
+    config = args._config_info.raw_config
 
     backend = lms.backend.instance.get_backend(**config)
     queries = backend.parse_course_queries(args.courses)

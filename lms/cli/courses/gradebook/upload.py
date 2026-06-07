@@ -17,7 +17,7 @@ import lms.model.scores
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
-    config = args._config_info.config
+    config = args._config_info.raw_config
 
     backend = lms.backend.instance.get_backend(**config)
 

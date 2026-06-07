@@ -1,0 +1,9 @@
+{
+    "cli": "lms.cli.lib.version",
+    "arguments": [
+        '--help'
+    ],
+    "error": true
+}
+---
+builtins.SystemExit: 0

@@ -1,0 +1,11 @@
+{
+    "cli": "lms.cli.config.list",
+    "arguments": [
+        "--config-global", "__DATA_DIR__(configs/empty/edq-config.json)",
+        "--config", "pass=password1234",
+    ],
+    "work_dir": "__TEMP_DIR__()"
+}
+---
+Key	Value
+pass	password1234

@@ -41,8 +41,9 @@ def get_parser(description: str,
     Get an argument parser specialized for LMS Toolkit.
     """
 
+    # Set config options.
+    edq.config.load.set_config_filename(CONFIG_FILENAME)
     config_options = {
-        'config_filename': CONFIG_FILENAME,
         'cli_arg_config_map': {
             'server': 'server',
             'backend_type': 'backend_type',
