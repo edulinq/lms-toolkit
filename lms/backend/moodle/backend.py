@@ -23,7 +23,7 @@ ROLE_MAPPING: typing.Dict[str, lms.model.users.CourseRole] = {
 }
 
 # Moodle shows 5000 users per page when asked to fetch all results.
-RESULTS_PER_PAGE: typing.Int = 5000
+RESULTS_PER_PAGE: int = 5000
 
 class MoodleBackend(lms.model.backend.APIBackend):
     """ An API backend for the Moodle LMS. """
