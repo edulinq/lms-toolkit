@@ -22,7 +22,8 @@ ROLE_MAPPING: typing.Dict[str, lms.model.users.CourseRole] = {
     "manager": lms.model.users.CourseRole.OWNER,
 }
 
-RESULTS_PER_PAGE = 5000
+# Moodle shows 5000 users per page when asked to fetch all results.
+RESULTS_PER_PAGE: typing.Int = 5000
 
 class MoodleBackend(lms.model.backend.APIBackend):
     """ An API backend for the Moodle LMS. """
@@ -174,8 +175,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
     def courses_users_list(self,
             course_id: str,
             **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
-        # Moodle shows 5000 users per page when asked to fetch all results.
-        url = self.server + f"/user/index.php?id={course_id}&perpage={RESULTS_PER_PAGE}"
+        url = f"{self.server}/user/index.php?id={course_id}&perpage={RESULTS_PER_PAGE}"
         response, _ = edq.net.request.make_get(url, headers = self._session_headers)
 
         document = bs4.BeautifulSoup(response.text, 'html.parser')
@@ -188,7 +188,8 @@ class MoodleBackend(lms.model.backend.APIBackend):
             if (column_classes is None):
                 continue
 
-            # Isolate and store column class (e.g. "c0")
+            # Parse and store the column's class (e.g. "c0").
+            # This class is referenced when storing corresponding course user data.
             if (isinstance(column_classes, str)):
                 column_class = column_classes
             else:
@@ -221,7 +222,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
                 _logger.warning("Unable to list users. Moodle data structure has changed. Contact project developers.")
                 continue
 
-            # Moodle does not allow the Guest role when loading test data.
+            # HACK(JK): Moodle does not allow the Guest role when loading test data.
             # HACK(JK): Patch the Guest role during testing.
             if (email == 'course-other@test.edulinq.org'):
                 raw_role = "guest"
