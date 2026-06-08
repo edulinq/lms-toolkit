@@ -10,6 +10,7 @@ import edq.net.exchange
 import edq.util.reflection
 
 import lms
+import lms.model.config
 import lms.model.constants
 import lms.util.net
 
@@ -42,7 +43,9 @@ def get_parser(description: str,
     """
 
     # Set config options.
-    edq.config.load.set_config_filename(CONFIG_FILENAME)
+    edq.config.settings.set_config_filename(CONFIG_FILENAME)
+    edq.config.settings.set_application_config_class(lms.model.config.Config)
+    # TEST - Remove
     config_options = {
         'cli_arg_config_map': {
             'server': 'server',
@@ -133,7 +136,8 @@ def get_parser(description: str,
 
         group.add_argument('--format', dest = 'output_format',
             action = 'store', type = str,
-            default = lms.model.constants.OUTPUT_FORMAT_TEXT, choices = lms.model.constants.OUTPUT_FORMATS,
+            default = lms.model.constants.OutputFormat.TEXT.value,
+            choices = [choice.value for choice in lms.model.constants.OutputFormat],
             help = 'The format to display the output as (default: %(default)s).')
 
         group.add_argument('--include-extra-fields', dest = 'include_extra_fields',

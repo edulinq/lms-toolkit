@@ -31,7 +31,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
     memberships = backend.courses_groups_memberships_resolve_and_list(course_query, groupset_query, group_query)
 
-    output = lms.model.base.base_list_to_output_format(memberships, args.output_format,
+    output = lms.model.base.base_list_to_output_format(memberships, args._config_info.application_config.output_format,
             skip_headers = args.skip_headers,
             pretty_headers = args.pretty_headers,
             include_extra_fields = args.include_extra_fields,

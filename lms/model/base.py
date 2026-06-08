@@ -242,7 +242,9 @@ class BaseType(edq.util.serial.DictConverter):
 
         return typing.cast(T, cls.from_dict(data))
 
-def base_list_to_output_format(values: typing.Sequence[BaseType], output_format: str,
+def base_list_to_output_format(
+        values: typing.Sequence[BaseType],
+        output_format: lms.model.constants.OutputFormat,
         sort: bool = True,
         skip_headers: bool = False,
         pretty_headers: bool = False,
@@ -262,16 +264,16 @@ def base_list_to_output_format(values: typing.Sequence[BaseType], output_format:
 
     output = ''
 
-    if (output_format == lms.model.constants.OUTPUT_FORMAT_JSON):
+    if (output_format == lms.model.constants.OutputFormat.JSON):
         output = base_list_to_json(values,
                 include_extra_fields = include_extra_fields,
                 **kwargs)
-    elif (output_format == lms.model.constants.OUTPUT_FORMAT_TABLE):
+    elif (output_format == lms.model.constants.OutputFormat.TABLE):
         output = base_list_to_table(values,
                 skip_headers = skip_headers, pretty_headers = pretty_headers,
                 include_extra_fields = include_extra_fields,
                 **kwargs)
-    elif (output_format == lms.model.constants.OUTPUT_FORMAT_TEXT):
+    elif (output_format == lms.model.constants.OutputFormat.TEXT):
         output = base_list_to_text(values,
                 skip_headers = skip_headers, pretty_headers = pretty_headers,
                 include_extra_fields = include_extra_fields,

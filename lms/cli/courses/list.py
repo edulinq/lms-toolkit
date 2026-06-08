@@ -17,7 +17,7 @@ def run_cli(args: argparse.Namespace) -> int:
     backend = lms.backend.instance.get_backend(**config)
     courses = backend.courses_list()
 
-    output = lms.model.base.base_list_to_output_format(courses, args.output_format,
+    output = lms.model.base.base_list_to_output_format(courses, args._config_info.application_config.output_format,
             skip_headers = args.skip_headers,
             pretty_headers = args.pretty_headers,
             include_extra_fields = args.include_extra_fields,

@@ -23,7 +23,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
     users = backend.courses_users_resolve_and_list(course_query)
 
-    output = lms.model.base.base_list_to_output_format(users, args.output_format,
+    output = lms.model.base.base_list_to_output_format(users, args._config_info.application_config.output_format,
             skip_headers = args.skip_headers,
             pretty_headers = args.pretty_headers,
             include_extra_fields = args.include_extra_fields,
