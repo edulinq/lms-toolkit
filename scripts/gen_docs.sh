@@ -17,7 +17,7 @@ function main() {
         exit 1
     fi
 
-    set -e
+    set -o pipefail
     trap exit SIGINT
 
     local outputDir=$DEFAULT_OUT_DIR
@@ -30,7 +30,8 @@ function main() {
     mkdir -p "${outputDir}"
 
     # Build the base docs.
-    pdoc --output-directory "${outputDir}" "${PACKAGE_DIR}" ${FILE_PATTERNS}
+    # Ignore warnings caused by bugs in pdoc.
+    pdoc --output-directory "${outputDir}" "${PACKAGE_DIR}" ${FILE_PATTERNS} 2>&1 | $(grep -v "Import of PODType failed: name 'PODType' is not defined" || true)
     if [[ $? -ne 0 ]] ; then
         echo "Failed to generate docs."
         return 2
