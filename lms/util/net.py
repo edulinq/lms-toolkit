@@ -67,6 +67,13 @@ MOODLE_FINALIZE_REMOVE_PARAMS: typing.Set[str] = {
 }
 """ Keys to remove from Moodle headers. """
 
+MOODLE_STANDARDIZED_DATA: typing.Dict[str, str] = {
+    'timestamp': '123456789',
+    'session_key': 'abcABC123',
+    'random_string': 'abc123',
+}
+""" Standardized data to replace random values in HTTP response. """
+
 def clean_lms_response(response: requests.Response, body: str) -> str:
     """
     A ResponseModifierFunction that attempt to identify
@@ -169,28 +176,24 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
     body = _clean_base_response(response, body)
 
     # Standardize timestamp.
-    timestamp = "123456789"
     current_timestamp_match = re.search(r"boost/theme/(\d{10})/favicon", body)
     if (current_timestamp_match is not None):
-        body = body.replace(current_timestamp_match.group(1), timestamp)
+        body = body.replace(current_timestamp_match.group(1), MOODLE_STANDARDIZED_DATA['timestamp'])
 
     # Standardize session key.
-    session_key = "abcABC123"
     session_key_match = re.search(r'"sesskey":"([^"]+)"', body)
     if (session_key_match is not None):
-        body = body.replace(session_key_match.group(1), session_key)
+        body = body.replace(session_key_match.group(1), MOODLE_STANDARDIZED_DATA['session_key'])
 
     # Standardize "random" string.
-    random_string = "abc123"
     random_string_match = re.search(r"'random([a-z0-9]+)'", body)
     if (random_string_match is not None):
-        body = body.replace(random_string_match.group(1), random_string)
+        body = body.replace(random_string_match.group(1), MOODLE_STANDARDIZED_DATA['random_string'])
 
     # Standardize logintoken.
-    token = session_key
     logintoken_match = re.search(r'name="logintoken" value="(\w+)"', body)
     if (logintoken_match  is not None):
-        body = body.replace(logintoken_match.group(1), token)
+        body = body.replace(logintoken_match.group(1), MOODLE_STANDARDIZED_DATA['session_key'])
 
     # Work on both request and response headers.
     for headers in [response.headers, response.request.headers]:
@@ -200,17 +203,22 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
 
     # Endpoint-Specific Tasks
 
-    if re.search(r"/user/index\.php\?id=(\d+)", response.url.strip()):
+    # Remove extraneous data from the course participants response.
+    if re.search(r'/user/index\.php\?id=(\d+)', response.url.strip()):
         document = bs4.BeautifulSoup(body, 'html.parser')
 
         rows = document.select('tr.emptyrow')
         for row in rows:
             row.decompose()
 
+        a_tags = document.select('th div.commands a')
+        for a_tag in a_tags:
+            a_tag.attrs.pop('aria-controls', None)
+
         body = str(document.select('table#participants'))
 
         # Remove Chunk Header
-        response.headers.pop("transfer-encoding", None)
+        response.headers.pop('transfer-encoding', None)
 
     return body
 

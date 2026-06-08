@@ -22,6 +22,8 @@ ROLE_MAPPING: typing.Dict[str, lms.model.users.CourseRole] = {
     "manager": lms.model.users.CourseRole.OWNER,
 }
 
+RESULTS_PER_PAGE = 5000
+
 class MoodleBackend(lms.model.backend.APIBackend):
     """ An API backend for the Moodle LMS. """
 
@@ -173,7 +175,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
             course_id: str,
             **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
         # Moodle shows 5000 users per page when asked to fetch all results.
-        url = self.server + f"/user/index.php?id={course_id}&perpage=5000"
+        url = self.server + f"/user/index.php?id={course_id}&perpage={RESULTS_PER_PAGE}"
         response, _ = edq.net.request.make_get(url, headers = self._session_headers)
 
         document = bs4.BeautifulSoup(response.text, 'html.parser')
@@ -186,6 +188,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
             if (column_classes is None):
                 continue
 
+            # Isolate and store column class (e.g. "c0")
             if (isinstance(column_classes, str)):
                 column_class = column_classes
             else:
@@ -218,9 +221,8 @@ class MoodleBackend(lms.model.backend.APIBackend):
                 _logger.warning("Unable to list users. Moodle data structure has changed. Contact project developers.")
                 continue
 
-            # Moodle did not allow the Guest role when loading test data.
-            # We need to patch this during testing.
-            # HACK(JK): We are not checking that we are testing because we are not in a testing mode when generating data.
+            # Moodle does not allow the Guest role when loading test data.
+            # HACK(JK): Patch the Guest role during testing.
             if (email == 'course-other@test.edulinq.org'):
                 raw_role = "guest"
 
