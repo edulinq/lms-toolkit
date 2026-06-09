@@ -36,7 +36,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(output)
 
-    return lms.cli.common.strict_check(args.strict, (len(groups) != len(queries)),
+    return lms.cli.common.strict_check(config, (len(groups) != len(queries)),
         f"Expected to find {len(queries)} groups, but found {len(groups)}.", 3)
 
 def main() -> int:

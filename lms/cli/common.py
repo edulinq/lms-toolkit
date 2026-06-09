@@ -138,7 +138,7 @@ def check_required_user(
     return query
 
 def strict_check(
-        strict: bool,
+        config: lms.model.config.Config,
         has_error: bool,
         message: str,
         exit_code: int = DEFAULT_STRICT_EXIT_CODE,
@@ -149,7 +149,7 @@ def strict_check(
     Otherwise, return 0.
     """
 
-    if (not strict):
+    if (not config.strict):
         return 0
 
     if (has_error):

@@ -32,7 +32,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(output)
 
-    return lms.cli.common.strict_check(args.strict, (len(assignments) != len(queries)),
+    return lms.cli.common.strict_check(config, (len(assignments) != len(queries)),
         f"Expected to find {len(queries)} assignments, but found {len(assignments)}.", 2)
 
 def main() -> int:

@@ -38,7 +38,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(f"Uploaded {count} Scores")
 
-    return lms.cli.common.strict_check(args.strict, (count != len(scores)),
+    return lms.cli.common.strict_check(config, (count != len(scores)),
         f"Expected to upload {len(scores)} scores, but uploaded {count}.", 4)
 
 def main() -> int:

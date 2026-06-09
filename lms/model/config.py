@@ -8,6 +8,11 @@ import lms.model.constants
 class Config(edq.config.app.BaseApplicationConfig):
     """
     An application config for the LMS Toolkit.
+
+    This config encompasses most of what will be read on the command-line and config files.
+    This includes both more persistent options (like server, username, and password),
+    and single command options like the target course or user.
+    Config options not represented here should be available in edq.config.app.BaseApplicationConfig._extra.
     """
 
     def __init__(self,
@@ -47,7 +52,6 @@ class Config(edq.config.app.BaseApplicationConfig):
         self.auth_token: typing.Union[edq.util.crypto.Secret, None] = auth_token
         """ The token to authenticate with. """
 
-        # TEST - Remove command-specific options
         self.course: typing.Union[str, None] = course
         """ The course to target for this operation. """
 
@@ -84,6 +88,5 @@ class Config(edq.config.app.BaseApplicationConfig):
         self.strict: typing.Union[bool, None] = strict
         """ Enable strict mode, which is stricter about what counts as an error. """
 
-        # TEST - testing?
         self.testing: typing.Union[bool, None] = testing
         """ If we should run as if we are in a test. """
