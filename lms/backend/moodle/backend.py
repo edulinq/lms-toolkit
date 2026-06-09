@@ -222,8 +222,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
                 _logger.warning("Unable to list users. Moodle data structure has changed. Contact project developers.")
                 continue
 
-            # HACK(JK): Moodle does not allow the Guest role when loading test data.
-            # HACK(JK): Patch the Guest role during testing.
+            # HACK(JK): Moodle does not allow the Guest role when loading test data. Patch the guest role during testing.
             if (email == 'course-other@test.edulinq.org'):
                 raw_role = "guest"
 

@@ -67,9 +67,9 @@ MOODLE_FINALIZE_REMOVE_PARAMS: typing.Set[str] = {
 }
 """ Keys to remove from Moodle headers. """
 
-STANDARDIZED_TIMESTAMP = '123456789'
-STANDARDIZED_SESSION_KEY = 'abcABC123'
-STANDARDIZED_RANDOM_STRING = 'abc123'
+STANDARDIZED_TIMESTAMP: str = '123456789'
+STANDARDIZED_SESSION_KEY: str = 'abcABC123'
+STANDARDIZED_RANDOM_STRING: str = 'abc123'
 
 def clean_lms_response(response: requests.Response, body: str) -> str:
     """
@@ -189,7 +189,7 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
 
     # Standardize logintoken.
     logintoken_match = re.search(r'name="logintoken" value="(\w+)"', body)
-    if (logintoken_match  is not None):
+    if (logintoken_match is not None):
         body = body.replace(logintoken_match.group(1), STANDARDIZED_SESSION_KEY)
 
     # Work on both request and response headers.
@@ -210,7 +210,7 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
 
         a_tags = document.select('th div.commands a')
         for a_tag in a_tags:
-            a_tag.attrs.pop('aria-controls', None)
+            a_tag.attrs = {k: a_tag.attrs[k] for k in ['data-column'] if k in a_tag.attrs}
 
         body = str(document.select('table#participants'))
 
