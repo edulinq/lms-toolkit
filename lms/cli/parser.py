@@ -45,28 +45,11 @@ def get_parser(description: str,
     # Set config options.
     edq.config.settings.set_config_filename(CONFIG_FILENAME)
     edq.config.settings.set_application_config_class(lms.model.config.Config)
-    # TEST - Remove
-    config_options = {
-        'cli_arg_config_map': {
-            'server': 'server',
-            'backend_type': 'backend_type',
-            'auth_user': 'auth_user',
-            'auth_password': 'auth_password',
-            'auth_token': 'auth_token',
-            'course': 'course',
-            'assignment': 'assignment',
-            'quiz': 'quiz',
-            'user': 'user',
-            'group': 'group',
-            'groupset': 'groupset',
-        },
-    }
 
     parser = edq.core.argparser.get_default_parser(
             description,
             version = f"v{lms.__version__}",
             include_net = include_net,
-            config_options = config_options,
     )
 
     # Ensure that responses are cleaned as LMS responses.
