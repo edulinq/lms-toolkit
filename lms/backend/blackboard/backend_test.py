@@ -26,9 +26,9 @@ class BlackboardBackendTest(lms.backend.testing.BackendTest):
 
     @classmethod
     def child_class_setup(cls) -> None:
-        cls.server_key = lms.model.constants.BACKEND_TYPE_BLACKBOARD
+        cls.server_key = lms.model.constants.BackendType.BLACKBOARD.value
 
-        cls.backend_type = lms.model.constants.BACKEND_TYPE_BLACKBOARD
+        cls.backend_type = lms.model.constants.BackendType.BLACKBOARD
 
         cls.exchanges_dir = BLACKBOARD_TEST_EXCHANGES_DIR
 
@@ -52,8 +52,8 @@ class BlackboardBackendTest(lms.backend.testing.BackendTest):
         super().modify_cli_test_info(test_info)
 
         test_info.arguments += [
-            '--auth-user', self.backend._username,
-            '--auth-password', self.backend._password,
+            '--auth-user', self.backend.auth_user,
+            '--auth-password', self.backend.auth_password,
         ]
 
     def set_user(self, email: str) -> None:
@@ -62,8 +62,8 @@ class BlackboardBackendTest(lms.backend.testing.BackendTest):
         username = email.split('@')[0]
 
         # Remember that test passwords are the same as usernames.
-        self.backend._username = username
-        self.backend._password = username
+        self.backend.auth_user = username
+        self.backend.auth_password = username
 
 # Attatch tests to this class.
 lms.backend.testing.attach_test_cases(BlackboardBackendTest)

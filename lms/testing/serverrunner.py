@@ -13,25 +13,25 @@ import lms.cli.parser
 import lms.model.constants
 import lms.util.net
 
-BACKEND_REQUEST_CLEANING_FUNCS: typing.Dict[typing.Union[str, None], typing.Callable] = {
-    lms.model.constants.BACKEND_TYPE_BLACKBOARD: lms.util.net.clean_blackboard_response,
-    lms.model.constants.BACKEND_TYPE_CANVAS: lms.util.net.clean_canvas_response,
-    lms.model.constants.BACKEND_TYPE_MOODLE: lms.util.net.clean_moodle_response,
+BACKEND_REQUEST_CLEANING_FUNCS: typing.Dict[typing.Union[lms.model.constants.BackendType, None], typing.Callable] = {
+    lms.model.constants.BackendType.BLACKBOARD: lms.util.net.clean_blackboard_response,
+    lms.model.constants.BackendType.CANVAS: lms.util.net.clean_canvas_response,
+    lms.model.constants.BackendType.MOODLE: lms.util.net.clean_moodle_response,
 }
 
-BACKEND_EXCHANGE_FINALIZING_FUNCS: typing.Dict[typing.Union[str, None], typing.Callable] = {
-    lms.model.constants.BACKEND_TYPE_MOODLE: lms.util.net.finalize_moodle_exchange,
+BACKEND_EXCHANGE_FINALIZING_FUNCS: typing.Dict[typing.Union[lms.model.constants.BackendType, None], typing.Callable] = {
+    lms.model.constants.BackendType.MOODLE: lms.util.net.finalize_moodle_exchange,
 }
 
 class LMSServerRunner(edq.testing.serverrunner.ServerRunner):
     """ A server runner specifically for LMS servers. """
 
     def __init__(self,
-            backend_type: typing.Union[str, None] = None,
+            backend_type: typing.Union[lms.model.constants.BackendType, None] = None,
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
 
-        self.backend_type: typing.Union[str, None] = backend_type
+        self.backend_type: typing.Union[lms.model.constants.BackendType, None] = backend_type
         """
         The type of server being run.
         This value will be resolved after the server is started

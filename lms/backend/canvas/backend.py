@@ -38,16 +38,19 @@ class CanvasBackend(lms.model.backend.APIBackend):
     """ An API backend for Instructure's Canvas LMS. """
 
     def __init__(self,
-            server: str,
-            auth_token: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
-        super().__init__(server, lms.model.constants.BACKEND_TYPE_CANVAS, **kwargs)
+        super().__init__(**kwargs)
 
-        if (auth_token is None):
+        assert(self.config.backend_type == lms.model.constants.BackendType.CANVAS)
+
+        if (self.config.auth_token is None):
             raise ValueError("Canvas backends require a token.")
 
-        self.auth_token: str = auth_token
-        """ The token to authenticate with. """
+        self.auth_token: str = self.config.auth_token.cleartext
+        """
+        The (cleartext) token to authenticate with.
+        This is set in config and compied for type checking.
+        """
 
     def get_standard_headers(self) -> typing.Dict[str, str]:
         headers = super().get_standard_headers()

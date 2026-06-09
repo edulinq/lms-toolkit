@@ -13,13 +13,13 @@ import lms.model.base
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
-    config = args._config_info.raw_config
+    config = args._config_info.application_config
+    backend = lms.backend.instance.get_backend(config)
 
-    backend = lms.backend.instance.get_backend(**config)
     queries = backend.parse_course_queries(args.courses)
     courses = backend.courses_get(queries)
 
-    output = lms.model.base.base_list_to_output_format(courses, args._config_info.application_config.output_format,
+    output = lms.model.base.base_list_to_output_format(courses, config.output_format,
             skip_headers = args.skip_headers,
             pretty_headers = args.pretty_headers,
             include_extra_fields = args.include_extra_fields,

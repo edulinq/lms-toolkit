@@ -36,9 +36,9 @@ class CanvasBackendTest(lms.backend.testing.BackendTest):
 
     @classmethod
     def child_class_setup(cls) -> None:
-        cls.server_key = lms.model.constants.BACKEND_TYPE_CANVAS
+        cls.server_key = lms.model.constants.BackendType.CANVAS.value
 
-        cls.backend_type = lms.model.constants.BACKEND_TYPE_CANVAS
+        cls.backend_type = lms.model.constants.BackendType.CANVAS
 
         cls.exchanges_dir = CANVAS_TEST_EXCHANGES_DIR
 

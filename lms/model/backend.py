@@ -4,6 +4,7 @@ import typing
 import edq.util.parse
 
 import lms.model.assignments
+import lms.model.config
 import lms.model.constants
 import lms.model.courses
 import lms.model.groups
@@ -29,22 +30,34 @@ class APIBackend():
     """ A top-level override to control testing status. """
 
     def __init__(self,
-            server: str,
-            backend_type: str,
+            config: lms.model.config.Config,
             testing: typing.Union[bool, str] = False,
             **kwargs: typing.Any) -> None:
-        self.server: str = server
-        """ The server this backend will connect to. """
+        self.config: lms.model.config.Config = config
+        """ The configuration options for this backend. """
 
-        self.backend_type: str = backend_type
+        assert(self.config.backend_type is not None)
+
+        self.backend_type: lms.model.constants.BackendType = self.config.backend_type
         """
-        The type for this backend.
-        Should be set by the child class.
+        The backend type of this server.
+        This is set in config and compied for type checking.
         """
 
-        parsed_testing = edq.util.parse.boolean(testing)
+        assert((self.config.server is not None) and (len(self.config.server) > 0))
+
+        self.server: str = self.config.server
+        """
+        The server to connect to.
+        This is set in config and compied for type checking.
+        """
+
+        parsed_testing = edq.util.parse.soft_boolean(self.config.testing)
         if (APIBackend._testing_override is not None):
             parsed_testing = APIBackend._testing_override
+
+        if (parsed_testing is None):
+            parsed_testing = False
 
         self.testing: bool = parsed_testing
         """ True if the backend is being used for a test. """
@@ -63,7 +76,7 @@ class APIBackend():
         """
 
         return {
-            lms.model.constants.HEADER_KEY_BACKEND: self.backend_type,
+            lms.model.constants.HEADER_KEY_BACKEND: self.backend_type.value,
             lms.model.constants.HEADER_KEY_WRITE: 'false',
         }
 

@@ -73,12 +73,12 @@ def clean_lms_response(response: requests.Response, body: str) -> str:
     """
 
     # Check the standard LMS Toolkit backend header.
-    backend_type = response.headers.get(lms.model.constants.HEADER_KEY_BACKEND, '').lower()
+    raw_backend_type = response.headers.get(lms.model.constants.HEADER_KEY_BACKEND, '').lower()
 
-    if (backend_type == lms.model.constants.BACKEND_TYPE_CANVAS):
+    if (raw_backend_type == lms.model.constants.BackendType.CANVAS.value):
         return clean_canvas_response(response, body)
 
-    if (backend_type == lms.model.constants.BACKEND_TYPE_MOODLE):
+    if (raw_backend_type == lms.model.constants.BackendType.MOODLE.value):
         return clean_moodle_response(response, body)
 
     # Try looking inside the header keys.

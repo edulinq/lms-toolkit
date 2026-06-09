@@ -13,9 +13,8 @@ import lms.model.base
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
-    config = args._config_info.raw_config
-
-    backend = lms.backend.instance.get_backend(**config)
+    config = args._config_info.application_config
+    backend = lms.backend.instance.get_backend(config)
 
     course_query = lms.cli.common.check_required_course(backend, config)
     if (course_query is None):
@@ -25,7 +24,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
     groupsets = backend.courses_groupsets_get(course_query, queries)
 
-    output = lms.model.base.base_list_to_output_format(groupsets, args._config_info.application_config.output_format,
+    output = lms.model.base.base_list_to_output_format(groupsets, config.output_format,
             skip_headers = args.skip_headers,
             pretty_headers = args.pretty_headers,
             include_extra_fields = args.include_extra_fields,

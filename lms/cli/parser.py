@@ -83,7 +83,8 @@ def get_parser(description: str,
 
         group.add_argument('--server-type', dest = 'backend_type',
             action = 'store', type = str,
-            default = None, choices = lms.model.constants.BACKEND_TYPES,
+            default = None,
+            choices = [choice.value for choice in lms.model.constants.BackendType],
             help = 'The type of LMS being connected to (this can normally be guessed from the server address).')
 
     if (include_auth):

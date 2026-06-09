@@ -6,75 +6,70 @@ import requests
 import lms.backend.blackboard.backend
 import lms.backend.canvas.backend
 import lms.backend.moodle.backend
+import lms.model.config
 import lms.model.constants
 import lms.model.backend
 
 def get_backend(
-        server: typing.Union[str, None] = None,
-        backend_type: typing.Union[str, None] = None,
+        config: lms.model.config.Config,
         **kwargs: typing.Any) -> lms.model.backend.APIBackend:
     """
-    Get an instance of an API backend from the given information.
+    Get an instance of an API backend from the given config information.
     If the backend type is not explicitly provided,
     this function will attempt to guess it from other information.
+
+    This function may modify the config and will pass ownership to the backend instance.
     """
 
-    if (server is None):
+    if (config.server is None):
         raise ValueError("No LMS server address provided.")
 
-    server = server.strip()
-    if (not server.startswith('http')):
-        server = 'http://' + server
+    config.server = config.server.strip()
+    if (not config.server.startswith('http')):
+        config.server = 'http://' + config.server
 
-    backend_type = guess_backend_type(server, backend_type = backend_type)
-    if (backend_type is None):
-        raise ValueError(f"Unable to guess backend type from server: '{server}'.")
+    guess_backend_type(config)
+    if (config.backend_type is None):
+        raise ValueError(f"Unable to guess backend type from server: '{config.server}'.")
 
-    if (backend_type == lms.model.constants.BACKEND_TYPE_CANVAS):
-        return lms.backend.canvas.backend.CanvasBackend(server, **kwargs)
-
-    if (backend_type == lms.model.constants.BACKEND_TYPE_MOODLE):
-        return lms.backend.moodle.backend.MoodleBackend(server, **kwargs)
-
-    if (backend_type == lms.model.constants.BACKEND_TYPE_BLACKBOARD):
-        return lms.backend.blackboard.backend.BlackboardBackend(server, **kwargs)
-
-    if (backend_type in lms.model.constants.BACKEND_TYPES):
-        raise ValueError(f"Instance creation not yet supported for backend type: '{backend_type}'.")
-
-    raise ValueError(f"Unknown backend type: '{backend_type}'. Known backend types: {lms.model.constants.BACKEND_TYPES}.")
+    if (config.backend_type == lms.model.constants.BackendType.CANVAS):
+        return lms.backend.canvas.backend.CanvasBackend(config = config, **kwargs)
+    elif (config.backend_type == lms.model.constants.BackendType.MOODLE):
+        return lms.backend.moodle.backend.MoodleBackend(config = config, **kwargs)
+    elif (config.backend_type == lms.model.constants.BackendType.BLACKBOARD):
+        return lms.backend.blackboard.backend.BlackboardBackend(config = config, **kwargs)
+    elif (config.backend_type not in lms.model.constants.BackendType):
+        raise ValueError(f"Instance creation not yet supported for backend type: '{config.backend_type.value}'.")
+    else:
+        raise ValueError((f"Unknown backend type: '{config.backend_type.value}'.",
+                + f" Known backend types: {[choice.value for choice in lms.model.constants.OutputFormat]}."))
 
 def guess_backend_type(
-        server: typing.Union[str, None] = None,
-        backend_type: typing.Union[str, None] = None,
-        **kwargs: typing.Any) -> typing.Union[str, None]:
+        config: lms.model.config.Config,
+        **kwargs: typing.Any) -> None:
     """
     Attempt to guess the backend type from a server.
-    This function will return None it cannot guess the backend type.
+    The result of the guess (which may be None) will be placed in the passed-in config.
     """
 
-    if (backend_type is not None):
-        return backend_type
+    if (config.backend_type is not None):
+        return
 
-    if (server is None):
-        return None
+    if (config.server is None):
+        return
 
     # Try looking at the URL string itself.
-    backend_type = guess_backend_type_from_url(server)
-    if (backend_type is not None):
-        return backend_type
+    config.backend_type = guess_backend_type_from_url(config.server)
+    if (config.backend_type is not None):
+        return
 
-    # Make a request to the server and examine the response.
-    backend_type = guess_backend_type_from_request(server)
-    if (backend_type is not None):
-        return backend_type
-
-    return None
+    # Finally, make a request to the server and examine the response.
+    config.backend_type = guess_backend_type_from_request(config.server)
 
 def guess_backend_type_from_request(
         server: str,
         timeout_secs: typing.Union[float, typing.Tuple[float, float]] = edq.net.request.DEFAULT_REQUEST_TIMEOUT_SECS,
-        ) -> typing.Union[str, None]:
+        ) -> typing.Union[lms.model.constants.BackendType, None]:
     """
     Attempt to guess the backend type by pinging the server.
     This function will not do any lexical analysis on the server string.
@@ -98,27 +93,27 @@ def guess_backend_type_from_request(
 
     # Blackboard sends a special header.
     if ('x-blackboard-product' in header_keys):
-        return lms.model.constants.BACKEND_TYPE_BLACKBOARD
+        return lms.model.constants.BackendType.BLACKBOARD
 
     # Canvas sends a special header.
     if ('x-canvas-meta' in header_keys):
-        return lms.model.constants.BACKEND_TYPE_CANVAS
+        return lms.model.constants.BackendType.CANVAS
 
     # Canvas requests that a specific cookie is set.
     if ('_normandy_session' in response.headers.get('set-cookie', '')):
-        return lms.model.constants.BACKEND_TYPE_CANVAS
+        return lms.model.constants.BackendType.CANVAS
 
     # Moodle will try to redirect with a special header.
     if (response.headers.get('x-redirect-by', '').lower() == 'moodle'):
-        return lms.model.constants.BACKEND_TYPE_MOODLE
+        return lms.model.constants.BackendType.MOODLE
 
     # Moodle requests that a specific cookie is set.
     if ('MoodleSession' in response.headers.get('set-cookie', '')):
-        return lms.model.constants.BACKEND_TYPE_MOODLE
+        return lms.model.constants.BackendType.MOODLE
 
     return None
 
-def guess_backend_type_from_url(server: str) -> typing.Union[str, None]:
+def guess_backend_type_from_url(server: str) -> typing.Union[lms.model.constants.BackendType, None]:
     """
     Attempt to guess the backend type only from a string server URL.
     This function will only do lexical analysis on the string (no HTTP requests will be made).
@@ -127,12 +122,12 @@ def guess_backend_type_from_url(server: str) -> typing.Union[str, None]:
     server = server.lower().strip()
 
     if ('canvas' in server):
-        return lms.model.constants.BACKEND_TYPE_CANVAS
+        return lms.model.constants.BackendType.CANVAS
 
     if ('moodle' in server):
-        return lms.model.constants.BACKEND_TYPE_MOODLE
+        return lms.model.constants.BackendType.MOODLE
 
     if ('blackboard' in server):
-        return lms.model.constants.BACKEND_TYPE_BLACKBOARD
+        return lms.model.constants.BackendType.BLACKBOARD
 
     return None

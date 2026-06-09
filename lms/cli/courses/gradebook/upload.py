@@ -17,9 +17,8 @@ import lms.model.scores
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
-    config = args._config_info.raw_config
-
-    backend = lms.backend.instance.get_backend(**config)
+    config = args._config_info.application_config
+    backend = lms.backend.instance.get_backend(config)
 
     course_query = lms.cli.common.check_required_course(backend, config)
     if (course_query is None):

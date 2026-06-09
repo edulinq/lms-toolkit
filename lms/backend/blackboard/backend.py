@@ -16,23 +16,28 @@ class BlackboardBackend(lms.model.backend.APIBackend):
     """ An API backend for the Blackboard Learn LMS. """
 
     def __init__(self,
-            server: str,
-            auth_user: typing.Union[str, None] = None,
-            auth_password: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
-        super().__init__(server, lms.model.constants.BACKEND_TYPE_BLACKBOARD, **kwargs)
+        super().__init__(**kwargs)
 
-        if (auth_user is None):
+        assert(self.config.backend_type == lms.model.constants.BackendType.BLACKBOARD)
+
+        if (self.config.auth_user is None):
             raise ValueError("Blackboard backends require a username.")
 
-        if (auth_password is None):
+        self.auth_user: str = self.config.auth_user
+        """
+        The user to authenticate with.
+        This is set in config and compied for type checking.
+        """
+
+        if (self.config.auth_password is None):
             raise ValueError("Blackboard backends require a password.")
 
-        self._username = auth_user
-        """ The username to authenticate with. """
-
-        self._password = auth_password
-        """ The password to authenticate with. """
+        self.auth_password: str = self.config.auth_password.cleartext
+        """
+        The (cleartext) password to authenticate with.
+        This is set in config and compied for type checking.
+        """
 
         self._session_headers: typing.Union[typing.Dict[str, typing.Any], None] = None
         """ The headers (e.g., cookies) for our logged in Blackboard session. """
@@ -57,8 +62,8 @@ class BlackboardBackend(lms.model.backend.APIBackend):
             'cookie': text_cookies,
         }
         data = {
-            'user_id': self._username,
-            'password': self._password,
+            'user_id': self.auth_user,
+            'password': self.auth_password,
             'blackboard.platform.security.NonceUtil.nonce.ajax': router_params['xsrf'],
         }
 
@@ -70,13 +75,13 @@ class BlackboardBackend(lms.model.backend.APIBackend):
 
         cookies, router_params = self._parse_bb_cookies(response.headers.get('set-cookie', None))
         if ('sessionId' not in router_params):
-            raise ValueError(f"Could not log into Blackboard server ({self.server}) with user '{self._username}'. Is username/password correct?")
+            raise ValueError(f"Could not log into Blackboard server ({self.server}) with user '{self.auth_user}'. Is username/password correct?")
 
         self._session_headers = {
             'cookie': response.headers.get('set-cookie', None),
             'x-blackboard-xsrf': router_params['xsrf'],
             # Insert a header to identify the user.
-            'edq-lms-blackboard-user': self._username,
+            'edq-lms-blackboard-user': self.auth_user,
         }
 
     def _parse_bb_cookies(self, text_cookies: typing.Union[str, None]) -> typing.Tuple[typing.Dict[str, typing.Any], typing.Dict[str, str]]:

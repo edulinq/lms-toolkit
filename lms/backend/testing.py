@@ -11,6 +11,7 @@ import edq.util.pyimport
 
 import lms.model.backend
 import lms.model.base
+import lms.model.constants
 import lms.backend.instance
 
 THIS_DIR: str = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
@@ -36,7 +37,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
     Then, that file will be checked for any function that starts with TEST_FUNC_NAME_PREFIX and matches BackendTestFunction.
     """
 
-    backend_type: typing.Union[str, None] = None
+    backend_type: typing.Union[lms.model.constants.BackendType, None] = None
     """
     The backend type for this test.
     Must be set by the child class.
@@ -68,7 +69,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
     skip_base_request_test: bool = False
     """ Skip any base request tests. """
 
-    allowed_backend: typing.Union[str, None] = None
+    allowed_backend: typing.Union[lms.model.constants.BackendType, None] = None
     """ If set, skip any backend tests that do not match this filter. """
 
     def __init__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
@@ -103,7 +104,14 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
 
     @classmethod
     def post_start_server(cls, server: edq.net.exchangeserver.HTTPExchangeServer) -> None:
-        cls.backend = lms.backend.instance.get_backend(cls.get_server_url(), backend_type = cls.backend_type, **cls.backend_args)
+        config_data: typing.Dict[str, typing.Any] = {
+            'server': cls.get_server_url(),
+            'backend_type': cls.backend_type,
+        }
+        config_data.update(cls.backend_args)
+
+        config = lms.model.config.Config.from_dict(config_data)
+        cls.backend = lms.backend.instance.get_backend(config, **cls.backend_args)
 
     @classmethod
     def get_base_args(cls) -> typing.Dict[str, typing.Any]:
@@ -146,8 +154,8 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
         Test cases are passed in as: `[(kwargs (and overrides), expected, error substring), ...]`.
         """
 
-        if ((self.allowed_backend is not None) and (self.allowed_backend != self.backend_type)):
-            self.skipTest(f"Backend {self.backend_type} has been filtered.")
+        if ((self.backend_type is not None) and (self.allowed_backend is not None) and (self.allowed_backend != self.backend_type)):
+            self.skipTest(f"Backend {self.backend_type.value} has been filtered.")
 
         skip_reason = None
 
@@ -221,13 +229,15 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
         test_info.arguments += [
             '--config-global', CLI_GLOBAL_CONFG_PATH,
             '--server', self.get_server_url(),
-            '--server-type', str(self.backend_type),
             '--config', 'testing=true',
         ]
 
+        if (self.backend_type is not None):
+            test_info.arguments += ['--server-type', self.backend_type.value]
+
         # Mark this CLI test for skipping based on the backend filter.
-        if ((self.allowed_backend is not None) and (self.allowed_backend != self.backend_type)):
-            test_info.skip_reasons.append(f"Backend {self.backend_type} has been filtered.")
+        if ((self.backend_type is not None) and (self.allowed_backend is not None) and (self.allowed_backend != self.backend_type)):
+            test_info.skip_reasons.append(f"Backend {self.backend_type.value} has been filtered.")
 
     @classmethod
     def get_test_basename(cls, path: str) -> str:

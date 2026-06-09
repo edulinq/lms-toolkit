@@ -18,23 +18,28 @@ class MoodleBackend(lms.model.backend.APIBackend):
     """ An API backend for the Moodle LMS. """
 
     def __init__(self,
-            server: str,
-            auth_user: typing.Union[str, None] = None,
-            auth_password: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
-        super().__init__(server, lms.model.constants.BACKEND_TYPE_MOODLE, **kwargs)
+        super().__init__(**kwargs)
 
-        if (auth_user is None):
+        assert(self.config.backend_type == lms.model.constants.BackendType.MOODLE)
+
+        if (self.config.auth_user is None):
             raise ValueError("Moodle backends require a username.")
 
-        if (auth_password is None):
+        self.auth_user: str = self.config.auth_user
+        """
+        The user to authenticate with.
+        This is set in config and compied for type checking.
+        """
+
+        if (self.config.auth_password is None):
             raise ValueError("Moodle backends require a password.")
 
-        self._username = auth_user
-        """ The username to authenticate with. """
-
-        self._password = auth_password
-        """ The password to authenticate with. """
+        self.auth_password: str = self.config.auth_password.cleartext
+        """
+        The (cleartext) password to authenticate with.
+        This is set in config and compied for type checking.
+        """
 
         self._session_headers: typing.Union[typing.Dict[str, typing.Any], None] = None
         """ The headers (e.g., cookies) for our logged in Moodle session. """
@@ -82,8 +87,8 @@ class MoodleBackend(lms.model.backend.APIBackend):
 
         data = {
             'logintoken': token,
-            'username': self._username,
-            'password': self._password,
+            'username': self.auth_user,
+            'password': self.auth_password,
         }
 
         response, _ = edq.net.request.make_post(self.server + '/login/index.php',
@@ -96,7 +101,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
             self._session_headers = {
                 'cookie': response.headers.get('set-cookie', None),
                 # Insert a header to identify the user.
-                'edq-lms-moodle-user': self._username,
+                'edq-lms-moodle-user': self.auth_user,
             }
             return
 
@@ -120,7 +125,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
             self._login(update_server = False)
             return
 
-        raise ValueError(f"Could not log into Moodle server ({self.server}) with user '{self._username}'. Is username/password correct?")
+        raise ValueError(f"Could not log into Moodle server ({self.server}) with user '{self.auth_user}'. Is username/password correct?")
 
     def courses_list(self,
             **kwargs: typing.Any) -> typing.List[lms.model.courses.Course]:

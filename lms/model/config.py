@@ -12,7 +12,7 @@ class Config(edq.config.app.BaseApplicationConfig):
 
     def __init__(self,
             server: typing.Union[str, None] = None,
-            backend_type: typing.Union[str, None] = None,
+            backend_type: typing.Union[lms.model.constants.BackendType, None] = None,
             auth_user: typing.Union[str, None] = None,
             auth_password: typing.Union[edq.util.crypto.Secret, None] = None,
             auth_token: typing.Union[edq.util.crypto.Secret, None] = None,
@@ -28,13 +28,14 @@ class Config(edq.config.app.BaseApplicationConfig):
             skip_headers: typing.Union[bool, None] = None,
             skip_rows: typing.Union[int, None] = None,
             strict: typing.Union[bool, None] = None,
+            testing: typing.Union[bool, None] = None,
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
 
         self.server: typing.Union[str, None] = server
         """ The address of the LMS server to connect to. """
 
-        self.backend_type: typing.Union[str, None] = backend_type
+        self.backend_type: typing.Union[lms.model.constants.BackendType, None] = backend_type
         """ The type of LMS being connected to (this can normally be guessed from the server address). """
 
         self.auth_user: typing.Union[str, None] = auth_user
@@ -46,6 +47,7 @@ class Config(edq.config.app.BaseApplicationConfig):
         self.auth_token: typing.Union[edq.util.crypto.Secret, None] = auth_token
         """ The token to authenticate with. """
 
+        # TEST - Remove command-specific options
         self.course: typing.Union[str, None] = course
         """ The course to target for this operation. """
 
@@ -83,3 +85,5 @@ class Config(edq.config.app.BaseApplicationConfig):
         """ Enable strict mode, which is stricter about what counts as an error. """
 
         # TEST - testing?
+        self.testing: typing.Union[bool, None] = testing
+        """ If we should run as if we are in a test. """
