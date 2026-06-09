@@ -210,7 +210,13 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
 
         a_tags = document.select('th div.commands a')
         for a_tag in a_tags:
-            a_tag.attrs = {k: a_tag.attrs[k] for k in ['data-column'] if k in a_tag.attrs}
+            # Remove all unnecessary attributes.
+            a_tag.attrs = {attr: a_tag.attrs[attr] for attr in ['data-column'] if attr in a_tag.attrs}
+
+        spans = document.select('tbody tr td span')
+        for span in spans:
+            # Remove all attributes.
+            span.attrs.clear()
 
         body = str(document.select('table#participants'))
 
