@@ -2,9 +2,11 @@
 Utilities for network and HTTP.
 """
 
+import re
 import typing
 import urllib.parse
 
+import bs4
 import edq.net.exchange
 import edq.util.json
 import requests
@@ -64,6 +66,10 @@ MOODLE_FINALIZE_REMOVE_PARAMS: typing.Set[str] = {
     'logintoken',
 }
 """ Keys to remove from Moodle headers. """
+
+STANDARDIZED_TIMESTAMP: str = '123456789'
+STANDARDIZED_SESSION_KEY: str = 'abcABC123'
+STANDARDIZED_RANDOM_STRING: str = 'abc123'
 
 def clean_lms_response(response: requests.Response, body: str) -> str:
     """
@@ -166,16 +172,63 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
 
     body = _clean_base_response(response, body)
 
+    # Standardize timestamp.
+    current_timestamp_match = re.search(r"boost/theme/(\d{10})/favicon", body)
+    if (current_timestamp_match is not None):
+        body = body.replace(current_timestamp_match.group(1), STANDARDIZED_TIMESTAMP)
+
+    # Standardize session key.
+    session_key_match = re.search(r'"sesskey":"([^"]+)"', body)
+    if (session_key_match is not None):
+        body = body.replace(session_key_match.group(1), STANDARDIZED_SESSION_KEY)
+
+    # Standardize "random" string.
+    random_string_match = re.search(r"'random([a-z0-9]+)'", body)
+    if (random_string_match is not None):
+        body = body.replace(random_string_match.group(1), STANDARDIZED_RANDOM_STRING)
+
+    # Standardize logintoken.
+    logintoken_match = re.search(r'name="logintoken" value="(\w+)"', body)
+    if (logintoken_match is not None):
+        body = body.replace(logintoken_match.group(1), STANDARDIZED_SESSION_KEY)
+
     # Work on both request and response headers.
     for headers in [response.headers, response.request.headers]:
         for key in list(headers.keys()):  # type: ignore[attr-defined]
             if (key.strip().lower() in MOODLE_CLEAN_REMOVE_HEADERS):
                 headers.pop(key, None)  # type: ignore[attr-defined]
 
+    # Endpoint-Specific Tasks
+
+    # Remove extra data from the course participants response.
+    if (re.search(r'/user/index\.php\?id=(\d+)', response.url.strip())):
+        document = bs4.BeautifulSoup(body, 'html.parser')
+
+        decompose_selectors = ['tr.emptyrow', 'div[data-status="Active"]']
+        for selector in decompose_selectors:
+            elements = document.select(selector)
+            for element in elements:
+                element.decompose()
+
+        a_tags = document.select('a')
+        for a_tag in a_tags:
+            # Remove extra attributes by keeping only select attributes and replacing the existing attribute dict.
+            a_tag.attrs = {attr: a_tag.attrs[attr] for attr in ['data-column'] if (attr in a_tag.attrs)}
+
+        spans = document.select('tbody tr td span')
+        for span in spans:
+            # Remove all attributes.
+            span.attrs.clear()
+
+        body = str(document.select('table#participants'))
+
+        # Remove Chunking
+        response.headers.pop('transfer-encoding', None)
+
     return body
 
 def finalize_moodle_exchange(exchange: edq.net.exchange.HTTPExchange) -> edq.net.exchange.HTTPExchange:
-    """ Finalize Moodle exhanges. """
+    """ Finalize Moodle exchanges. """
 
     for param in MOODLE_FINALIZE_REMOVE_PARAMS:
         exchange.parameters.pop(param, None)

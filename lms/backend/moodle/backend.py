@@ -14,6 +14,17 @@ import lms.util.net
 
 _logger = logging.getLogger(__name__)
 
+ROLE_MAPPING: typing.Dict[str, lms.model.users.CourseRole] = {
+    "guest": lms.model.users.CourseRole.OTHER,
+    "student": lms.model.users.CourseRole.STUDENT,
+    "non-editing teacher": lms.model.users.CourseRole.GRADER,
+    "teacher": lms.model.users.CourseRole.ADMIN,
+    "manager": lms.model.users.CourseRole.OWNER,
+}
+
+# Moodle shows 5000 users per page when asked to fetch all results.
+RESULTS_PER_PAGE: int = 5000
+
 class MoodleBackend(lms.model.backend.APIBackend):
     """ An API backend for the Moodle LMS. """
 
@@ -165,3 +176,67 @@ class MoodleBackend(lms.model.backend.APIBackend):
             ))
 
         return sorted(courses)
+
+    def courses_users_list(self,
+            course_id: str,
+            **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
+        url = f"{self.server}/user/index.php?id={course_id}&perpage={RESULTS_PER_PAGE}"
+        response, _ = edq.net.request.make_get(url, headers = self._session_headers)
+
+        document = bs4.BeautifulSoup(response.text, 'html.parser')
+
+        headers = document.select('table#participants thead tr th')
+        # { course_user_attribute (e.g. name): column class, ... }
+        classes = {}
+        for header in headers:
+            column_classes = header.get('class', None)
+            if (column_classes is None):
+                continue
+
+            # Parse and store the column's class (e.g. "c0").
+            # This class is referenced when storing corresponding course user data.
+            if (isinstance(column_classes, str)):
+                column_class = column_classes
+            else:
+                if ('header' in column_classes):
+                    column_classes.remove('header')
+
+                if (len(column_classes) != 1):
+                    continue
+
+                column_class = column_classes[0]
+
+            elements = header.select('div.commands a')
+            for element in elements:
+                attribute = element.get('data-column', None)
+                if (attribute is None):
+                    continue
+
+                classes[attribute] = column_class
+
+        rows = document.select('table#participants tbody tr:not(.emptyrow)')
+
+        users = []
+        for row in rows:
+            try:
+                id = row.select_one('.cell input[type="checkbox"]').get('id', None).removeprefix('user')  # type: ignore[union-attr]
+                name = row.select_one(f'.cell.{classes["fullname"]} a span').get('title', None).removeprefix('__EMPTY_NAME__ ')  # type: ignore[union-attr] # pylint: disable=line-too-long
+                email = row.select_one(f'.cell.{classes["email"]}').get_text()  # type: ignore[union-attr]
+                raw_role = row.select_one(f'.cell.{classes["roles"]} span a').get_text().strip().lower()  # type: ignore[union-attr]
+            except AttributeError as _:
+                _logger.warning("Unable to list users. Moodle data structure has changed. Contact project developers.")
+                continue
+
+            # HACK(JK): Moodle does not allow the Guest role when loading test data, so we patch the guest role during testing.
+            if (email == 'course-other@test.edulinq.org'):
+                raw_role = "guest"
+
+            users.append(lms.model.users.CourseUser(
+                id = id,
+                name = name,
+                email = email,
+                raw_role = raw_role,
+                role = ROLE_MAPPING.get(raw_role, None),
+            ))
+
+        return users
