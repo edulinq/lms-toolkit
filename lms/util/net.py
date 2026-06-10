@@ -67,6 +67,12 @@ MOODLE_FINALIZE_REMOVE_PARAMS: typing.Set[str] = {
 }
 """ Keys to remove from Moodle headers. """
 
+DECOMPOSE_ELEMENTS_SELECTORS: typing.Set[str] = {
+    'tr.emptyrow',
+    'div[data-status="Active"]',
+}
+""" Elements to remove from Moodle response. """
+
 STANDARDIZED_TIMESTAMP: str = '123456789'
 STANDARDIZED_SESSION_KEY: str = 'abcABC123'
 STANDARDIZED_RANDOM_STRING: str = 'abc123'
@@ -200,18 +206,19 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
 
     # Endpoint-Specific Tasks
 
-    # Remove extraneous data from the course participants response.
-    if re.search(r'/user/index\.php\?id=(\d+)', response.url.strip()):
+    # Remove extra data from the course participants response.
+    if (re.search(r'/user/index\.php\?id=(\d+)', response.url.strip())):
         document = bs4.BeautifulSoup(body, 'html.parser')
 
-        rows = document.select('tr.emptyrow')
-        for row in rows:
-            row.decompose()
+        for selector in DECOMPOSE_ELEMENTS_SELECTORS:
+            elements = document.select(selector)
+            for element in elements:
+                element.decompose()
 
-        a_tags = document.select('th div.commands a')
+        a_tags = document.select('a')
         for a_tag in a_tags:
-            # Remove all unnecessary attributes.
-            a_tag.attrs = {attr: a_tag.attrs[attr] for attr in ['data-column'] if attr in a_tag.attrs}
+            # Remove extra attributes by keeping only select attributes and replacing the existing attribute dict.
+            a_tag.attrs = {attr: a_tag.attrs[attr] for attr in ['data-column'] if (attr in a_tag.attrs)}
 
         spans = document.select('tbody tr td span')
         for span in spans:
