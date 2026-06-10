@@ -155,7 +155,7 @@ def clean_canvas_response(response: requests.Response, body: str) -> str:
 
     # Remove special fields.
 
-    if ('submissions/update_grades' in response.request.url):
+    if ((isinstance(response.request.url, str)) and ('submissions/update_grades' in response.request.url)):
         data.pop('id', None)
 
     # Convert body back to a string.
