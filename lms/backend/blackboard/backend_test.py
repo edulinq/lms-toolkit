@@ -51,10 +51,11 @@ class BlackboardBackendTest(lms.backend.testing.BackendTest):
     def modify_cli_test_info(self, test_info: edq.testing.cli.CLITestInfo) -> None:
         super().modify_cli_test_info(test_info)
 
-        test_info.arguments += [
-            '--auth-user', self.backend.auth_user,
-            '--auth-password', self.backend.auth_password,
-        ]
+        if (test_info.extra_options.get('skip_auth', False) is not True):
+            test_info.arguments += [
+                '--auth-user', self.backend.auth_user,
+                '--auth-password', self.backend.auth_password,
+            ]
 
     def set_user(self, email: str) -> None:
         super().set_user(email)

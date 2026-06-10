@@ -155,7 +155,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
         """
 
         if ((self.backend_type is not None) and (self.allowed_backend is not None) and (self.allowed_backend != self.backend_type)):
-            self.skipTest(f"Backend {self.backend_type.value} has been filtered.")
+            self.skipTest(f"Backend '{self.backend_type.value}' has been filtered, only allowing '{self.allowed_backend.value}'.")
 
         skip_reason = None
 
@@ -226,6 +226,10 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
     def modify_cli_test_info(self, test_info: edq.testing.cli.CLITestInfo) -> None:
         """ Adjust the CLI test info to include core info (like server information). """
 
+        if ((self.backend_type is not None) and (self.backend_type.value in test_info.extra_options.get('skip_backends', []))):
+            test_info.skip_reasons.append(f"CLI test backend '{self.backend_type.value}' has been skipped by test info.")
+            return
+
         test_info.arguments += [
             '--config-global', CLI_GLOBAL_CONFG_PATH,
             '--server', self.get_server_url(),
@@ -237,7 +241,8 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
 
         # Mark this CLI test for skipping based on the backend filter.
         if ((self.backend_type is not None) and (self.allowed_backend is not None) and (self.allowed_backend != self.backend_type)):
-            test_info.skip_reasons.append(f"Backend {self.backend_type.value} has been filtered.")
+            test_info.skip_reasons.append(
+                    f"CLI test backend '{self.backend_type.value}' has been filtered, only allowing '{self.allowed_backend.value}'.")
 
     @classmethod
     def get_test_basename(cls, path: str) -> str:

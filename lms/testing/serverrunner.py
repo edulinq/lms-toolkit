@@ -27,9 +27,12 @@ class LMSServerRunner(edq.testing.serverrunner.ServerRunner):
     """ A server runner specifically for LMS servers. """
 
     def __init__(self,
-            backend_type: typing.Union[lms.model.constants.BackendType, None] = None,
+            backend_type: typing.Union[lms.model.constants.BackendType, str, None] = None,
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
+
+        if (isinstance(backend_type, str)):
+            backend_type = lms.model.constants.BackendType(backend_type)
 
         self.backend_type: typing.Union[lms.model.constants.BackendType, None] = backend_type
         """

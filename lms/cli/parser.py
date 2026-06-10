@@ -16,7 +16,11 @@ import lms.util.net
 
 CONFIG_FILENAME: str = 'edq-lms.json'
 
+ENV_CONFIG_PREFIX: str = 'EDQLMS'
+
 DEFAULT_SKIP_ROWS: int = 0
+
+DEFAULT_ENCRYPTION_KEY: str = 'EDQLMS'
 
 _set_exchanges_clean_func: bool = True  # pylint: disable=invalid-name
 """
@@ -45,6 +49,8 @@ def get_parser(description: str,
     # Set config options.
     edq.config.settings.set_config_filename(CONFIG_FILENAME)
     edq.config.settings.set_application_config_class(lms.model.config.Config)
+    edq.config.settings.set_env_prefix(ENV_CONFIG_PREFIX)
+    edq.config.settings.set_default_encryption_key(DEFAULT_ENCRYPTION_KEY)
 
     parser = edq.core.argparser.get_default_parser(
             description,
