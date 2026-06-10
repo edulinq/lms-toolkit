@@ -67,12 +67,6 @@ MOODLE_FINALIZE_REMOVE_PARAMS: typing.Set[str] = {
 }
 """ Keys to remove from Moodle headers. """
 
-DECOMPOSE_ELEMENTS_SELECTORS: typing.Set[str] = {
-    'tr.emptyrow',
-    'div[data-status="Active"]',
-}
-""" Elements to remove from Moodle response. """
-
 STANDARDIZED_TIMESTAMP: str = '123456789'
 STANDARDIZED_SESSION_KEY: str = 'abcABC123'
 STANDARDIZED_RANDOM_STRING: str = 'abc123'
@@ -210,7 +204,8 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
     if (re.search(r'/user/index\.php\?id=(\d+)', response.url.strip())):
         document = bs4.BeautifulSoup(body, 'html.parser')
 
-        for selector in DECOMPOSE_ELEMENTS_SELECTORS:
+        decompose_selectors = ['tr.emptyrow', 'div[data-status="Active"]']
+        for selector in decompose_selectors:
             elements = document.select(selector)
             for element in elements:
                 element.decompose()
