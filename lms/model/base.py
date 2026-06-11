@@ -240,7 +240,7 @@ class BaseType(edq.util.serial.DictConverter):
         This is the inverse of as_json_dict().
         """
 
-        return typing.cast(T, cls.from_dict(data))
+        return cls.from_dict(data)
 
 def base_list_to_output_format(
         values: typing.Sequence[BaseType],
