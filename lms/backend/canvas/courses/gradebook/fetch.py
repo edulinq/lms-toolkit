@@ -20,7 +20,6 @@ def request(backend: typing.Any,
 
     data = {
         'per_page': lms.backend.canvas.common.DEFAULT_PAGE_SIZE,
-        'assignment_ids[]': [str(assignment_id) for assignment_id in assignment_ids],
         'student_ids[]': 'all',
     }
 
@@ -32,7 +31,6 @@ def request(backend: typing.Any,
     if (raw_objects is None):
         identifiers = {
             'course_id': course_id,
-            'assignment_ids': assignment_ids,
             'user_ids': user_ids,
         }
         backend.not_found('fetch gradebook', identifiers)
@@ -46,6 +44,10 @@ def request(backend: typing.Any,
 
         user_id = int(raw_object.get('user_id', -1))
         if ((len(user_ids) != 0) and (user_id not in user_ids)):
+            continue
+
+        assignment_id = int(raw_object.get('assignment_id', -1))
+        if ((len(assignment_ids) != 0) and (assignment_id not in assignment_ids)):
             continue
 
         gradebook.add(lms.backend.canvas.model.assignment_score(raw_object))
