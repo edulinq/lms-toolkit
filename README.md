@@ -581,8 +581,8 @@ Legend:
 | lms.cli.courses.quizzes.questions.list          | `-`        | ✅     | `-`    |
 | lms.cli.courses.quizzes.questions.write         | `-`        | ✅     | `-`    |
 | lms.cli.courses.syllabus.get                    | `-`        | ✅     | `-`    |
-| lms.cli.courses.users.get                       | ✅         | ✅     | `-`    |
-| lms.cli.courses.users.list                      | ✅         | ✅     | `-`    |
+| lms.cli.courses.users.get                       | ✅         | ✅     | ✅     |
+| lms.cli.courses.users.list                      | ✅         | ✅     | ✅     |
 | lms.cli.courses.users.scores.get                | `-`        | ✅     | `-`    |
 | lms.cli.courses.users.scores.list               | `-`        | ✅     | `-`    |
 | lms.cli.server.identify                         | ✅         | ✅     | ✅     |
