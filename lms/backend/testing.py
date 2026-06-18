@@ -8,6 +8,7 @@ import edq.testing.cli
 import edq.testing.unittest
 import edq.testing.httpserver
 import edq.util.pyimport
+import edq.util.serial
 
 import lms.model.backend
 import lms.model.base
@@ -92,8 +93,12 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
         if (cls.exchanges_dir is None):
             raise ValueError("BackendTest subclass did not set exchanges dir properly.")
 
+        context = edq.util.serial.SerializationContext(json_options = {
+            'strict': True,
+        })
+
         edq.testing.httpserver.HTTPServerTest.setup_server(server)
-        server.load_exchanges_dir(cls.exchanges_dir)
+        server.load_exchanges_dir(cls.exchanges_dir, context = context)
 
         # Update match options.
         for (key, values) in [('params_to_skip', cls.params_to_skip), ('headers_to_skip', cls.headers_to_skip)]:
