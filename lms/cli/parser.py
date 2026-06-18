@@ -16,7 +16,7 @@ import lms.util.net
 
 CONFIG_FILENAME: str = 'edq-lms.json'
 
-ENV_CONFIG_PREFIX: str = 'EDQLMS'
+ENV_CONFIG_PREFIX: str = 'EDQLMS__'
 
 DEFAULT_SKIP_ROWS: int = 0
 
