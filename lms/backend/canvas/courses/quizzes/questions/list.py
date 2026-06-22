@@ -10,9 +10,14 @@ def request(backend: typing.Any,
         course_id: int,
         quiz_id: int,
         fetch_resources: bool = False,
-        ) -> typing.List[lms.model.quizzes.Question]:
+        # TEST
+        # ) -> typing.List[lms.model.quizzes.Question]:
+        ) -> typing.List[typing.Any]:
     """ List quiz questions. """
 
+    # TEST
+    return []
+    ''' TEST
     url = backend.server + BASE_ENDPOINT.format(course_id = course_id, quiz_id = quiz_id, page_size = lms.backend.canvas.common.DEFAULT_PAGE_SIZE)
     headers = backend.get_standard_headers()
 
@@ -27,3 +32,4 @@ def request(backend: typing.Any,
         return []
 
     return sorted([lms.backend.canvas.model.quiz_question(backend, raw_object, fetch_resources) for raw_object in raw_objects])
+    '''

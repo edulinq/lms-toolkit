@@ -2,6 +2,7 @@ import logging
 import typing
 
 import edq.util.parse
+import quizcomp.model.quiz
 
 import lms.model.assignments
 import lms.model.config
@@ -1122,7 +1123,7 @@ class APIBackend():
     def courses_quizzes_get(self,
             course_query: lms.model.courses.CourseQuery,
             quiz_queries: typing.Collection[lms.model.quizzes.QuizQuery],
-            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Quiz]:
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.QuizMetadata]:
         """
         Get the specified quizzes associated with the given course.
         """
@@ -1147,7 +1148,7 @@ class APIBackend():
     def courses_quizzes_fetch(self,
             course_id: str,
             quiz_id: str,
-            **kwargs: typing.Any) -> typing.Union[lms.model.quizzes.Quiz, None]:
+            **kwargs: typing.Any) -> typing.Union[lms.model.quizzes.QuizMetadata, None]:
         """
         Fetch a single quiz associated with the given course.
         Return None if no matching quiz is found.
@@ -1166,7 +1167,7 @@ class APIBackend():
     def courses_quizzes_list(self,
             course_id: str,
             fetch_resources: bool = False,
-            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Quiz]:
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.QuizMetadata]:
         """
         List the quizzes associated with the given course.
         If specified, additional resources associated with the quiz (e.g., images) may also be fetched.
@@ -1176,7 +1177,7 @@ class APIBackend():
 
     def courses_quizzes_resolve_and_list(self,
             course_query: lms.model.courses.CourseQuery,
-            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Quiz]:
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.QuizMetadata]:
         """
         List the quizzes associated with the given course.
         """
@@ -1184,6 +1185,7 @@ class APIBackend():
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
         return sorted(self.courses_quizzes_list(resolved_course_query.get_id(), **kwargs))
 
+    ''' TEST - Remove
     def courses_quizzes_groups_get(self,
             course_query: lms.model.courses.CourseQuery,
             quiz_query: lms.model.quizzes.QuizQuery,
@@ -1323,6 +1325,71 @@ class APIBackend():
         resolved_course_query = self.resolve_course_query(course_query, **kwargs)
         resolved_quiz_query = self.resolve_quiz_query(resolved_course_query.get_id(), quiz_query, **kwargs)
         return sorted(self.courses_quizzes_questions_list(resolved_course_query.get_id(), resolved_quiz_query.get_id(), **kwargs))
+    '''
+
+    def courses_quizzes_resolve_and_remove(self,
+            course_query: lms.model.courses.CourseQuery,
+            quiz_queries: typing.Collection[lms.model.quizzes.QuizQuery],
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.QuizMetadata]:
+        """
+        Resolve the course and remove any matching quiz.
+        Return the quizzes that were removed.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+
+        old_quizzes = self.courses_quizzes_get(resolved_course_query, quiz_queries)
+        for old_quiz in old_quizzes:
+            self.courses_quizzes_remove(resolved_course_query.get_id(), old_quiz.id)
+
+        return old_quizzes
+
+    def courses_quizzes_remove(self,
+            course_id: str,
+            quiz_id: str,
+            **kwargs: typing.Any) -> None:
+        """
+        Remove quiz from the LMS.
+        """
+
+        raise NotImplementedError('courses_quizzes_remove')
+
+    def courses_quizzes_resolve_and_upload(self,
+            course_query: lms.model.courses.CourseQuery,
+            quiz: quizcomp.model.quiz.Quiz,
+            force: bool = False,
+            **kwargs: typing.Any) -> lms.model.quizzes.QuizMetadata:
+        """
+        Resolve the course and upload the quiz.
+        If a quiz already exists with a matching query, then `force` will decide the behavior.
+        If `force` is true then those matching quizzes will be removed,
+        otherwise an exception will be raised.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+
+        old_quizzes = self.courses_quizzes_get(resolved_course_query, [lms.model.quizzes.QuizQuery(name = quiz.name)])
+        if ((not force) and (len(old_quizzes) > 0)):
+            raise ValueError(f"Found {len(old_quizzes)} existing quizzes with a matching name ('{quiz.name}'), stopping upload.")
+
+        for old_quiz in old_quizzes:
+            _logger.warning("Deleting existing quiz ('%s') before upload.", old_quiz.to_query())
+            self.courses_quizzes_remove(resolved_course_query.get_id(), old_quiz.id)
+
+        return self.courses_quizzes_upload(resolved_course_query.get_id(), quiz)
+
+    def courses_quizzes_upload(self,
+            course_id: str,
+            quiz: quizcomp.model.quiz.Quiz,
+            **kwargs: typing.Any) -> lms.model.quizzes.QuizMetadata:
+        """
+        Upload a single quiz to the LMS.
+
+        This method assumes that there is no quiz with a matching name.
+        To handle that case, use courses_quizzes_resolve_and_upload() with `force = True`.
+        """
+
+        raise NotImplementedError('courses_quizzes_upload')
 
     def courses_syllabus_fetch(self,
             course_id: str,

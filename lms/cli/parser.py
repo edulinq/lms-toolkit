@@ -15,12 +15,10 @@ import lms.model.constants
 import lms.util.net
 
 CONFIG_FILENAME: str = 'edq-lms.json'
-
 ENV_CONFIG_PREFIX: str = 'EDQLMS__'
+DEFAULT_ENCRYPTION_KEY: str = 'EDQLMS'
 
 DEFAULT_SKIP_ROWS: int = 0
-
-DEFAULT_ENCRYPTION_KEY: str = 'EDQLMS'
 
 _set_exchanges_clean_func: bool = True  # pylint: disable=invalid-name
 """

@@ -27,7 +27,7 @@ This project is not affiliated with any LMS developer/provider.
        - [Retrieve Gradebook](#retrieve-gradebook)
        - [Upload Gradebook](#upload-gradebook)
      - Quizzes
-       - [Retrieve Quizzes](#retrieve-quizzes)
+       - [Retrieve Quiz Metadata](#retrieve-quizzes)
        - [Write Quizzes](#write-quizzes)
        - Questions
          - [Retrieve Quiz Questions](#retrieve-quiz-questions)
@@ -281,7 +281,7 @@ Only the assignments and students of interest need to be included.
 An empty cell (missing score) will be ignored,
 but all rows must have the correct number of cells (tabs).
 
-### Retrieve Quizzes
+### Retrieve Quiz Metadata
 
 List all quizzes associated with a course with `lms.cli.courses.quizzes.list`:
 ```sh

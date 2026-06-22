@@ -3,10 +3,12 @@ import typing
 
 import edq.util.dirent
 import edq.util.json
+''' TEST
 import quizcomp.constants
 import quizcomp.group
 import quizcomp.question.base
 import quizcomp.quiz
+'''
 
 import lms.model.assignments
 import lms.model.base
@@ -14,6 +16,7 @@ import lms.model.query
 
 QUESTIONS_DIRNAME: str = 'questions'
 
+''' TEST
 class QuestionQuery(lms.model.query.BaseQuery):
     """
     A class for the different ways one can attempt to reference an LMS quiz question.
@@ -247,6 +250,7 @@ class QuestionGroup(lms.model.base.BaseType):
             'questions': group_question_paths,
             'ids': {'lms': self.id},
         }
+TEST '''
 
 class QuizQuery(lms.model.query.BaseQuery):
     """
@@ -267,13 +271,14 @@ class ResolvedQuizQuery(lms.model.query.ResolvedBaseQuery, QuizQuery):
     _include_email = False
 
     def __init__(self,
-            quiz: 'Quiz',
+            quiz: 'QuizMetadata',
             **kwargs: typing.Any) -> None:
         super().__init__(id = quiz.id, name = quiz.name, **kwargs)
 
-class Quiz(lms.model.assignments.Assignment):
+class QuizMetadata(lms.model.assignments.Assignment):
     """
-    A quiz within a course.
+    Information about a quiz, but not the full content of a quiz.
+    This does not contain content like quiz groups/questions.
     """
 
     def __init__(self,
@@ -292,6 +297,8 @@ class Quiz(lms.model.assignments.Assignment):
 
         return ResolvedQuizQuery(self)
 
+    # TEST - Rewrite with new quizcomp
+    ''' TEST
     def write(self, base_dir: str, groups: typing.List[QuestionGroup], questions: typing.List[Question], force: bool = False) -> str:
         """
         Write this quiz to the given directory in Quiz Composer format and return the new directory for this quiz.
@@ -333,3 +340,4 @@ class Quiz(lms.model.assignments.Assignment):
             'groups': quizcomp_groups,
             'ids': {'lms': self.id},
         }
+    '''

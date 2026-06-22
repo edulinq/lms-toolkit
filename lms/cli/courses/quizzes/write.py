@@ -49,8 +49,8 @@ def _get_parser() -> argparse.ArgumentParser:
     """ Get the parser. """
 
     parser = lms.cli.parser.get_parser(__doc__.strip(),
-            include_course = True,
-            include_quiz = True,
+        include_course = True,
+        include_quiz = True,
     )
 
     parser.add_argument('--out-dir', dest = 'out_dir',

@@ -5,7 +5,7 @@ import quizcomp.question.base
 import lms.model.quizzes
 
 # {course_name: {name: quiz, ...}, ...}
-COURSE_QUIZZES: typing.Dict[str, typing.Dict[str, lms.model.quizzes.Quiz]] = {}
+COURSE_QUIZZES: typing.Dict[str, typing.Dict[str, lms.model.quizzes.QuizMetadata]] = {}
 
 # {quiz_name: {name: group, ...}, ...}
 QUIZ_GROUPS: typing.Dict[str, typing.Dict[str, lms.model.quizzes.QuestionGroup]] = {}
@@ -21,7 +21,7 @@ ORDERED_QUIZ_QUESTIONS: typing.Dict[str, typing.List[lms.model.quizzes.Question]
 
 # pylint: disable=line-too-long
 COURSE_QUIZZES['Course 101'] = {
-    'Regular Expressions': lms.model.quizzes.Quiz(
+    'Regular Expressions': lms.model.quizzes.QuizMetadata(
         id = '110000200',
         name = 'Regular Expressions',
         points_possible = 0.0,

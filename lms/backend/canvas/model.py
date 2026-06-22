@@ -7,7 +7,8 @@ import bs4
 import edq.net.request
 import edq.util.dirent
 import html2text
-import quizcomp.question.base
+# TEST
+# import quizcomp.question.base
 
 import lms.backend.canvas.common
 import lms.model.assignments
@@ -35,6 +36,7 @@ This map is ordered by priority/power.
 The later in the dict, the more power.
 """
 
+''' TEST
 QUESTION_TYPE_MAPPING: typing.Dict[typing.Union[str, None], quizcomp.question.base.QuestionType] = {
     'essay_question': quizcomp.question.base.QuestionType.ESSAY,
     'fill_in_multiple_blanks_question': quizcomp.question.base.QuestionType.FIMB,
@@ -47,6 +49,7 @@ QUESTION_TYPE_MAPPING: typing.Dict[typing.Union[str, None], quizcomp.question.ba
     'text_only_question': quizcomp.question.base.QuestionType.TEXT_ONLY,
     'true_false_question': quizcomp.question.base.QuestionType.TF,
 }
+'''
 
 _testing_override: bool = False  # pylint: disable=invalid-name
 """ A special override to signal testing. """
@@ -191,7 +194,7 @@ def quiz(
         backend: lms.model.backend.APIBackend,
         data: typing.Dict[str, typing.Any],
         fetch_resources: bool = False,
-        ) -> lms.model.quizzes.Quiz:
+        ) -> lms.model.quizzes.QuizMetadata:
     """
     Create a Canvas quiz associated with a course.
 
@@ -204,8 +207,9 @@ def quiz(
     data['description'] = parsed_text.text
     data['resources'] = parsed_text.resources
 
-    return lms.model.quizzes.Quiz(**data)
+    return lms.model.quizzes.QuizMetadata(**data)
 
+''' TEST
 def quiz_question(
         backend: lms.model.backend.APIBackend,
         data: typing.Dict[str, typing.Any],
@@ -275,6 +279,7 @@ def quiz_question_group(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes
     data['pick_count'] = lms.util.parse.required_int(data.get('pick_count', None), 'pick_count')
 
     return lms.model.quizzes.QuestionGroup(**data)
+'''
 
 def _canvas_html_to_markdown(
         backend: lms.model.backend.APIBackend,
@@ -347,6 +352,7 @@ def _fetch_file(backend: lms.model.backend.APIBackend, info_link: str) -> typing
 
     return path
 
+''' TEST
 def _parse_quiz_question_answers(
         backend: lms.model.backend.APIBackend,
         raw_answers: typing.Union[typing.List[typing.Any], None],
@@ -492,6 +498,7 @@ def _parse_quiz_question_text(
         parsed_text = _canvas_html_to_markdown(backend, choice.get('html', None), fetch_resources)
 
     return parsed_text
+'''
 
 def _parse_assignment_data(data: typing.Dict[str, typing.Any], label: str) -> None:
     """

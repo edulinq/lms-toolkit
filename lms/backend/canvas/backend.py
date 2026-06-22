@@ -2,6 +2,8 @@
 
 import typing
 
+import quizcomp.model.quiz
+
 import lms.backend.canvas.courses.assignments.list
 import lms.backend.canvas.courses.assignments.scores.list
 import lms.backend.canvas.courses.assignments.scores.upload
@@ -20,6 +22,8 @@ import lms.backend.canvas.courses.list
 import lms.backend.canvas.courses.quizzes.list
 import lms.backend.canvas.courses.quizzes.groups.list
 import lms.backend.canvas.courses.quizzes.questions.list
+import lms.backend.canvas.courses.quizzes.remove
+import lms.backend.canvas.courses.quizzes.upload
 import lms.backend.canvas.courses.syllabus.fetch
 import lms.backend.canvas.courses.users.list
 import lms.backend.canvas.courses.users.scores.list
@@ -197,10 +201,11 @@ class CanvasBackend(lms.model.backend.APIBackend):
     def courses_quizzes_list(self,
             course_id: str,
             fetch_resources: bool = False,
-            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.Quiz]:
+            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.QuizMetadata]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         return lms.backend.canvas.courses.quizzes.list.request(self, parsed_course_id, fetch_resources)
 
+    ''' TEST - Remove - Also remove downstream files.
     def courses_quizzes_groups_list(self,
             course_id: str,
             quiz_id: str,
@@ -217,6 +222,22 @@ class CanvasBackend(lms.model.backend.APIBackend):
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         parsed_quiz_id = lms.util.parse.required_int(quiz_id, 'quiz_id')
         return lms.backend.canvas.courses.quizzes.questions.list.request(self, parsed_course_id, parsed_quiz_id, fetch_resources)
+    '''
+
+    def courses_quizzes_remove(self,
+            course_id: str,
+            quiz_id: str,
+            **kwargs: typing.Any) -> None:
+        parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
+        parsed_quiz_id = lms.util.parse.required_int(quiz_id, 'quiz_id')
+        lms.backend.canvas.courses.quizzes.remove.request(self, parsed_course_id, parsed_quiz_id)
+
+    def courses_quizzes_upload(self,
+            course_id: str,
+            quiz: quizcomp.model.quiz.Quiz,
+            **kwargs: typing.Any) -> lms.model.quizzes.QuizMetadata:
+        parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
+        return lms.backend.canvas.courses.quizzes.upload.request(self, parsed_course_id, quiz)
 
     def courses_syllabus_fetch(self,
             course_id: str,
