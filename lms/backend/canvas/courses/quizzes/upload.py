@@ -202,16 +202,7 @@ def _upload_question(
 
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
-    # TEST
-    print('---')
-    import edq.util.json
-    print(edq.util.json.dumps(data, indent = 4))
-    print('---')
-
     lms.backend.canvas.common.make_post_request(url, headers = headers, data = data)
-
-    # TEST
-    print('TEST - Success')
 
 def _create_question_json(
         group_id: int,
@@ -259,203 +250,149 @@ def _serialize_answers(
         ) -> None:
     """ Convert a question's answers to Canvas JSON and insert it into the give dict. """
 
-    if (isinstance(question.answers, quizcomp.model.answer.ChoiceAnswers)):
-        _serialize_choice_answers(data, question.answers, False)
-    else:
-        raise ValueError(f"Unknown answers type '{type(question.answers)}' for question type '{question.question_type.value}'.")
-
-    ''' TEST
-    if (question.question_type in [quizcomp.model.constants.QuestionType.ESSAY, quizcomp.model.constants.QuestionType.SA]):
-        # In Canvas, short answer questions also get mapped to the essay Canvas type.
-        # Essay questions have no answers.
+    if (question.question_type is quizcomp.model.constants.QuestionType.ESSAY):
+        # Text-based questions have no answers in canvas.
         pass
-    elif (question.question_type == quizcomp.model.constants.QuestionType.FIMB):
-        _serialize_fimb_answers(data, question, instance)
-    elif (question.question_type == quizcomp.model.constants.QuestionType.FITB):
-        _serialize_fimb_answers(data, question, instance)
-    elif (question.question_type == quizcomp.model.constants.QuestionType.MATCHING):
-        _serialize_matching_answers(data, question, instance)
-    elif (question.question_type == quizcomp.model.constants.QuestionType.NUMERICAL):
-        _serialize_numeric_answers(data, question.answers, instance)
-    elif (question.question_type == quizcomp.model.constants.QuestionType.TEXT_ONLY):
-        # Text-Only questions have no answers.
+    elif (question.question_type is quizcomp.model.constants.QuestionType.FIMB):
+        _serialize_fimb_answers(data, typing.cast(quizcomp.model.answer.MultiplePartTextAnswers, question.answers))
+    elif (question.question_type is quizcomp.model.constants.QuestionType.FITB):
+        answers = quizcomp.model.answer.MultiplePartTextAnswers(parts = {'': typing.cast(quizcomp.model.answer.TextAnswers, question.answers)})
+        _serialize_fimb_answers(data, answers)
+    elif (question.question_type is quizcomp.model.constants.QuestionType.MATCHING):
+        _serialize_matching_answers(data, typing.cast(quizcomp.model.answer.MatchingAnswers, question.answers))
+    elif (question.question_type is quizcomp.model.constants.QuestionType.MA):
+        _serialize_choice_answers(data, typing.cast(quizcomp.model.answer.ChoiceAnswers, question.answers), False)
+    elif (question.question_type is quizcomp.model.constants.QuestionType.MCQ):
+        _serialize_choice_answers(data, typing.cast(quizcomp.model.answer.ChoiceAnswers, question.answers), False)
+    elif (question.question_type is quizcomp.model.constants.QuestionType.MDD):
+        _serialize_mdd_answers(data, typing.cast(quizcomp.model.answer.MultiplePartChoiceAnswers, question.answers))
+    elif (question.question_type is quizcomp.model.constants.QuestionType.NUMERICAL):
+        _serialize_numeric_answers(data, typing.cast(quizcomp.model.answer.NumericAnswers, question.answers))
+    elif (question.question_type is quizcomp.model.constants.QuestionType.SA):
+        # Text-based questions have no answers in canvas.
         pass
-    elif (isinstance(question.answers, list)):
-        use_text = (question.question_type == quizcomp.model.constants.QuestionType.TF)
-        _serialize_answer_list(data, question.answers, instance, use_text = use_text)
-    elif (isinstance(question.answers, dict)):
-        count = 0
-        for key, item in question.answers.items():
-            _serialize_answer_list(data, item['values'], instance,
-                    start_index = count, blank_id = key, use_text = True)
-            count += len(item['values'])
+    elif (question.question_type is quizcomp.model.constants.QuestionType.TEXT_ONLY):
+        # Text-based questions have no answers in canvas.
+        pass
+    elif (question.question_type is quizcomp.model.constants.QuestionType.TF):
+        _serialize_choice_answers(data, typing.cast(quizcomp.model.answer.ChoiceAnswers, question.answers), True)
     else:
-        raise ValueError(f"Unknown answers type '{type(question.answers)}'.")
-    '''
+        raise ValueError(f"Unknown question type: '{question.question_type.value}'.")
 
 def _serialize_choice_answers(
         data: typing.Dict[str, typing.Any],
         answers: quizcomp.model.answer.ChoiceAnswers,
         use_text: bool,
         blank_id: typing.Union[str, None] = None,
+        start_index: int = 0,
         ) -> None:
     """ Serialize choice-based answers. """
 
     for (i, choice) in enumerate(answers.choices):
+        index = start_index + i
+
         weight = 0
         if (choice.correct):
             weight = 100
 
-        data[f"question[answers][{i}][answer_weight]"] = weight
+        data[f"question[answers][{index}][answer_weight]"] = weight
 
         if (use_text):
             text = choice.text.to_text(text_allow_special_text = True, text_allow_all_characters = True)
-            data[f"question[answers][{i}][answer_text]"] = text
+            data[f"question[answers][{index}][answer_text]"] = text
         else:
             html = choice.text.to_canvas()
-            data[f"question[answers][{i}][answer_html]"] = html
+            data[f"question[answers][{index}][answer_html]"] = html
 
         if (blank_id is not None):
-            data[f"question[answers][{i}][blank_id]"] = blank_id
+            data[f"question[answers][{index}][blank_id]"] = blank_id
 
         if ((choice.feedback is not None) and (choice.feedback.general is not None)):
-            data[f"question[answers][{i}][answer_comment_html]"] = choice.feedback.general.to_canvas()
-
-
-
-
-
-
-
-
-
-
-# TEST
-
-def _serialize_answer_list(
-        data: typing.Dict[str, typing.Any],
-        answers: typing.List[typing.Any],
-        instance: quizcomp.uploader.instance.CanvasInstanceInfo,
-        start_index: int = 0,
-        blank_id: typing.Union[str, None] = None,
-        use_text: bool = False,
-        ) -> None:
-    """ Clean a list of answers for Canvas. """
-
-    for (i, answer) in enumerate(answers):
-        _serialize_answer(data, answer, start_index + i, instance,
-            blank_id = blank_id, use_text = use_text)
-
-def _serialize_answer(
-        data: typing.Dict[str, typing.Any],
-        answer: typing.Any,
-        index: int,
-        instance: quizcomp.uploader.instance.CanvasInstanceInfo,
-        blank_id: typing.Union[str, None] = None,
-        use_text: bool = False,
-        ) -> None:
-    """ Clean answer data for Canvas. """
-
-    weight = 0
-    if (answer.is_correct()):
-        weight = 100
-
-    data[f"question[answers][{index}][answer_weight]"] = weight
-
-    if (use_text):
-        text = answer.document.to_text(text_allow_special_text = True, text_allow_all_characters = True)
-        data[f"question[answers][{index}][answer_text]"] = text
-    else:
-        html = answer.document.to_canvas(canvas_instance = instance, pretty = False)
-        data[f"question[answers][{index}][answer_html]"] = html
-
-    if (blank_id is not None):
-        data[f"question[answers][{index}][blank_id]"] = blank_id
-
-    if (answer.feedback is not None):
-        feedback_html = answer.feedback.document.to_canvas(canvas_instance = instance, pretty = False)
-        data[f"question[answers][{index}][answer_comment_html]"] = feedback_html
-
-def _serialize_matching_answers(
-        data: typing.Dict[str, typing.Any],
-        question: quizcomp.model.question.Question,
-        instance: quizcomp.uploader.instance.CanvasInstanceInfo,
-        ) -> None:
-    """ Concert the answers for a matching-type question to Canvas API data. """
-
-    for i in range(len(question.answers['matches'])):
-        left_content = question.answers['matches'][i]['left'].document.to_text(text_allow_special_text = True, text_allow_all_characters = True)
-        right_content = question.answers['matches'][i]['right'].document.to_text(text_allow_special_text = True, text_allow_all_characters = True)
-
-        data[f"question[answers][{i}][answer_match_left]"] = left_content
-        data[f"question[answers][{i}][answer_match_right]"] = right_content
-
-        if (question.answers['matches'][i]['left'].feedback is not None):
-            text = question.answers['matches'][i]['left'].feedback.document.to_canvas(canvas_instance = instance, pretty = False)
-            data[f"question[answers][{i}][answer_comment_html]"] = text
-
-    if (len(question.answers['distractors']) > 0):
-        distractors = [
-            distractor.document.to_text(text_allow_special_text = True, text_allow_all_characters = True)
-            for distractor
-            in question.answers['distractors']
-        ]
-        data["question[matching_answer_incorrect_matches]"] = "\n".join(distractors)
+            data[f"question[answers][{index}][answer_comment_html]"] = choice.feedback.general.to_canvas()
 
 def _serialize_fimb_answers(
         data: typing.Dict[str, typing.Any],
-        question: quizcomp.model.question.Question,
-        instance: quizcomp.uploader.instance.CanvasInstanceInfo,
+        answers: quizcomp.model.answer.MultiplePartTextAnswers,
         ) -> None:
-    """ Concert the answers for a FIMB-type question to Canvas API data. """
+    """ Serialize FIMB-like answers. """
 
     index = 0
 
-    for item in question.answers.values():
-        key_text = item['key'].document.to_text()
-
-        for i in range(len(item['values'])):
-            value_text = item['values'][i].document.to_text(text_allow_special_text = True, text_allow_all_characters = True)
-
-            data[f"question[answers][{index}][blank_id]"] = key_text
+    for (key, answer) in answers.parts.items():
+        for (i, option) in enumerate(answer.options):
+            data[f"question[answers][{index}][blank_id]"] = key
             data[f"question[answers][{index}][answer_weight]"] = 100
-            data[f"question[answers][{index}][answer_text]"] = value_text
+            data[f"question[answers][{index}][answer_text]"] = option.text.to_text(text_allow_special_text = True, text_allow_all_characters = True)
 
-            if (item['values'][i].feedback is not None):
-                feedback_text = item['values'][i].feedback.document.to_canvas(canvas_instance = instance, pretty = False)
-                data[f"question[answers][{index}][answer_comment_html]"] = feedback_text
+            if ((option.feedback is not None) and (option.feedback.general is not None)):
+                data[f"question[answers][{index}][answer_comment_html]"] = option.feedback.general.to_canvas()
 
             index += 1
 
+def _serialize_matching_answers(
+        data: typing.Dict[str, typing.Any],
+        answers: quizcomp.model.answer.MatchingAnswers,
+        ) -> None:
+    """ Serialize matching answers. """
+
+    for (i, (left, right)) in enumerate(answers.pairs):
+        data[f"question[answers][{i}][answer_match_left]"] = left.text.to_text(text_allow_special_text = True, text_allow_all_characters = True)
+        data[f"question[answers][{i}][answer_match_right]"] = right.text.to_text(text_allow_special_text = True, text_allow_all_characters = True)
+
+        if ((left.feedback is not None) and (left.feedback.general is not None)):
+            data[f"question[answers][{i}][answer_comment_html]"] = left.feedback.general.to_canvas()
+
+    if (len(answers.distractors) > 0):
+        distractors = [
+            distractor.text.to_text(text_allow_special_text = True, text_allow_all_characters = True)
+            for distractor
+            in answers.distractors
+        ]
+        data["question[matching_answer_incorrect_matches]"] = "\n".join(distractors)
+
+def _serialize_mdd_answers(
+        data: typing.Dict[str, typing.Any],
+        answers: quizcomp.model.answer.MultiplePartChoiceAnswers,
+        ) -> None:
+    """ Serialize MDD answers. """
+
+    index = 0
+
+    for (key, choices) in answers.parts.items():
+        _serialize_choice_answers(data, choices, True, blank_id = key, start_index = index)
+        index += len(choices.choices)
+
 def _serialize_numeric_answers(
         data: typing.Dict[str, typing.Any],
-        answers: typing.List[typing.Any],
-        instance: quizcomp.uploader.instance.CanvasInstanceInfo,
+        answers: quizcomp.model.answer.NumericAnswers,
         ) -> None:
-    """ Concert the answers for a numeric-type question to Canvas API data. """
+    """ Serialize numeric answers. """
 
     # Note that the keys/constants for numerical answers are different than what the documentation says:
     # https://canvas.instructure.com/doc/api/quiz_questions.html#QuizQuestion
 
-    for (i, answer) in enumerate(answers):
+    for (i, option) in enumerate(answers.options):
         data[f"question[answers][{i}][answer_weight]"] = 100
-        data[f"question[answers][{i}][numerical_answer_type]"] = answer.type + '_answer'
+        data[f"question[answers][{i}][numerical_answer_type]"] = option.type.value + '_answer'
 
-        if (answer.type == quizcomp.model.answer.NumericAnswerType.EXACT):
-            data[f"question[answers][{i}][answer_exact]"] = answer.value
-            data[f"question[answers][{i}][answer_error_margin]"] = answer.margin
-        elif (answer.type == quizcomp.model.answer.NumericAnswerType.RANGE):
-            data[f"question[answers][{i}][answer_range_start]"] = answer.min
-            data[f"question[answers][{i}][answer_range_end]"] = answer.max
-        elif (answer.type == quizcomp.model.answer.NumericAnswerType.PRECISION):
-            data[f"question[answers][{i}][answer_approximate]"] = answer.value
-            data[f"question[answers][{i}][answer_precision]"] = answer.precision
+        if (option.type is quizcomp.model.answer.NumericAnswerType.EXACT):
+            data[f"question[answers][{i}][answer_exact]"] = option.value
+            data[f"question[answers][{i}][answer_error_margin]"] = option.margin
+        elif (option.type is quizcomp.model.answer.NumericAnswerType.RANGE):
+            data[f"question[answers][{i}][answer_range_start]"] = option.min
+            data[f"question[answers][{i}][answer_range_end]"] = option.max
+        elif (option.type is quizcomp.model.answer.NumericAnswerType.PRECISION):
+            data[f"question[answers][{i}][answer_approximate]"] = option.value
+            data[f"question[answers][{i}][answer_precision]"] = option.precision
         else:
-            raise ValueError(f"Unknown numerical answer type: '{answer.type}'.")
+            raise ValueError(f"Unknown numerical option type: '{option.type.value}'.")
 
-        if (answer.feedback is not None):
-            feedback_text = answer.feedback.document.to_canvas(canvas_instance = instance, pretty = False)
-            data[f"question[answers][{i}][answer_comment_html]"] = feedback_text
+        if ((option.feedback is not None) and (option.feedback.general is not None)):
+            data[f"question[answers][{i}][answer_comment_html]"] = option.feedback.general.to_canvas()
+
+
+# TEST
+
 
 def upload_file(path: str, canvas_path: str, instance: quizcomp.uploader.instance.CanvasInstanceInfo) -> str:
     """ Upload a file to Canvas and fetch its ID. """
