@@ -66,6 +66,11 @@ def make_post_request(url: str, **kwargs: typing.Any) -> typing.Union[typing.Any
 
     return make_request('POST', url, **kwargs)
 
+def make_put_request(url: str, **kwargs: typing.Any) -> typing.Union[typing.Any, None]:
+    """ Make a single Canvas PUT request. """
+
+    return make_request('PUT', url, **kwargs)
+
 def make_delete_request(url: str, **kwargs: typing.Any) -> typing.Union[typing.Any, None]:
     """ Make a single Canvas DELETE request. """
 

@@ -1,30 +1,30 @@
+import os
+import re
 import typing
 
+import edq.util.hash
 import quizcomp.model.answer
 import quizcomp.model.config
 import quizcomp.model.group
 import quizcomp.model.question
 import quizcomp.model.quiz
 
-# TEST
 import lms.backend.canvas.common
 import lms.backend.canvas.model
 import lms.model.constants
 import lms.model.quizzes
 
+CREATE_FOLDER_ENDPOINT: str = "/api/v1/courses/{course_id}/folders"
+GET_FOLDER_ENDPOINT: str = "/api/v1/courses/{course_id}/folders/by_path{canvas_path}"
+HIDE_FOLDER_ENDPOINT: str = "/api/v1/folders/{folder_id}"
 LIST_ASSIGNMENT_GROUPS_ENDPOINT: str = "/api/v1/courses/{course_id}/assignment_groups?per_page={page_size}"
+UPLOAD_FILE_ENDPOINT: str = "/api/v1/courses/{course_id}/files"
 UPLOAD_GROUP_ENDPOINT: str = "/api/v1/courses/{course_id}/quizzes/{quiz_id}/groups"
 UPLOAD_QUESTION_ENDPOINT: str = "/api/v1/courses/{course_id}/quizzes/{quiz_id}/questions"
 UPLOAD_QUIZ_METADATA_ENDPOINT: str = "/api/v1/courses/{course_id}/quizzes"
 
-# TEST
-BASE_ENDPOINT = "/api/v1/courses/{course_id}/quizzes"
-
-# TEST - Assignment Group
-
-# TEST - Quiz type
-
-# TEST - Return Quiz Metadata
+CANVAS_QUIZCOMP_BASEDIR: str = '/quiz-composer'
+CANVAS_QUIZCOMP_QUIZ_DIRNAME: str = 'quizzes'
 
 QUIZ_TYPE_ASSIGNMENT: str = 'assignment'
 QUIZ_TYPE_PRACTICE: str = 'practice_quiz'
@@ -59,8 +59,7 @@ def request(
      3) Upload Quiz Question Groups (first create question groups and then upload questions).
     """
 
-    # TEST
-    _upload_quiz_files(backend, course_id, quiz)
+    _upload_quiz_images(backend, course_id, quiz)
 
     assignment_group_id = _fetch_assignment_group(backend, course_id, quiz)
 
@@ -69,16 +68,9 @@ def request(
     for group in quiz.get_groups():
         _upload_group(backend, course_id, int(quiz_metadata.id), group)
 
+    _restore_image_sources(quiz)
+
     return quiz_metadata
-
-def _upload_quiz_files(
-        backend: typing.Any,
-        course_id: int,
-        quiz: quizcomp.model.quiz.Quiz,
-        ) -> None:
-    """ Upload quiz files (like images). """
-
-    # TEST
 
 def _fetch_assignment_group(
         backend: typing.Any,
@@ -152,7 +144,6 @@ def _upload_quiz_metadata(
 
     url = backend.server + UPLOAD_QUIZ_METADATA_ENDPOINT.format(course_id = course_id)
     headers = backend.get_standard_headers()
-
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
     raw_data = lms.backend.canvas.common.make_post_request(url, headers = headers, data = data)
@@ -175,7 +166,6 @@ def _upload_group(
 
     url = backend.server + UPLOAD_GROUP_ENDPOINT.format(course_id = course_id, quiz_id = quiz_id)
     headers = backend.get_standard_headers()
-
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
     raw_data = lms.backend.canvas.common.make_post_request(url, headers = headers, data = data)
@@ -199,7 +189,6 @@ def _upload_question(
 
     url = backend.server + UPLOAD_QUESTION_ENDPOINT.format(course_id = course_id, quiz_id = quiz_id)
     headers = backend.get_standard_headers()
-
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
     lms.backend.canvas.common.make_post_request(url, headers = headers, data = data)
@@ -390,115 +379,107 @@ def _serialize_numeric_answers(
         if ((option.feedback is not None) and (option.feedback.general is not None)):
             data[f"question[answers][{i}][answer_comment_html]"] = option.feedback.general.to_canvas()
 
+def _upload_quiz_images(
+        backend: typing.Any,
+        course_id: int,
+        quiz: quizcomp.model.quiz.Quiz,
+        ) -> None:
+    """ Upload quiz images. """
 
-# TEST
+    parent_dir_id = None
 
+    for document in quiz.collect_all_documents():
+        for image_token in document.collect_images():
+            source = image_token.attrGet('src')
+            if (source is None):
+                continue
 
-def upload_file(path: str, canvas_path: str, instance: quizcomp.uploader.instance.CanvasInstanceInfo) -> str:
-    """ Upload a file to Canvas and fetch its ID. """
+            # Skip remote images.
+            if (re.match(r'^http(s)?://', source)):
+                continue
 
-    parent_id = ensure_folder(os.path.dirname(canvas_path), instance)
-    upload_url, upload_params = _init_file_upload(path, canvas_path, parent_id, instance)
-    file_id = _upload_file_contents(path, upload_url, upload_params)
+            path = source
+            if (not os.path.isabs(path)):
+                path = os.path.join(document.context.base_dir, path)
 
-    return file_id
+            path = os.path.abspath(path)
+            if (not os.path.isfile(path)):
+                raise ValueError(f"Found an image within the quiz that does not exist on disk: '{path}' ('{source}').")
 
-def _init_file_upload(
-        path: str,
+            # Get a hash of the original source to avoid name conflicts.
+            source_hash = edq.util.hash.sha256_hex(source)
+
+            (basename, ext) = os.path.splitext(os.path.basename(path))
+            canvas_filename = f"{basename}_{source_hash}{ext}"
+
+            # For a specific path for this object within the canvas course.
+            canvas_path = '/'.join([
+                CANVAS_QUIZCOMP_BASEDIR,
+                CANVAS_QUIZCOMP_QUIZ_DIRNAME,
+                quiz.name,
+                canvas_filename,
+            ])
+
+            image_token.attrSet('original_src', source)
+            image_token.attrSet('src', canvas_path)
+
+            # Ensure that a parent directory exists for these quiz resources.
+            if (parent_dir_id is None):
+                parent_dir_id = _ensure_folder(backend, course_id, os.path.dirname(canvas_path))
+
+            _upload_file(backend, course_id, path, parent_dir_id, canvas_path)
+
+def _restore_image_sources(quiz: quizcomp.model.quiz.Quiz) -> None:
+    """ Replace any modified image sources with their original source. """
+
+    for document in quiz.collect_all_documents():
+        for image_token in document.collect_images():
+            original_source = image_token.attrGet('original_src')
+            if (original_source is None):
+                continue
+
+            image_token.attrSet('src', str(original_source))
+            image_token.attrs.pop('original_src', None)
+
+def _ensure_folder(
+        backend: typing.Any,
+        course_id: int,
         canvas_path: str,
-        parent_id: str,
-        instance: quizcomp.uploader.instance.CanvasInstanceInfo,
-        ) -> typing.Tuple[str, typing.Dict[str, typing.Any]]:
-    """ Prepare to upload a file to Canvas. """
-
-    canvas_name = os.path.basename(canvas_path)
-
-    size = os.stat(path).st_size
-
-    data = {
-        'name': canvas_name,
-        'size': size,
-        'parent_folder_id': parent_id,
-        'on_duplicate': 'overwrite',
-    }
-
-    response = requests.request(
-        method = "POST",
-        url = f"{instance.base_url}/api/v1/courses/{instance.course_id}/files",
-        headers = instance.base_headers(),  # type: ignore[arg-type]
-        data = data)
-    response.raise_for_status()
-
-    response = response.json()
-
-    upload_url = response['upload_url']
-    upload_params = response['upload_params']
-
-    return upload_url, upload_params
-
-def _upload_file_contents(path: str, upload_url: str, upload_params: typing.Dict[str, typing.Any]) -> str:
-    """ Upload the actual file contents to Canvas. """
-
-    files = {
-        'file': open(path, 'rb'),  # pylint: disable=consider-using-with
-    }
-
-    response = requests.request(
-        method = "POST",
-        url = upload_url,
-        data = upload_params,
-        files = files)
-    response.raise_for_status()
-
-    file_id = None
-
-    location = response.headers.get('Location', None)
-    if (location is not None):
-        file_id = os.path.basename(urllib.parse.urlparse(location).path)
-    else:
-        # The location was not present in the header, check for a JSON body.
-        try:
-            body = response.json()
-            file_id = str(body['id'])
-        except Exception:
-            pass
-
-    if (file_id is None):
-        raise ValueError(f"Could not find id for uploaded file in response from Canvas: '{path}'.")
-
-    return str(file_id)
-
-def ensure_folder(canvas_path: str, instance: quizcomp.uploader.instance.CanvasInstanceInfo) -> str:
+        ) -> int:
     """ Ensure that a Canvas folder exists and fetch its ID. """
 
-    folder_id = get_folder(canvas_path, instance)
+    folder_id = _get_folder(backend, course_id, canvas_path)
     if (folder_id is not None):
         return folder_id
 
-    folder_id = create_folder(canvas_path, instance)
+    folder_id = _create_folder(backend, course_id, canvas_path)
 
     # Canvas will not hide created parents.
-    hide_folder(CANVAS_QUIZCOMP_BASEDIR, instance)
+    _hide_folder(backend, course_id, CANVAS_QUIZCOMP_BASEDIR)
 
     return folder_id
 
-def get_folder(canvas_path: str, instance: quizcomp.uploader.instance.CanvasInstanceInfo) -> typing.Union[str, None]:
+def _get_folder(
+        backend: typing.Any,
+        course_id: int,
+        canvas_path: str,
+        ) -> typing.Union[int, None]:
     """ Get a Canvas folder ID (if it exists). """
 
-    # The canvas path should be absolute.
-    response = requests.request(
-        method = "GET",
-        url = f"{instance.base_url}/api/v1/courses/{instance.course_id}/folders/by_path{canvas_path}",
-        headers = instance.base_headers())  # type: ignore[arg-type]
+    url = backend.server + GET_FOLDER_ENDPOINT.format(course_id = course_id, canvas_path = canvas_path)
+    headers = backend.get_standard_headers()
 
-    if (response.status_code == 404):
+    raw_object = lms.backend.canvas.common.make_get_request(url, headers = headers)
+    if ((raw_object is None) or (len(raw_object) == 0)):
         return None
 
-    response.raise_for_status()
+    return raw_object[-1]['id']
 
-    return str(response.json()[-1]['id'])
-
-def create_folder(canvas_path: str, instance: quizcomp.uploader.instance.CanvasInstanceInfo) -> str:
+def _create_folder(
+        backend: typing.Any,
+        course_id: int,
+        canvas_path: str,
+        ) -> int:
     """ Create a folder in Canvas. """
 
     name = os.path.basename(canvas_path)
@@ -511,36 +492,88 @@ def create_folder(canvas_path: str, instance: quizcomp.uploader.instance.CanvasI
         'hidden': 'true',
     }
 
-    response = requests.request(
-        method = "POST",
-        url = f"{instance.base_url}/api/v1/courses/{instance.course_id}/folders",
-        headers = instance.base_headers(),  # type: ignore[arg-type]
-        data = data)
-    response.raise_for_status()
+    url = backend.server + CREATE_FOLDER_ENDPOINT.format(course_id = course_id)
+    headers = backend.get_standard_headers()
+    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
-    return str(response.json()['id'])
+    raw_object = lms.backend.canvas.common.make_post_request(url, headers = headers, data = data, raise_on_404 = True)
+    return raw_object['id']
 
-def hide_folder(canvas_path: str, instance: quizcomp.uploader.instance.CanvasInstanceInfo) -> None:
+def _hide_folder(
+        backend: typing.Any,
+        course_id: int,
+        canvas_path: str,
+        ) -> None:
     """ Ensure that a Canvas folder (specified by path) is hidden. """
 
-    folder_id = get_folder(canvas_path, instance)
+    folder_id = _get_folder(backend, course_id, canvas_path)
     if (folder_id is None):
         raise ValueError(f"Could not find Canvas folder to hide: '{canvas_path}'.")
 
-    hide_folder_id(folder_id, instance)
-
-def hide_folder_id(folder_id: str, instance: quizcomp.uploader.instance.CanvasInstanceInfo) -> None:
-    """ Ensure that a Canvas folder (specified by ID) is hidden. """
-
     data = {
         # Canvas wants a string here despite the documentation saying it is a bool.
-        # TODO(eriq): Make a bug request?
         'hidden': 'true',
     }
 
-    response = requests.request(
-        method = "PUT",
-        url = f"{instance.base_url}/api/v1/folders/{folder_id}",
-        headers = instance.base_headers(),  # type: ignore[arg-type]
-        data = data)
-    response.raise_for_status()
+    url = backend.server + HIDE_FOLDER_ENDPOINT.format(folder_id = folder_id)
+    headers = backend.get_standard_headers()
+    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
+
+    raw_object = lms.backend.canvas.common.make_put_request(url, headers = headers, data = data, raise_on_404 = True)
+
+def _upload_file(
+        backend: typing.Any,
+        course_id: int,
+        path: str,
+        parent_dir_id: int,
+        canvas_path: str,
+        ) -> int:
+    """ Upload a file to the specified Canvas path. """
+
+    upload_url, upload_params = _init_file_upload(backend, course_id, path, parent_dir_id, canvas_path)
+    return _upload_file_contents(backend, path, upload_url, upload_params)
+
+def _init_file_upload(
+        backend: typing.Any,
+        course_id: int,
+        path: str,
+        parent_dir_id: int,
+        canvas_path: str,
+        ) -> typing.Tuple[str, typing.Dict[str, typing.Any]]:
+    """
+    Prepare to upload a file to Canvas.
+    Return the Canvas-returned upload URL and upload params.
+    """
+
+    data = {
+        'name': os.path.basename(canvas_path),
+        'size': os.stat(path).st_size,
+        'parent_folder_id': parent_dir_id,
+        'on_duplicate': 'overwrite',
+    }
+
+    url = backend.server + UPLOAD_FILE_ENDPOINT.format(course_id = course_id)
+    headers = backend.get_standard_headers()
+    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
+
+    raw_object = lms.backend.canvas.common.make_post_request(url, headers = headers, data = data)
+
+    return (raw_object['upload_url'], raw_object['upload_params'])
+
+def _upload_file_contents(
+        backend: typing.Any,
+        path: str,
+        upload_url: str,
+        upload_params: typing.Dict[str, typing.Any],
+        ) -> int:
+    """ Upload the actual file contents to Canvas. """
+
+    files = {
+        'file': open(path, 'rb'),  # pylint: disable=consider-using-with
+    }
+
+    headers = backend.get_standard_headers()
+    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
+
+    raw_object = lms.backend.canvas.common.make_post_request(upload_url, headers = headers, data = upload_params, files = files)
+    return raw_object['id']
