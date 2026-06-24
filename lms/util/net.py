@@ -114,9 +114,9 @@ def clean_blackboard_response(response: requests.Response, body: str) -> str:
 
     # Work on both request and response headers.
     for headers in [response.headers, response.request.headers]:
-        for key in list(headers.keys()):
+        for key in list(headers.keys()):  # type: ignore[attr-defined]
             if (key.strip().lower() in BLACKBOARD_CLEAN_REMOVE_HEADERS):
-                headers.pop(key, None)
+                headers.pop(key, None)  # type: ignore[attr-defined]
 
     # Most blackboard responses are JSON.
     try:
@@ -194,9 +194,36 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
 
     # Work on both request and response headers.
     for headers in [response.headers, response.request.headers]:
-        for key in list(headers.keys()):
+        for key in list(headers.keys()):  # type: ignore[attr-defined]
             if (key.strip().lower() in MOODLE_CLEAN_REMOVE_HEADERS):
-                headers.pop(key, None)
+                headers.pop(key, None)  # type: ignore[attr-defined]
+
+    # Endpoint-Specific Tasks
+
+    # Remove extra data from the course participants response.
+    if (re.search(r'/user/index\.php\?id=(\d+)', response.url.strip())):
+        document = bs4.BeautifulSoup(body, 'html.parser')
+
+        decompose_selectors = ['tr.emptyrow', 'div[data-status="Active"]']
+        for selector in decompose_selectors:
+            elements = document.select(selector)
+            for element in elements:
+                element.decompose()
+
+        a_tags = document.select('a')
+        for a_tag in a_tags:
+            # Remove extra attributes by keeping only select attributes and replacing the existing attribute dict.
+            a_tag.attrs = {attr: a_tag.attrs[attr] for attr in ['data-column'] if (attr in a_tag.attrs)}
+
+        spans = document.select('tbody tr td span')
+        for span in spans:
+            # Remove all attributes.
+            span.attrs.clear()
+
+        body = str(document.select('table#participants'))
+
+        # Remove Chunking
+        response.headers.pop('transfer-encoding', None)
 
     # Endpoint-Specific Tasks
 
