@@ -1120,6 +1120,31 @@ class APIBackend():
 
         return count, deleted
 
+    def courses_quizzes_download(self,
+            course_id: str,
+            quiz_id: str,
+            **kwargs: typing.Any) -> quizcomp.model.quiz.Quiz:
+        """
+        Download a quiz from the LMS into a Quiz Composer quiz.
+        This will only fetch the full quiz, not write it to disk.
+        """
+
+        raise NotImplementedError('courses_quizzes_download')
+
+    def courses_quizzes_resolve_and_download(self,
+            course_query: lms.model.courses.CourseQuery,
+            quiz_query: lms.model.quizzes.QuizQuery,
+            **kwargs: typing.Any) -> quizcomp.model.quiz.Quiz:
+        """
+        Resolve queries and download a quiz from the LMS into a Quiz Composer quiz.
+        This will only fetch the full quiz, not write it to disk.
+        """
+
+        resolved_course_query = self.resolve_course_query(course_query, **kwargs)
+        resolved_quiz_query = self.resolve_quiz_query(resolved_course_query.get_id(), quiz_query, **kwargs)
+
+        return self.courses_quizzes_download(resolved_course_query.get_id(), resolved_quiz_query.get_id(), **kwargs)
+
     def courses_quizzes_get(self,
             course_query: lms.model.courses.CourseQuery,
             quiz_queries: typing.Collection[lms.model.quizzes.QuizQuery],
@@ -1164,6 +1189,7 @@ class APIBackend():
 
         return None
 
+    # TEST - Remove fetch resoruces?
     def courses_quizzes_list(self,
             course_id: str,
             fetch_resources: bool = False,

@@ -1,10 +1,12 @@
 """
-Write quiz to disk in the Quiz Composer format.
+Download a quiz and write it in the Quiz Composer format.
 """
 
 import argparse
 import os
 import sys
+
+import edq.util.dirent
 
 import lms.backend.instance
 import lms.cli.common
@@ -21,23 +23,36 @@ def run_cli(args: argparse.Namespace) -> int:
     if (course_query is None):
         return 1
 
-    quizzes = []
+    quiz_queries = []
     if (len(args.quizzes) == 0):
-        quizzes = backend.courses_quizzes_resolve_and_list(course_query)
+        quiz_queries = [quiz.to_query() for quiz in backend.courses_quizzes_resolve_and_list(course_query)]
     else:
-        queries = backend.parse_quiz_queries(args.quizzes)
-        quizzes = backend.courses_quizzes_get(course_query, queries)
+        quiz_queries = backend.parse_quiz_queries(args.quizzes)
+
+    if (len(quiz_queries) == 0):
+        print("Found no quizzes to download.")
+        return 0
 
     base_dir = os.path.abspath(args.out_dir)
-    for quiz in quizzes:
-        # Get the groups and questions for this quiz.
-        groups = backend.courses_quizzes_groups_resolve_and_list(course_query, quiz.to_query())
-        questions = backend.courses_quizzes_questions_resolve_and_list(course_query, quiz.to_query(), fetch_resources = True)
+    for quiz_query in quiz_queries:
+        quiz = backend.courses_quizzes_resolve_and_download(course_query, quiz_query)
 
-        path = quiz.write(base_dir, groups, questions, force = args.force)
+        path = os.path.join(base_dir, quiz.get_name())
+        if (os.path.exists(path)):
+            if (args.force):
+                edq.util.dirent.remove(path)
+            else:
+                print(f"Directory for quiz ('{quiz.name}') already exists, skipping write: '{path}'.")
+                continue
+
+        # TEST
+        # edq.util.dirent.mkdir(path)
+        # TEST - This is wrong, we want to do a more full write. This just does the quiz JSON.
+        quiz.to_path(path)
+
         print(f"Wrote quiz '{quiz.name}' to '{path}'.")
 
-    print(f"{len(quizzes)} quizzes written.")
+    print(f"{len(quiz_queries)} quizzes written.")
 
     return 0
 
@@ -50,7 +65,6 @@ def _get_parser() -> argparse.ArgumentParser:
 
     parser = lms.cli.parser.get_parser(__doc__.strip(),
         include_course = True,
-        include_quiz = True,
     )
 
     parser.add_argument('--out-dir', dest = 'out_dir',
@@ -59,11 +73,11 @@ def _get_parser() -> argparse.ArgumentParser:
 
     parser.add_argument('--force', dest = 'force',
         action = 'store_true', default = False,
-        help = "Delete any existing files when writing the quizzes (default: %(default)s).")
+        help = "Delete an existing quiz output directory before writing the new content (default: %(default)s).")
 
     parser.add_argument('quizzes', metavar = 'QUIZ_QUERY',
         type = str, nargs = '*',
-        help = "A query for a quiz to get, or don't specify for all quizzes.")
+        help = "A query for a quiz to get, or leave empty to download all quizzes for the course.")
 
     return parser
 
