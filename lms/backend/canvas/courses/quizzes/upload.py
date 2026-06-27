@@ -27,7 +27,6 @@ CANVAS_QUIZCOMP_BASEDIR: str = '/quiz-composer'
 CANVAS_QUIZCOMP_QUIZ_DIRNAME: str = 'quizzes'
 
 QUIZ_TYPE_ASSIGNMENT: str = 'assignment'
-QUIZ_TYPE_PRACTICE: str = 'practice_quiz'
 
 QUESTION_TYPE_MAP: typing.Dict[quizcomp.model.constants.QuestionType, str] = {
     # Direct Mappings
@@ -111,7 +110,7 @@ def _upload_quiz_metadata(
 
     quiz_type = QUIZ_TYPE_ASSIGNMENT
     if ((quiz.practice is None) or (quiz.practice is True)):
-        quiz_type = QUIZ_TYPE_PRACTICE
+        quiz_type = lms.backend.canvas.courses.quizzes.common.QUIZ_TYPE_PRACTICE
 
     description = quiz.description.to_canvas()
     if (quiz.version is not None):

@@ -10,6 +10,7 @@ import quizcomp.model.quiz
 import quizcomp.parser.document
 
 import lms.backend.canvas.common
+import lms.backend.canvas.courses.quizzes.common
 import lms.model.constants
 
 _logger = logging.getLogger(__name__)
@@ -53,7 +54,18 @@ def request(
     questions = _list_questions(backend, course_id, quiz_id)
     groups = _list_groups(backend, course_id, quiz_id, questions)
 
-    return quizcomp.model.quiz.Quiz(name = quiz_metadata.name, children = groups)
+    return quizcomp.model.quiz.Quiz(
+        name = quiz_metadata.name,
+        children = groups,
+        description = quiz_metadata.description,
+        time_limit_mins = quiz_metadata.extra_fields.get('time_limit', None),
+        practice = (quiz_metadata.extra_fields.get('quiz_type', None) == lms.backend.canvas.courses.quizzes.common.QUIZ_TYPE_PRACTICE),
+        publish = quiz_metadata.extra_fields.get('published', None),
+        allowed_attempts = quiz_metadata.extra_fields.get('allowed_attempts', None),
+        show_correct_answers = quiz_metadata.extra_fields.get('show_correct_answers', None),
+        hide_results = quiz_metadata.extra_fields.get('hide_results', None),
+        scoring_policy = quiz_metadata.extra_fields.get('scoring_policy', None),
+    )
 
 def _list_groups(
         backend: typing.Any,

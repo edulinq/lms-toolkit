@@ -45,10 +45,7 @@ def run_cli(args: argparse.Namespace) -> int:
                 print(f"Directory for quiz ('{quiz.name}') already exists, skipping write: '{path}'.")
                 continue
 
-        # TEST
-        # edq.util.dirent.mkdir(path)
-        # TEST - This is wrong, we want to do a more full write. This just does the quiz JSON.
-        quiz.to_path(path)
+        quiz.to_dir(path)
 
         print(f"Wrote quiz '{quiz.name}' to '{path}'.")
 
