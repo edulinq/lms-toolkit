@@ -1,4 +1,5 @@
 import logging
+import math
 import typing
 
 import quizcomp.model.answer
@@ -34,6 +35,8 @@ DISALLOWED_QUESTION_TYPES: typing.Set[str] = {
     'file_upload_question',
 }
 
+DEFAULT_BLANK_ID: str = ''
+
 # TEST - Rewrite image links.
 
 def request(
@@ -47,23 +50,10 @@ def request(
     if (quiz_metadata is None):
         raise ValueError(f"Unable to fetch quiz metadata for quiz ID '{quiz_id}'.")
 
-    # TEST - Do questions first and form groups with questions.
-
     questions = _list_questions(backend, course_id, quiz_id)
-
     groups = _list_groups(backend, course_id, quiz_id, questions)
 
-    # TEST
-    return quizcomp.model.quiz.Quiz(name = 'TEST', children = groups)
-
-    ''' TEST
-    url = backend.server + BASE_ENDPOINT.format(course_id = course_id, quiz_id = quiz_id)
-    headers = backend.get_standard_headers()
-
-    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
-
-    lms.backend.canvas.common.make_delete_request(url, headers = headers)
-    '''
+    return quizcomp.model.quiz.Quiz(name = quiz_metadata.name, children = groups)
 
 def _list_groups(
         backend: typing.Any,
@@ -152,13 +142,6 @@ def _list_questions(
 
     return questions
 
-    # TEST
-    print('---')
-    import edq.util.json
-    print(edq.util.json.dumps(raw_objects, indent = 4))
-    print('---')
-    return {}
-
 def _parse_raw_feedback(raw_question: typing.Dict[str, typing.Any]) -> typing.Union[quizcomp.model.feedback.Feedback, None]:
     """ Try to parse feedback our of a raw question. """
 
@@ -170,23 +153,7 @@ def _parse_raw_feedback(raw_question: typing.Dict[str, typing.Any]) -> typing.Un
 
     feedback_kwargs = {}
     for (feedback_type, (text_key, html_key)) in parts.items():
-        text_value = raw_question.get(text_key, None)
-        if (text_value is None):
-            text_value = ''
-
-        text_value = str(text_value).strip()
-        if (len(text_value) != 0):
-            feedback_kwargs[feedback_type] = quizcomp.parser.document.ParsedDocument.parse_text(text_value)
-            continue
-
-        html_value = raw_question.get(html_key, None)
-        if (html_value is None):
-            html_value = ''
-
-        html_value = str(html_value).strip()
-        if (len(html_value) != 0):
-            text = lms.backend.canvas.common.html_to_markdown(html_value)
-            feedback_kwargs[feedback_type] = quizcomp.parser.document.ParsedDocument.parse_text(text)
+        feedback_kwargs[feedback_type] = _parse_text(raw_question, text_key = text_key, html_key = html_key)
 
     feedback = quizcomp.model.feedback.Feedback(**feedback_kwargs)
     if (feedback.is_empty()):
@@ -194,34 +161,42 @@ def _parse_raw_feedback(raw_question: typing.Dict[str, typing.Any]) -> typing.Un
 
     return feedback
 
-# TEST
-'''
-    {
-        "answer_tolerance": null,
-        "answers": [],
-        "assessment_question_id": 110000201,
-        "correct_comments": "",
-        "correct_comments_html": "",
-        "created_at": "2026-06-12T14:07:28Z",
-        "formula_decimal_places": null,
-        "formulas": null,
-        "id": 110000201,
-        "incorrect_comments": "",
-        "incorrect_comments_html": "",
-        "matches": null,
-        "matching_answer_incorrect_matches": null,
-        "neutral_comments": "",
-        "neutral_comments_html": "<div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">You can have any answer you want.</p></div>",
-        "points_possible": 1.0,
-        "position": null,
-        "question_name": "Ice Breaker",
-        "question_text": "<div class=\"qg-root-block qg-block\"><p style=\"margin-top: 0\">Taking inspiration from the XKCD comic below,\nhow would you save the day using regular expressions?</p><div class=\"qg-block\" style=\"display: flex; flex-direction: column; justify-content: flex-start; align-items: center\"><p style=\"margin-top: 0\"><img src=\"http://127.0.0.1:3000/courses/110000000/files/1/preview\" alt=\"XKCD Comic 208\" width=\"100.00%\" loading=\"lazy\" data-api-endpoint=\"http://127.0.0.1:3000/api/v1/courses/110000000/files/1\" data-api-returntype=\"File\"></p></div></div>",
-        "question_type": "essay_question",
-        "quiz_group_id": 110000201,
-        "quiz_id": 110000200,
-        "variables": null
-    },
-'''
+def _parse_text(
+        raw_data: typing.Dict[str, typing.Any],
+        text_key: typing.Union[str, None] = None,
+        html_key: typing.Union[str, None] = None,
+        default_text: typing.Union[str, None] = None,
+        ) -> typing.Union[quizcomp.parser.document.ParsedDocument, None]:
+    """
+    Parse text from raw Canvas data.
+    Canvas will often have both text and HTML fields (but only one will usually be filled).
+    If both keys are provided, the text one will be check first (and returned if it has content).
+
+    If no text is found and the default text is not None,
+    then it will be parsed and returned.
+    """
+
+    text_value = raw_data.get(text_key, None)
+    if (text_value is None):
+        text_value = ''
+
+    text_value = str(text_value).strip()
+    if (len(text_value) != 0):
+        return quizcomp.parser.document.ParsedDocument.parse_text(text_value)
+
+    html_value = raw_data.get(html_key, None)
+    if (html_value is None):
+        html_value = ''
+
+    html_value = str(html_value).strip()
+    if (len(html_value) != 0):
+        text = lms.backend.canvas.common.html_to_markdown(html_value)
+        return quizcomp.parser.document.ParsedDocument.parse_text(text)
+
+    if (default_text is not None):
+        return quizcomp.parser.document.ParsedDocument.parse_text(default_text)
+
+    return None
 
 def _parse_answers(
         question_type: quizcomp.model.constants.QuestionType,
@@ -230,41 +205,129 @@ def _parse_answers(
     """ Parse a question's answer from the raw question. """
 
     if (question_type is quizcomp.model.constants.QuestionType.ESSAY):
-        # TEST
-        pass
+        # Canvas does not store potential answers (e.g., a rubric) for essay questions.
+        return quizcomp.model.answer.TextAnswers()
     elif (question_type is quizcomp.model.constants.QuestionType.FIMB):
-        # TEST
-        pass
+        parts = {}
+        for (blank_id, choices) in _parse_choice_answers(raw_question['answers']).parts.items():
+            options = [quizcomp.model.answer.TextOption(choice.text, choice.feedback) for choice in choices.choices]
+            parts[blank_id] = quizcomp.model.answer.TextAnswers(options)
+
+        return quizcomp.model.answer.MultiplePartTextAnswers(parts)
     elif (question_type is quizcomp.model.constants.QuestionType.FITB):
-        # TEST
-        pass
+        choices = _parse_choice_answers(raw_question['answers']).parts[DEFAULT_BLANK_ID]
+        options = [quizcomp.model.answer.TextOption(choice.text, choice.feedback) for choice in choices.choices]
+        return quizcomp.model.answer.TextAnswers(options)
     elif (question_type is quizcomp.model.constants.QuestionType.MATCHING):
-        # TEST
-        pass
+        return _parse_matching_answers(raw_question)
     elif (question_type is quizcomp.model.constants.QuestionType.MA):
-        # TEST
-        pass
+        return _parse_choice_answers(raw_question['answers']).parts[DEFAULT_BLANK_ID]
     elif (question_type is quizcomp.model.constants.QuestionType.MCQ):
-        # TEST
-        pass
+        return _parse_choice_answers(raw_question['answers']).parts[DEFAULT_BLANK_ID]
     elif (question_type is quizcomp.model.constants.QuestionType.MDD):
-        # TEST
-        pass
+        return _parse_choice_answers(raw_question['answers'])
     elif (question_type is quizcomp.model.constants.QuestionType.NUMERICAL):
-        # TEST
-        pass
+        return _parse_numerical_answers(raw_question['answers'])
     elif (question_type is quizcomp.model.constants.QuestionType.TEXT_ONLY):
-        # TEST
-        pass
+        return quizcomp.model.answer.TextAnswers()
     elif (question_type is quizcomp.model.constants.QuestionType.TF):
-        # TEST
-        pass
+        choices = _parse_choice_answers(raw_question['answers']).parts[DEFAULT_BLANK_ID]
+        return quizcomp.model.answer.TFAnswers(choices.choices)
     else:
         raise ValueError(f"Unknown question type: '{question_type.value}'.")
 
-    # TEST
-    print('---')
-    import edq.util.json
-    print(edq.util.json.dumps(raw_question, indent = 4))
-    print('---')
-    return quizcomp.model.answer.TextAnswers()
+def _parse_choice_answers(
+        raw_choices: typing.List[typing.Dict[str, typing.Any]],
+        ) -> quizcomp.model.answer.MultiplePartChoiceAnswers:
+    """
+    Parse choice answers.
+    The choices will be keyed by the "blank id", which is used in multipart questions.
+    If there is no blank id, then DEFAULT_BLANK_ID will be used.
+    """
+
+    all_choices = {}
+
+    for raw_choice in raw_choices:
+        blank_id = raw_choice.get('blank_id', DEFAULT_BLANK_ID)
+        if (blank_id not in all_choices):
+            all_choices[blank_id] = []
+
+        all_choices[blank_id].append(quizcomp.model.answer.Choice(
+            text = _parse_text(raw_choice, 'text', 'html', ''),
+            correct = math.isclose(raw_choice['weight'], 100.0),
+            feedback = quizcomp.model.feedback.Feedback(general = _parse_text(raw_choice, 'comments', 'comments_html')),
+        ))
+
+    parts = {blank_id: quizcomp.model.answer.ChoiceAnswers(choices) for (blank_id, choices) in all_choices.items()}
+    return quizcomp.model.answer.MultiplePartChoiceAnswers(parts)
+
+def _parse_numerical_answers(
+        raw_options: typing.List[typing.Dict[str, typing.Any]],
+        ) -> quizcomp.model.answer.NumericAnswers:
+    """
+    Parse numerical answers.
+    See: https://developerdocs.instructure.com/services/canvas/resources/quiz_questions#answer
+    """
+
+    options = []
+    for raw_option in raw_options:
+        raw_type = raw_option.get('numerical_answer_type', None)
+        if (raw_type is None):
+            raise ValueError("Numeric answer has no answer type.")
+
+        feedback = quizcomp.model.feedback.Feedback(general = _parse_text(raw_option, 'comments', 'comments_html'))
+
+        if (raw_type == 'exact_answer'):
+            options.append(quizcomp.model.answer.NumericOptionExact(
+                raw_option['exact'],
+                raw_option.get('error_margin', 0.0),
+                feedback = feedback,
+            ))
+        elif (raw_type == 'range_answer'):
+            options.append(quizcomp.model.answer.NumericOptionRange(
+                raw_option['range_start'],
+                raw_option['range_end'],
+                feedback = feedback,
+            ))
+        elif (raw_type == 'precision_answer'):
+            options.append(quizcomp.model.answer.NumericOptionPrecision(
+                raw_option['approximate'],
+                raw_option['precision'],
+                feedback = feedback,
+            ))
+        else:
+            raise ValueError(f"Unknown numerical answer type: '{raw_type}'.")
+
+    return quizcomp.model.answer.NumericAnswers(options)
+
+def _parse_matching_answers(
+        raw_question: typing.List[typing.Dict[str, typing.Any]],
+        ) -> quizcomp.model.answer.NumericAnswers:
+    """
+    Parse matching answers.
+    The Canvas API documentation is not accurate for this question type.
+    """
+
+    # {id: text document, ...}.
+    rights = {}
+    for raw_right in raw_question['matches']:
+        rights[raw_right['match_id']] = quizcomp.parser.document.ParsedDocument.parse_text(raw_right['text'])
+
+    # Match each left to a right, removing each matched right.
+    pairs = []
+    for raw_left in raw_question['answers']:
+        feedback = quizcomp.model.feedback.Feedback(general = _parse_text(raw_left, 'comments', 'comments_html'))
+        left_document = quizcomp.parser.document.ParsedDocument.parse_text(raw_left['text'])
+
+        right_document = rights.get(raw_left['match_id'], None)
+        if (right_document is None):
+            raise ValueError("Unable to find matching right-hand component of a matching pair.")
+
+        del rights[raw_left['match_id']]
+
+        pairs.append((quizcomp.model.answer.TextOption(left_document, feedback), quizcomp.model.answer.TextOption(right_document)))
+
+    # For the remaining rights into distractors.
+    distractors = [quizcomp.model.answer.TextOption(document) for document in rights.values()]
+
+    return quizcomp.model.answer.MatchingAnswers(pairs, distractors)

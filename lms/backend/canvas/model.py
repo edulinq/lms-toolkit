@@ -281,6 +281,7 @@ def quiz_question_group(data: typing.Dict[str, typing.Any]) -> lms.model.quizzes
     return lms.model.quizzes.QuestionGroup(**data)
 '''
 
+# TEST
 def _canvas_html_to_markdown(
         backend: lms.model.backend.APIBackend,
         html: typing.Union[str, None],
@@ -315,6 +316,7 @@ def _canvas_html_to_markdown(
 
     return _ParsedText(html, text, resources)
 
+# TEST
 def _fetch_html_resources(backend: lms.model.backend.APIBackend, html: str) -> typing.Tuple[str, typing.List[str]]:
     """ Fetch any resources embedded in the HTML and re-write the links for these resources. """
 
@@ -334,6 +336,7 @@ def _fetch_html_resources(backend: lms.model.backend.APIBackend, html: str) -> t
 
     return str(document), resources
 
+# TEST
 def _fetch_file(backend: lms.model.backend.APIBackend, info_link: str) -> typing.Union[str, None]:
     """ Fetch a file from Canvas, write it to disk, and return the path. """
 
