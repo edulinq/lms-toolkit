@@ -1,5 +1,4 @@
 import lms.backend.testing
-import lms.model.quizzes
 import lms.model.testdata.quizzes
 
 def test_courses_quizzes_fetch_base(test: lms.backend.testing.BackendTest):

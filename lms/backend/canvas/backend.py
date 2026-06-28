@@ -32,7 +32,6 @@ import lms.model.constants
 import lms.model.courses
 import lms.model.groups
 import lms.model.groupsets
-import lms.model.quizzes
 import lms.model.scores
 import lms.model.users
 import lms.util.parse
@@ -205,13 +204,11 @@ class CanvasBackend(lms.model.backend.APIBackend):
         parsed_quiz_id = lms.util.parse.required_int(quiz_id, 'quiz_id')
         return lms.backend.canvas.courses.quizzes.download.request(self, parsed_course_id, parsed_quiz_id)
 
-    # TEST - fetch resources?
     def courses_quizzes_list(self,
             course_id: str,
-            fetch_resources: bool = False,
-            **kwargs: typing.Any) -> typing.List[lms.model.quizzes.QuizMetadata]:
+            **kwargs: typing.Any) -> typing.List[lms.model.assignments.Assignment]:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
-        return lms.backend.canvas.courses.quizzes.list.request(self, parsed_course_id, fetch_resources)
+        return lms.backend.canvas.courses.quizzes.list.request(self, parsed_course_id)
 
     def courses_quizzes_remove(self,
             course_id: str,
@@ -224,7 +221,7 @@ class CanvasBackend(lms.model.backend.APIBackend):
     def courses_quizzes_upload(self,
             course_id: str,
             quiz: quizcomp.model.quiz.Quiz,
-            **kwargs: typing.Any) -> lms.model.quizzes.QuizMetadata:
+            **kwargs: typing.Any) -> lms.model.assignments.Assignment:
         parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
         return lms.backend.canvas.courses.quizzes.upload.request(self, parsed_course_id, quiz)
 

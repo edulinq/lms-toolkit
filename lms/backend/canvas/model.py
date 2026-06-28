@@ -1,14 +1,5 @@
 import logging
-import os
-import re
 import typing
-
-import bs4
-import edq.net.request
-import edq.util.dirent
-import html2text
-# TEST
-# import quizcomp.question.base
 
 import lms.backend.canvas.common
 import lms.model.assignments
@@ -16,7 +7,6 @@ import lms.model.backend
 import lms.model.courses
 import lms.model.groups
 import lms.model.groupsets
-import lms.model.quizzes
 import lms.model.scores
 import lms.model.users
 import lms.util.parse
@@ -35,21 +25,6 @@ Canvas enrollment types mapped to roles.
 This map is ordered by priority/power.
 The later in the dict, the more power.
 """
-
-''' TEST
-QUESTION_TYPE_MAPPING: typing.Dict[typing.Union[str, None], quizcomp.question.base.QuestionType] = {
-    'essay_question': quizcomp.question.base.QuestionType.ESSAY,
-    'fill_in_multiple_blanks_question': quizcomp.question.base.QuestionType.FIMB,
-    'matching_question': quizcomp.question.base.QuestionType.MATCHING,
-    'multiple_answers_question': quizcomp.question.base.QuestionType.MA,
-    'multiple_choice_question': quizcomp.question.base.QuestionType.MCQ,
-    'multiple_dropdowns_question': quizcomp.question.base.QuestionType.MDD,
-    'numerical_question': quizcomp.question.base.QuestionType.NUMERICAL,
-    'short_answer_question': quizcomp.question.base.QuestionType.FITB,
-    'text_only_question': quizcomp.question.base.QuestionType.TEXT_ONLY,
-    'true_false_question': quizcomp.question.base.QuestionType.TF,
-}
-'''
 
 _testing_override: bool = False  # pylint: disable=invalid-name
 """ A special override to signal testing. """
@@ -190,99 +165,6 @@ def group_set(data: typing.Dict[str, typing.Any]) -> lms.model.groupsets.GroupSe
 
     return lms.model.groupsets.GroupSet(**data)
 
-def quiz(
-        backend: lms.model.backend.APIBackend,
-        data: typing.Dict[str, typing.Any],
-        fetch_resources: bool = False,
-        ) -> lms.model.quizzes.QuizMetadata:
-    """
-    Create a Canvas quiz associated with a course.
-
-    See: https://developerdocs.instructure.com/services/canvas/resources/quizzes
-    """
-
-    _parse_assignment_data(data, 'quiz')
-
-    parsed_text = _canvas_html_to_markdown(backend, data.get('description', None), fetch_resources)
-    data['description'] = parsed_text.text
-    data['resources'] = parsed_text.resources
-
-    return lms.model.quizzes.QuizMetadata(**data)
-
-# TEST
-def _canvas_html_to_markdown(
-        backend: lms.model.backend.APIBackend,
-        html: typing.Union[str, None],
-        fetch_resources: bool = False,
-        ) -> _ParsedText:
-    """
-    Parse the text from a Canvas quiz question into markdown.
-    We intend for the resulting markdown to have a little HTML as possible.
-    This is an impossible task, but we want to do our best.
-    """
-
-    if (html is None):
-        return _ParsedText('', '', [])
-
-    resources: typing.List[str] = []
-    if (fetch_resources):
-        (html, resources) = _fetch_html_resources(backend, html)
-
-    converter = html2text.HTML2Text()
-
-    converter.body_width = 0
-    converter.mark_code = True
-
-    text = converter.handle(html)
-    text = text.strip()
-
-    # Replace code tags with fences.
-    text = re.sub(r'\[/?code\]', '```', text)
-
-    # Replace placeholders (e.g., for fill in the blank questions).
-    text = re.sub(r'\[(\w+?)\]', r'<placeholder>\1</placeholder>', text)
-
-    return _ParsedText(html, text, resources)
-
-# TEST
-def _fetch_html_resources(backend: lms.model.backend.APIBackend, html: str) -> typing.Tuple[str, typing.List[str]]:
-    """ Fetch any resources embedded in the HTML and re-write the links for these resources. """
-
-    document = bs4.BeautifulSoup(html, 'html.parser')
-
-    resources = []
-
-    # Look for Canvas-embeded images.
-    for image in document.select('img[data-api-endpoint]'):
-        path = _fetch_file(backend, str(image.get('data-api-endpoint')))
-        if (path is None):
-            continue
-
-        image['src'] = os.path.basename(path)
-
-        resources.append(path)
-
-    return str(document), resources
-
-# TEST
-def _fetch_file(backend: lms.model.backend.APIBackend, info_link: str) -> typing.Union[str, None]:
-    """ Fetch a file from Canvas, write it to disk, and return the path. """
-
-    headers = backend.get_standard_headers()
-    file_info = lms.backend.canvas.common.make_get_request(info_link, headers = headers)
-
-    if (file_info is None):
-        return None
-
-    response, _ = edq.net.request.make_get(file_info['url'], headers = headers)
-
-    temp_dir = edq.util.dirent.get_temp_dir('edq-lms-canvas-')
-    path = os.path.join(temp_dir, file_info['filename'])
-
-    edq.util.dirent.write_file_bytes(path, response.content)
-
-    return path
-
 def _parse_assignment_data(data: typing.Dict[str, typing.Any], label: str) -> None:
     """
     Parse core assignment data.
@@ -297,6 +179,10 @@ def _parse_assignment_data(data: typing.Dict[str, typing.Any], label: str) -> No
     data['due_date'] = lms.backend.canvas.common.parse_timestamp(data.get('due_at', None))
     data['open_date'] = lms.backend.canvas.common.parse_timestamp(data.get('unlock_at', None))
     data['close_date'] = lms.backend.canvas.common.parse_timestamp(data.get('lock_at', None))
+
+    data['description'] = data.get('description', None)
+    if (data['description'] is not None):
+        data['description'] = lms.backend.canvas.common.html_to_markdown(data['description'])
 
     # If there is no name, look for a title.
     if (data.get('name', None) is None):

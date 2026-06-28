@@ -5,7 +5,6 @@ import lms.model.backend
 import lms.model.config
 import lms.model.courses
 import lms.model.groupsets
-import lms.model.quizzes
 import lms.model.users
 import lms.util.parse
 
@@ -91,27 +90,6 @@ def check_required_group(
     query = backend.parse_group_query(group)
     if (query is None):
         print('ERROR: Group query is malformed.')
-        return None
-
-    return query
-
-def check_required_quiz(
-        backend: lms.model.backend.APIBackend,
-        config: lms.model.config.Config,
-        ) -> typing.Union[lms.model.quizzes.QuizQuery, None]:
-    """
-    Fetch and ensure that a quiz is provided in the config.
-    If no quiz is provided, print a message and return None.
-    """
-
-    quiz = lms.util.parse.optional_string(config.quiz)
-    if (quiz is None):
-        print('ERROR: No quiz has been provided.')
-        return None
-
-    query = backend.parse_quiz_query(quiz)
-    if (query is None):
-        print('ERROR: Quiz query is malformed.')
         return None
 
     return query

@@ -38,8 +38,6 @@ DISALLOWED_QUESTION_TYPES: typing.Set[str] = {
 
 DEFAULT_BLANK_ID: str = ''
 
-# TEST - Rewrite image links.
-
 def request(
         backend: typing.Any,
         course_id: int,
@@ -105,10 +103,11 @@ def _list_questions(
         backend: typing.Any,
         course_id: int,
         quiz_id: int,
-        ) -> typing.List[quizcomp.model.question.Question]:
-    """ List quiz questions. """
+        ) -> typing.Dict[int, quizcomp.model.question.Question]:
+    """ List quiz questions grouped by group id. """
 
-    url = backend.server + LIST_QUESTIONS_ENDPOINT.format(course_id = course_id, quiz_id = quiz_id, page_size = lms.backend.canvas.common.DEFAULT_PAGE_SIZE)
+    url = backend.server + LIST_QUESTIONS_ENDPOINT.format(
+            course_id = course_id, quiz_id = quiz_id, page_size = lms.backend.canvas.common.DEFAULT_PAGE_SIZE)
     headers = backend.get_standard_headers()
 
     raw_objects = lms.backend.canvas.common.make_get_request_list(url, headers = headers)
@@ -121,15 +120,17 @@ def _list_questions(
 
         return {}
 
-    questions = {}
+    questions: typing.Dict[int, quizcomp.model.question.Question] = {}
     for raw_question in raw_objects:
         raw_question_type = raw_question['question_type']
         if (raw_question_type in DISALLOWED_QUESTION_TYPES):
-            _logger.warning("Found question ('%s') with disallowed question type '%s', skipping download of that question.", raw_question['question_name'], raw_question_type)
+            _logger.warning("Found question ('%s') with disallowed question type '%s', skipping download of that question.",
+                    raw_question['question_name'], raw_question_type)
             continue
 
         if (raw_question_type not in QUESTION_TYPE_MAP):
-            _logger.warning("Found question ('%s') with unknown question type '%s', skipping download of that question.", raw_question['question_name'], raw_question_type)
+            _logger.warning("Found question ('%s') with unknown question type '%s', skipping download of that question.",
+                    raw_question['question_name'], raw_question_type)
             continue
 
         question_type = QUESTION_TYPE_MAP[raw_question_type]
@@ -165,7 +166,7 @@ def _parse_raw_feedback(raw_question: typing.Dict[str, typing.Any]) -> typing.Un
 
     feedback_kwargs = {}
     for (feedback_type, (text_key, html_key)) in parts.items():
-        feedback_kwargs[feedback_type] = _parse_text(raw_question, text_key = text_key, html_key = html_key)
+        feedback_kwargs[feedback_type] = _parse_text(raw_question, text_key, html_key)
 
     feedback = quizcomp.model.feedback.Feedback(**feedback_kwargs)
     if (feedback.is_empty()):
@@ -175,8 +176,8 @@ def _parse_raw_feedback(raw_question: typing.Dict[str, typing.Any]) -> typing.Un
 
 def _parse_text(
         raw_data: typing.Dict[str, typing.Any],
-        text_key: typing.Union[str, None] = None,
-        html_key: typing.Union[str, None] = None,
+        text_key: str,
+        html_key: str,
         default_text: typing.Union[str, None] = None,
         ) -> typing.Union[quizcomp.parser.document.ParsedDocument, None]:
     """
@@ -257,7 +258,7 @@ def _parse_choice_answers(
     If there is no blank id, then DEFAULT_BLANK_ID will be used.
     """
 
-    all_choices = {}
+    all_choices: typing.Dict[str, typing.List[quizcomp.model.answer.Choice]] = {}
 
     for raw_choice in raw_choices:
         blank_id = raw_choice.get('blank_id', DEFAULT_BLANK_ID)
@@ -313,7 +314,7 @@ def _parse_numerical_answers(
     return quizcomp.model.answer.NumericAnswers(options)
 
 def _parse_matching_answers(
-        raw_question: typing.List[typing.Dict[str, typing.Any]],
+        raw_question: typing.Dict[str, typing.Any],
         ) -> quizcomp.model.answer.NumericAnswers:
     """
     Parse matching answers.

@@ -1,5 +1,5 @@
 import lms.backend.testing
-import lms.model.quizzes
+import lms.model.assignments
 import lms.model.testdata.quizzes
 
 def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
@@ -23,7 +23,7 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
             {
                 'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'quiz_queries': [
-                    lms.model.quizzes.QuizQuery(id = '110000200'),
+                    lms.model.assignments.AssignmentQuery(id = '110000200'),
                 ],
             },
             [
@@ -38,7 +38,7 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
             {
                 'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'quiz_queries': [
-                    lms.model.quizzes.QuizQuery(name = 'Regular Expressions'),
+                    lms.model.assignments.AssignmentQuery(name = 'Regular Expressions'),
                 ],
             },
             [
@@ -52,7 +52,7 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
             {
                 'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'quiz_queries': [
-                    lms.model.quizzes.QuizQuery(name = 'Regular Expressions', id = '110000200'),
+                    lms.model.assignments.AssignmentQuery(name = 'Regular Expressions', id = '110000200'),
                 ],
             },
             [
@@ -66,7 +66,7 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
             {
                 'course_query': lms.model.courses.CourseQuery(id = '999'),
                 'quiz_queries': [
-                    lms.model.quizzes.QuizQuery(id = '110000200'),
+                    lms.model.assignments.AssignmentQuery(id = '110000200'),
                 ],
             },
             None,
@@ -78,7 +78,7 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
             {
                 'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'quiz_queries': [
-                    lms.model.quizzes.QuizQuery(id = '999'),
+                    lms.model.assignments.AssignmentQuery(id = '999'),
                 ],
             },
             [
@@ -91,7 +91,7 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
             {
                 'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'quiz_queries': [
-                    lms.model.quizzes.QuizQuery(name = 'ZZZ'),
+                    lms.model.assignments.AssignmentQuery(name = 'ZZZ'),
                 ],
             },
             [
@@ -104,7 +104,7 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
             {
                 'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'quiz_queries': [
-                    lms.model.quizzes.QuizQuery(id = '110000200', name = 'ZZZ'),
+                    lms.model.assignments.AssignmentQuery(id = '110000200', name = 'ZZZ'),
                 ],
             },
             [

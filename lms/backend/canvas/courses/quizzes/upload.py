@@ -10,9 +10,9 @@ import quizcomp.model.question
 import quizcomp.model.quiz
 
 import lms.backend.canvas.common
-import lms.backend.canvas.model
+import lms.backend.canvas.courses.quizzes.common
+import lms.model.assignments
 import lms.model.constants
-import lms.model.quizzes
 
 CREATE_FOLDER_ENDPOINT: str = "/api/v1/courses/{course_id}/folders"
 GET_FOLDER_ENDPOINT: str = "/api/v1/courses/{course_id}/folders/by_path{canvas_path}"
@@ -48,7 +48,7 @@ def request(
         backend: typing.Any,
         course_id: int,
         quiz: quizcomp.model.quiz.Quiz,
-        ) -> lms.model.quizzes.QuizMetadata:
+        ) -> lms.model.assignments.Assignment:
     """
     Upload a quiz.
 
@@ -105,7 +105,7 @@ def _upload_quiz_metadata(
         course_id: int,
         quiz: quizcomp.model.quiz.Quiz,
         assignment_group_id: typing.Union[int, None],
-        ) -> lms.model.quizzes.QuizMetadata:
+        ) -> lms.model.assignments.Assignment:
     """ Upload the base quiz metadata, which we can then attach questions to. """
 
     quiz_type = QUIZ_TYPE_ASSIGNMENT
@@ -118,7 +118,7 @@ def _upload_quiz_metadata(
 
     raw_hide_results = None
     if (quiz.hide_results is not None):
-        if (hide_results is not quizcomp.model.quiz.HideResultsBehavior.NEVER_HIDE):
+        if (quiz.hide_results is not quizcomp.model.quiz.HideResultsBehavior.NEVER_HIDE):
             raw_hide_results = quiz.hide_results.value
 
     raw_scoring_policy = None
@@ -133,11 +133,11 @@ def _upload_quiz_metadata(
         'quiz[assignment_group_id]': assignment_group_id,
         'quiz[time_limit]': quiz.time_limit_mins,
         'quiz[allowed_attempts]': quiz.allowed_attempts,
-        # TEST - Previous version did a str() and lower() on this.
-        'quiz[show_correct_answers]': quiz.show_correct_answers,
+        # Canvas wants a string instead of a bool here (despite documentation).
+        'quiz[show_correct_answers]': str((quiz.show_correct_answers is not False)).lower(),
         'quiz[hide_results]': raw_hide_results,
-        # TEST - Previous version did a str() and lower() on this.
-        'quiz[shuffle_answers]': quiz.get_config(quizcomp.model.config.OPTION_SHUFFLE_ANSWERS),
+        # Canvas wants a string instead of a bool here (despite documentation).
+        'quiz[shuffle_answers]': str(quiz.get_config(quizcomp.model.config.OPTION_SHUFFLE_ANSWERS)).lower(),
         'quiz[scoring_policy]': raw_scoring_policy,
     }
 
@@ -145,9 +145,14 @@ def _upload_quiz_metadata(
     headers = backend.get_standard_headers()
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
-    raw_data = lms.backend.canvas.common.make_post_request(url, headers = headers, data = data)
+    raw_data = typing.cast(typing.Dict[str, typing.Any],
+            lms.backend.canvas.common.make_post_request(url, headers = headers, data = data))
 
-    return lms.model.quizzes.QuizMetadata(id = str(raw_data['id']), name = quiz.get_name())
+    return lms.model.assignments.Assignment(
+        id = str(raw_data['id']),
+        name = quiz.get_name(),
+        description = quiz.description.to_md(),
+    )
 
 def _upload_group(
         backend: typing.Any,
@@ -167,7 +172,8 @@ def _upload_group(
     headers = backend.get_standard_headers()
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
-    raw_data = lms.backend.canvas.common.make_post_request(url, headers = headers, data = data)
+    raw_data = typing.cast(typing.Dict[str, typing.Any],
+            lms.backend.canvas.common.make_post_request(url, headers = headers, data = data))
 
     group_id = raw_data['quiz_groups'][0]['id']
 
@@ -198,8 +204,6 @@ def _create_question_json(
         index: int,
         ) -> typing.Dict[str, typing.Any]:
     """ Create a dict that represent a question for a Canvas API request. """
-
-    question_type = QUESTION_TYPE_MAP[question.question_type]
 
     name = question.get_name()
 
@@ -307,7 +311,7 @@ def _serialize_fimb_answers(
     index = 0
 
     for (key, answer) in answers.parts.items():
-        for (i, option) in enumerate(answer.options):
+        for option in answer.options:
             data[f"question[answers][{index}][blank_id]"] = key
             data[f"question[answers][{index}][answer_weight]"] = 100
             data[f"question[answers][{index}][answer_text]"] = option.text.to_text(text_allow_special_text = True, text_allow_all_characters = True)
@@ -472,7 +476,7 @@ def _get_folder(
     if ((raw_object is None) or (len(raw_object) == 0)):
         return None
 
-    return raw_object[-1]['id']
+    return int(raw_object[-1]['id'])
 
 def _create_folder(
         backend: typing.Any,
@@ -495,8 +499,9 @@ def _create_folder(
     headers = backend.get_standard_headers()
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
-    raw_object = lms.backend.canvas.common.make_post_request(url, headers = headers, data = data, raise_on_404 = True)
-    return raw_object['id']
+    raw_object = typing.cast(typing.Dict[str, typing.Any],
+            lms.backend.canvas.common.make_post_request(url, headers = headers, data = data, raise_on_404 = True))
+    return int(raw_object['id'])
 
 def _hide_folder(
         backend: typing.Any,
@@ -518,7 +523,7 @@ def _hide_folder(
     headers = backend.get_standard_headers()
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
-    raw_object = lms.backend.canvas.common.make_put_request(url, headers = headers, data = data, raise_on_404 = True)
+    lms.backend.canvas.common.make_put_request(url, headers = headers, data = data, raise_on_404 = True)
 
 def _upload_file(
         backend: typing.Any,
@@ -555,7 +560,8 @@ def _init_file_upload(
     headers = backend.get_standard_headers()
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
-    raw_object = lms.backend.canvas.common.make_post_request(url, headers = headers, data = data)
+    raw_object = typing.cast(typing.Dict[str, typing.Any],
+            lms.backend.canvas.common.make_post_request(url, headers = headers, data = data))
 
     return (raw_object['upload_url'], raw_object['upload_params'])
 
@@ -574,5 +580,6 @@ def _upload_file_contents(
     headers = backend.get_standard_headers()
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
-    raw_object = lms.backend.canvas.common.make_post_request(upload_url, headers = headers, data = upload_params, files = files)
-    return raw_object['id']
+    raw_object = typing.cast(typing.Dict[str, typing.Any],
+            lms.backend.canvas.common.make_post_request(upload_url, headers = headers, data = upload_params, files = files))
+    return int(raw_object['id'])

@@ -5,12 +5,14 @@ Download a quiz and write it in the Quiz Composer format.
 import argparse
 import os
 import sys
+import typing
 
 import edq.util.dirent
 
 import lms.backend.instance
 import lms.cli.common
 import lms.cli.parser
+import lms.model.assignments
 import lms.model.base
 
 def run_cli(args: argparse.Namespace) -> int:
@@ -23,11 +25,11 @@ def run_cli(args: argparse.Namespace) -> int:
     if (course_query is None):
         return 1
 
-    quiz_queries = []
+    quiz_queries: typing.List[lms.model.assignments.AssignmentQuery] = []
     if (len(args.quizzes) == 0):
         quiz_queries = [quiz.to_query() for quiz in backend.courses_quizzes_resolve_and_list(course_query)]
     else:
-        quiz_queries = backend.parse_quiz_queries(args.quizzes)
+        quiz_queries = backend.parse_assignment_queries(args.quizzes)
 
     if (len(quiz_queries) == 0):
         print("Found no quizzes to download.")

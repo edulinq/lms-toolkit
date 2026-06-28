@@ -20,7 +20,7 @@ def run_cli(args: argparse.Namespace) -> int:
     if (course_query is None):
         return 1
 
-    queries = backend.parse_quiz_queries(args.quizzes)
+    queries = backend.parse_assignment_queries(args.quizzes)
 
     quizzes = backend.courses_quizzes_get(course_query, queries)
 
