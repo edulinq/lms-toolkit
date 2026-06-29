@@ -251,22 +251,22 @@ class MoodleBackend(lms.model.backend.APIBackend):
             try:
                 id = activity.get('data-id', None)
                 name = activity.select_one('.activity-item').get('data-activityname', None)  # type: ignore[union-attr]
+            except AttributeError as _:
+                _logger.warning("Unable to retrieve assignment ID and/or name. Moodle data structure has changed. Contact project developers.")
 
-                url = str(activity.select_one('div.activityname a').get('href', None))  # type: ignore[union-attr]
+            try:
+                url = f"{self.server}/course/modedit.php?update={id}"
                 response, _ = edq.net.request.make_get(url, headers = self._session_headers)  # type: ignore[misc]
 
                 document = bs4.BeautifulSoup(response.text, 'html.parser')
-                url = str(document.select_one('li[data-key="modedit"] a').get('href', None))  # type: ignore[union-attr]
-                response, _ = edq.net.request.make_get(url, headers = self._session_headers)  # type: ignore[misc]
 
-                document = bs4.BeautifulSoup(response.text, 'html.parser')
                 points_possible = document.select_one('input[name="grade[modgrade_point]"]').get('value', None)  # type: ignore[union-attr]
             except AttributeError as _:
-                _logger.warning("Unable to list assignments. Moodle data structure has changed. Contact project developers.")
+                _logger.warning("Unable to retrieve assignment maximum point value. Moodle data structure has changed. Contact project developers.")
 
             assignments.append(lms.model.assignments.Assignment(
-                id = id,  # type: ignore[arg-type]
-                name = name,  # type: ignore[arg-type]
+                id = str(id),
+                name = str(name),
                 points_possible = float(points_possible),  # type: ignore[arg-type]
             ))
 

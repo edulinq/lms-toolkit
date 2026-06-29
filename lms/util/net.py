@@ -67,6 +67,28 @@ MOODLE_FINALIZE_REMOVE_PARAMS: typing.Set[str] = {
 }
 """ Keys to remove from Moodle headers. """
 
+MOODLE_HTML_CLEAN: typing.Dict[str, typing.Dict[str, any]] = {
+    r'/user/index\.php\?id=(\d+)': {
+        'decompose_selectors': ['tr.emptyrow', 'div[data-status="Active"]'],
+        'attrs_to_keep': {'a': ['data-column']},
+        'remove_all_attrs_selectors': ['span'],
+        'final_selector': 'table#participants',
+    },
+    r'/course/view\.php\?id=(\d+)': {
+        'decompose_selectors': ['tr.emptyrow', 'div[data-status="Active"]'],
+        'attrs_to_keep': {},
+        'remove_all_attrs_selectors': [],
+        'final_selector': 'ul[data-for=cmlist]',
+    },
+    r'/course/modedit\.php\?update=(\d+)': {
+        'decompose_selectors': [],
+        'attrs_to_keep': {},
+        'remove_all_attrs_selectors': [],
+        'final_selector': 'input[name="grade[modgrade_point]"]',
+    },
+}
+""" Regex matches to Moodle URLs and corresponding HTML clean parameters. """
+
 STANDARDIZED_TIMESTAMP: str = '123456789'
 STANDARDIZED_SESSION_KEY: str = 'abcABC123'
 STANDARDIZED_RANDOM_STRING: str = 'abc123'
@@ -114,9 +136,9 @@ def clean_blackboard_response(response: requests.Response, body: str) -> str:
 
     # Work on both request and response headers.
     for headers in [response.headers, response.request.headers]:
-        for key in list(headers.keys()):  # type: ignore[attr-defined]
+        for key in list(headers.keys()):
             if (key.strip().lower() in BLACKBOARD_CLEAN_REMOVE_HEADERS):
-                headers.pop(key, None)  # type: ignore[attr-defined]
+                headers.pop(key, None)
 
     # Most blackboard responses are JSON.
     try:
@@ -194,65 +216,61 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
 
     # Work on both request and response headers.
     for headers in [response.headers, response.request.headers]:
-        for key in list(headers.keys()):  # type: ignore[attr-defined]
+        for key in list(headers.keys()):
             if (key.strip().lower() in MOODLE_CLEAN_REMOVE_HEADERS):
-                headers.pop(key, None)  # type: ignore[attr-defined]
+                headers.pop(key, None)
+
+    # Remove Chunking
+    response.headers.pop('transfer-encoding', None)
 
     # Endpoint-Specific Tasks
 
-    # Remove extra data from the course participants response.
-    if (re.search(r'/user/index\.php\?id=(\d+)', response.url.strip())):
-        document = bs4.BeautifulSoup(body, 'html.parser')
-
-        decompose_selectors = ['tr.emptyrow', 'div[data-status="Active"]']
-        for selector in decompose_selectors:
-            elements = document.select(selector)
-            for element in elements:
-                element.decompose()
-
-        a_tags = document.select('a')
-        for a_tag in a_tags:
-            # Remove extra attributes by keeping only select attributes and replacing the existing attribute dict.
-            a_tag.attrs = {attr: a_tag.attrs[attr] for attr in ['data-column'] if (attr in a_tag.attrs)}
-
-        spans = document.select('tbody tr td span')
-        for span in spans:
-            # Remove all attributes.
-            span.attrs.clear()
-
-        body = str(document.select('table#participants'))
-
-        # Remove Chunking
-        response.headers.pop('transfer-encoding', None)
-
-    # Endpoint-Specific Tasks
-
-    # Remove extra data from the course participants response.
-    if (re.search(r'/user/index\.php\?id=(\d+)', response.url.strip())):
-        document = bs4.BeautifulSoup(body, 'html.parser')
-
-        decompose_selectors = ['tr.emptyrow', 'div[data-status="Active"]']
-        for selector in decompose_selectors:
-            elements = document.select(selector)
-            for element in elements:
-                element.decompose()
-
-        a_tags = document.select('a')
-        for a_tag in a_tags:
-            # Remove extra attributes by keeping only select attributes and replacing the existing attribute dict.
-            a_tag.attrs = {attr: a_tag.attrs[attr] for attr in ['data-column'] if (attr in a_tag.attrs)}
-
-        spans = document.select('tbody tr td span')
-        for span in spans:
-            # Remove all attributes.
-            span.attrs.clear()
-
-        body = str(document.select('table#participants'))
-
-        # Remove Chunking
-        response.headers.pop('transfer-encoding', None)
+    # Clean HTML responses.
+    for rgx, clean in MOODLE_HTML_CLEAN.items():
+        if(re.search(rgx, response.url.strip())):
+            return clean_html(
+                body,
+                clean['decompose_selectors'],
+                clean['attrs_to_keep'],
+                clean['remove_all_attrs_selectors'],
+                clean['final_selector'],
+            )
 
     return body
+
+def clean_html(
+        html: str,
+        decompose_selectors: typing.List[str],
+        attrs_to_keep: typing.Dict[str, typing.List[str]],
+        remove_all_attrs_selectors: typing.List[str],
+        final_selector: str = 'body',
+        ) -> str:
+    """
+    General purpose HTML cleaning function.
+
+    attrs_to_keep: { selector: [attribute, ...] }
+    """
+
+    document = bs4.BeautifulSoup(html, 'html.parser')
+
+    for selector in decompose_selectors:
+        elements = document.select(selector)
+        for element in elements:
+            element.decompose()
+
+    for element_selector, attrs in attrs_to_keep.items():
+        elements = document.select(element_selector)
+        for element in elements:
+            # Remove extra attributes by keeping only select attributes and replacing the existing attribute dict.
+            element.attrs = {attr: element.attrs[attr] for attr in attrs if (attr in element.attrs)}
+
+    for selector in remove_all_attrs_selectors:
+        elements = document.select(selector)
+        for element in elements:
+            # Remove all attributes.
+            element.attrs.clear()
+
+    return str(document.select(final_selector))
 
 def finalize_moodle_exchange(exchange: edq.net.exchange.HTTPExchange) -> edq.net.exchange.HTTPExchange:
     """ Finalize Moodle exchanges. """
