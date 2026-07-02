@@ -67,7 +67,7 @@ MOODLE_FINALIZE_REMOVE_PARAMS: typing.Set[str] = {
 }
 """ Keys to remove from Moodle headers. """
 
-MOODLE_HTML_CLEAN: typing.Dict[str, typing.Dict[str, any]] = {
+MOODLE_HTML_CLEAN: typing.Dict[str, typing.Dict[str, typing.Any]] = {
     r'/user/index\.php\?id=(\d+)': {
         'decompose_selectors': ['tr.emptyrow', 'div[data-status="Active"]'],
         'attrs_to_keep': {'a': ['data-column']},
@@ -76,18 +76,13 @@ MOODLE_HTML_CLEAN: typing.Dict[str, typing.Dict[str, any]] = {
     },
     r'/course/view\.php\?id=(\d+)': {
         'decompose_selectors': ['tr.emptyrow', 'div[data-status="Active"]'],
-        'attrs_to_keep': {},
-        'remove_all_attrs_selectors': [],
         'final_selector': 'ul[data-for=cmlist]',
     },
     r'/course/modedit\.php\?update=(\d+)': {
-        'decompose_selectors': [],
-        'attrs_to_keep': {},
-        'remove_all_attrs_selectors': [],
         'final_selector': 'input[name="grade[modgrade_point]"]',
     },
 }
-""" Regex matches to Moodle URLs and corresponding HTML clean parameters. """
+""" Regex matches to Moodle URLs and corresponding HTML clean kwargs. """
 
 STANDARDIZED_TIMESTAMP: str = '123456789'
 STANDARDIZED_SESSION_KEY: str = 'abcABC123'
@@ -226,23 +221,17 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
     # Endpoint-Specific Tasks
 
     # Clean HTML responses.
-    for rgx, clean in MOODLE_HTML_CLEAN.items():
-        if(re.search(rgx, response.url.strip())):
-            return clean_html(
-                body,
-                clean['decompose_selectors'],
-                clean['attrs_to_keep'],
-                clean['remove_all_attrs_selectors'],
-                clean['final_selector'],
-            )
+    for (pattern, clean) in MOODLE_HTML_CLEAN.items():
+        if(re.search(pattern, response.url.strip())):
+            body = clean_html(body, **clean)
 
     return body
 
 def clean_html(
         html: str,
-        decompose_selectors: typing.List[str],
-        attrs_to_keep: typing.Dict[str, typing.List[str]],
-        remove_all_attrs_selectors: typing.List[str],
+        decompose_selectors: typing.List[str] = {},
+        attrs_to_keep: typing.Dict[str, typing.List[str]] = {},
+        remove_all_attrs_selectors: typing.List[str] = [],
         final_selector: str = 'body',
         ) -> str:
     """

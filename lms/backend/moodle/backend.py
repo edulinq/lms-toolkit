@@ -1,6 +1,7 @@
 # pylint: disable=abstract-method
 
 import logging
+import re
 import typing
 import urllib.parse
 
@@ -218,7 +219,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
                 name = row.select_one(f'.cell.{classes["fullname"]} a span').get('title', None).removeprefix('__EMPTY_NAME__ ')  # type: ignore[union-attr] # pylint: disable=line-too-long
                 email = row.select_one(f'.cell.{classes["email"]}').get_text()  # type: ignore[union-attr]
                 raw_role = row.select_one(f'.cell.{classes["roles"]} span a').get_text().strip().lower()  # type: ignore[union-attr]
-            except AttributeError as _:
+            except AttributeError:
                 _logger.warning("Unable to list users. Moodle data structure has changed. Contact project developers.")
                 continue
 
@@ -239,35 +240,39 @@ class MoodleBackend(lms.model.backend.APIBackend):
     def courses_assignments_list(self,
                 course_id: str,
                 **kwargs: typing.Any) -> typing.List[lms.model.assignments.Assignment]:
-        url = f"{self.server}/course/view.php?id={course_id}"
+        self._login()
+        url = f"{self.server}/grade/report/grader/index.php?id={course_id}"
         response, _ = edq.net.request.make_get(url, headers = self._session_headers)
 
         document = bs4.BeautifulSoup(response.text, 'html.parser')
 
-        activities = document.select('ul li.activity')
+        activities = document.select('table#user-grades th.item')
 
         assignments = []
         for activity in activities:
-            try:
-                id = activity.get('data-id', None)
-                name = activity.select_one('.activity-item').get('data-activityname', None)  # type: ignore[union-attr]
-            except AttributeError as _:
-                _logger.warning("Unable to retrieve assignment ID and/or name. Moodle data structure has changed. Contact project developers.")
+            # Parse and store the column's class (e.g. "c0").
+            target_class = None
+            column_classes = activity.get('class', None)
+            column_class_pattern = re.compile(r'^c\d+$')
+            for column_class in column_classes:
+                if(column_class_pattern.match(column_class)):
+                    target_class = column_class
+                    break
 
             try:
-                url = f"{self.server}/course/modedit.php?update={id}"
-                response, _ = edq.net.request.make_get(url, headers = self._session_headers)  # type: ignore[misc]
+                id = activity.select_one('div.dropdown-menu a[role=grader]').get('data-courseid', None)
+                name = activity.select_one('a.gradeitemheader').get_text()  # type: ignore[union-attr]
+                points_possible = document.select_one(f'td.gradecell div.cell.{target_class} input').get('max', None)
+            except AttributeError:
+                _logger.warning("Unable to retrieve assignment. Moodle data structure has changed. Contact project developers.")
 
-                document = bs4.BeautifulSoup(response.text, 'html.parser')
-
-                points_possible = document.select_one('input[name="grade[modgrade_point]"]').get('value', None)  # type: ignore[union-attr]
-            except AttributeError as _:
-                _logger.warning("Unable to retrieve assignment maximum point value. Moodle data structure has changed. Contact project developers.")
+            if (not type(points_possible) is str):
+                continue
 
             assignments.append(lms.model.assignments.Assignment(
                 id = str(id),
                 name = str(name),
-                points_possible = float(points_possible),  # type: ignore[arg-type]
+                points_possible = float(points_possible),
             ))
 
         return assignments
