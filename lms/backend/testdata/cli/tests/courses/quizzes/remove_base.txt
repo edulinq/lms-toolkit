@@ -1,0 +1,9 @@
+{
+    "cli": "lms.cli.courses.quizzes.remove",
+    "arguments": [
+        "--course", "Course 101",
+        "Regular Expressions",
+    ],
+}
+---
+Removed quiz: 'Regular Expressions (110000200)'.

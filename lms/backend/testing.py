@@ -14,6 +14,7 @@ import lms.model.backend
 import lms.model.base
 import lms.model.constants
 import lms.backend.instance
+import lms.testing.serverrunner
 
 THIS_DIR: str = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 TESTDATA_DIR: str = os.path.join(THIS_DIR, 'testdata')
@@ -43,6 +44,9 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
     The backend type for this test.
     Must be set by the child class.
     """
+
+    server_runner: typing.Union[lms.testing.serverrunner.LMSServerRunner, None] = None
+    """ If a current server runner for this test (if there is one). """
 
     exchanges_dir: typing.Union[str, None] = None
     """
@@ -82,11 +86,23 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
         Setting the user allows child classes to fetch specific information (like authentication information).
         """
 
+        # Most backends have to modify exchanges in some way that makes these tests unreliable.
+        # Instead, exchanges are tested enough through normal testing usage.
+        self.skip_test_exchanges_base = True
+
     @classmethod
     def setup_server(cls, server: edq.net.exchangeserver.HTTPExchangeServer) -> None:
         if (cls.server_key == ''):
             raise ValueError("BackendTest subclass did not set server key properly.")
 
+        edq.testing.httpserver.HTTPServerTest.setup_server(server)
+
+    @classmethod
+    def create_server(cls) -> edq.net.exchangeserver.HTTPExchangeServer:
+        return LMSHTTPExchangeServer()
+
+    @classmethod
+    def post_start_server(cls, server: edq.net.exchangeserver.HTTPExchangeServer) -> None:
         if (cls.backend_type is None):
             raise ValueError("BackendTest subclass did not set backend type properly.")
 
@@ -96,9 +112,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
         context = edq.util.serial.SerializationContext(json_options = {
             'strict': True,
         })
-
-        edq.testing.httpserver.HTTPServerTest.setup_server(server)
-        server.load_exchanges_dir(cls.exchanges_dir, context = context)
+        server.load_exchanges_dir(cls.exchanges_dir, context = context, finalize_func = cls._finalize_exchange)
 
         # Update match options.
         for (key, values) in [('params_to_skip', cls.params_to_skip), ('headers_to_skip', cls.headers_to_skip)]:
@@ -107,8 +121,6 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
 
             server.match_options[key] += values
 
-    @classmethod
-    def post_start_server(cls, server: edq.net.exchangeserver.HTTPExchangeServer) -> None:
         config_data: typing.Dict[str, typing.Any] = {
             'server': cls.get_server_url(),
             'backend_type': cls.backend_type,
@@ -153,6 +165,7 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
             actual_clean_func: typing.Union[typing.Callable, None] = None,
             expected_clean_func: typing.Union[typing.Callable, None] = None,
             assertion_func: typing.Union[typing.Callable, None] = None,
+            disable_server_restart: bool = False,
             ) -> None:
         """
         A common test for the base request functionality.
@@ -171,6 +184,9 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
                 kwargs = self.get_base_args()
                 kwargs.update(extra_kwargs)
 
+                if (disable_server_restart and (self.server_runner is not None)):
+                    self.server_runner.skip_restart = True
+
                 try:
                     actual = request_function(**kwargs)
                 except NotImplementedError as ex:
@@ -186,8 +202,11 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
                         self.fail(f"Unexpected error: '{error_string}'.")
 
                     self.assertIn(error_substring, error_string, 'Error is not as expected.')
-
                     continue
+                finally:
+                    if (disable_server_restart and (self.server_runner is not None)):
+                        self.server_runner.skip_restart = False
+                        self.server_runner.restart()
 
                 if (error_substring is not None):
                     self.fail(f"Did not get expected error: '{error_substring}'.")
@@ -218,10 +237,12 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
                         assertion_func(expected_value, actual_value)
                     elif (isinstance(expected_value, lms.model.base.BaseType)):
                         self.assertJSONEqual(expected_value, actual_value)
-                    elif (isinstance(expected_value, dict)):
+                    elif (isinstance(expected_value, (dict, edq.util.serial.DictConverter))):
                         self.assertJSONDictEqual(expected_value, actual_value)
                     elif (isinstance(expected_value, list)):
                         self.assertJSONListEqual(expected_value, actual_value)
+                    elif (isinstance(expected_value, edq.util.serial.PODConverter)):
+                        self.assertJSONEqual(expected_value, actual_value)
                     else:
                         self.assertEqual(expected_value, actual_value)
 
@@ -254,6 +275,33 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
         """ Get the test's name based off of its filename and location. """
 
         return edq.testing.cli.compute_ancestor_basename(path, CLI_TESTS_DIR)
+
+    @classmethod
+    def _finalize_exchange(cls, exchange: edq.net.exchange.HTTPExchange) -> edq.net.exchange.HTTPExchange:
+        """
+        Finalize an exchange before loading it into the test server.
+        """
+
+        # Check for redirect locations with a slug.
+        if ('location' in exchange.response_headers):
+            location = exchange.response_headers['location'].replace(lms.model.constants.SERVER_SLUG, cls.get_server_url())
+            exchange.response_headers['location'] = location
+
+        return exchange
+
+class LMSHTTPExchangeServer(edq.net.exchangeserver.HTTPExchangeServer):
+    """ A custom exchange server for our tests. """
+
+    def missing_request(self, query: edq.net.exchange.HTTPExchange) -> typing.Union[edq.net.exchange.HTTPExchange, None]:
+        # Specal Canvas patch to handle a multi-stage file upload (which uses redirects).
+        if (query.url_path == 'files_api'):
+            query.parameters = {'filename': query.parameters['filename']}
+            query.files = []
+
+            exchange, _ = self.lookup_exchange(query)
+            return exchange
+
+        return None
 
 @typing.runtime_checkable
 class BackendTestFunction(typing.Protocol):

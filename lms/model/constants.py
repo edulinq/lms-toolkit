@@ -1,5 +1,7 @@
 import enum
 
+SERVER_SLUG: str = '<edq-lms-backend-server>'
+
 HEADER_KEY_BACKEND: str = 'edq-lms-backend'
 HEADER_KEY_WRITE: str = 'edq-lms-write'
 

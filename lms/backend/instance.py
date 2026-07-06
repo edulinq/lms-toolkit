@@ -68,7 +68,7 @@ def guess_backend_type(
 
 def guess_backend_type_from_request(
         server: str,
-        timeout_secs: typing.Union[float, typing.Tuple[float, float]] = edq.net.request.DEFAULT_REQUEST_TIMEOUT_SECS,
+        timeout_secs: typing.Union[float, None] = None,
         ) -> typing.Union[lms.model.constants.BackendType, None]:
     """
     Attempt to guess the backend type by pinging the server.

@@ -1,5 +1,4 @@
 import os
-import typing
 
 import edq.testing.cli
 
@@ -15,13 +14,6 @@ DEFAULT_USER: str = 'course-owner'
 
 class MoodleBackendTest(lms.backend.testing.BackendTest):
     """ A backend test for Moodle. """
-
-    def __init__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
-        super().__init__(*args, **kwargs)
-
-        # Skip exchange verification tests, since Moodle users are not logged in ahead of time.
-        # This makes the exchanges dependent on the login.
-        self.skip_test_exchanges_base = True
 
     @classmethod
     def child_class_setup(cls) -> None:

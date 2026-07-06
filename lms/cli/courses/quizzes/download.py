@@ -47,7 +47,7 @@ def run_cli(args: argparse.Namespace) -> int:
                 print(f"Directory for quiz ('{quiz.name}') already exists, skipping write: '{path}'.")
                 continue
 
-        quiz.to_dir(path)
+        quiz.to_dir(path, fetch_images = (args.skip_fetch_images is False))
 
         print(f"Wrote quiz '{quiz.name}' to '{path}'.")
 
@@ -73,6 +73,10 @@ def _get_parser() -> argparse.ArgumentParser:
     parser.add_argument('--force', dest = 'force',
         action = 'store_true', default = False,
         help = "Delete an existing quiz output directory before writing the new content (default: %(default)s).")
+
+    parser.add_argument('--skip-fetch-images', dest = 'skip_fetch_images',
+        action = 'store_true', default = False,
+        help = "Skip fetching images embedded into the quiz text (default: %(default)s).")
 
     parser.add_argument('quizzes', metavar = 'QUIZ_QUERY',
         type = str, nargs = '*',

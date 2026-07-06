@@ -6,7 +6,7 @@ import argparse
 import typing
 
 import edq.core.argparser
-import edq.net.exchange
+import edq.net.settings
 import edq.util.reflection
 
 import lms
@@ -20,7 +20,7 @@ DEFAULT_ENCRYPTION_KEY: str = 'EDQLMS'
 
 DEFAULT_SKIP_ROWS: int = 0
 
-_set_exchanges_clean_func: bool = True  # pylint: disable=invalid-name
+_set_exchanges_clean_response_func: bool = True  # pylint: disable=invalid-name
 """
 Whether to set the exchanges clean function when creating the parser.
 This may be disabled for testing.
@@ -58,8 +58,8 @@ def get_parser(description: str,
 
     # Ensure that responses are cleaned as LMS responses.
     if (include_net):
-        if (_set_exchanges_clean_func):
-            edq.net.exchange._exchanges_clean_func = edq.util.reflection.get_qualified_name(lms.util.net.clean_lms_response)
+        if (_set_exchanges_clean_response_func):
+            edq.net.settings.set_exchanges_clean_response_func(edq.util.reflection.get_qualified_name(lms.util.net.clean_lms_response))
 
     if (include_server):
         group = parser.add_argument_group('server options')

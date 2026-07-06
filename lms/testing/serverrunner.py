@@ -4,6 +4,7 @@ import typing
 import edq.core.errors
 import edq.net.exchange
 import edq.net.request
+import edq.net.settings
 import edq.testing.serverrunner
 import edq.util.parse
 import edq.util.reflection
@@ -20,6 +21,7 @@ BACKEND_REQUEST_CLEANING_FUNCS: typing.Dict[typing.Union[lms.model.constants.Bac
 }
 
 BACKEND_EXCHANGE_FINALIZING_FUNCS: typing.Dict[typing.Union[lms.model.constants.BackendType, None], typing.Callable] = {
+    lms.model.constants.BackendType.CANVAS: lms.util.net.finalize_canvas_exchange,
     lms.model.constants.BackendType.MOODLE: lms.util.net.finalize_moodle_exchange,
 }
 
@@ -41,27 +43,27 @@ class LMSServerRunner(edq.testing.serverrunner.ServerRunner):
         (since part of resolution may involve pinging the server.
         """
 
-        self._old_exchanges_clean_func: typing.Union[str, None] = None
+        self._old_exchanges_clean_response_func: typing.Union[str, None] = None
         """
-        The value of edq.net.exchange._exchanges_clean_func when start() is called.
+        The value of edq.net.settings.get_exchanges_clean_response_func() when start() is called.
         The original value may be changed in start(), and will be reset in stop().
         """
 
         self._old_exchanges_finalize_func: typing.Union[str, None] = None
         """
-        The value of edq.net.exchange._exchanges_finalize_func when start() is called.
+        The value of edq.net.settings.get_exchanges_finalize_func() when start() is called.
         The original value may be changed in start(), and will be reset in stop().
         """
 
-        self._old_set_exchanges_clean_func: bool = False
+        self._old_set_exchanges_clean_response_func: bool = False
         """
-        The value of lms.cli.parser._set_exchanges_clean_func when start() is called.
+        The value of lms.cli.parser._set_exchanges_clean_response_func when start() is called.
         The original value may be changed in start(), and will be reset in stop().
         """
 
-        self._old_make_request_exchange_complete_func: typing.Union[edq.net.exchange.HTTPExchangeComplete, None] = None
+        self._old_request_complete_callback: typing.Union[edq.net.exchange.HTTPExchangeComplete, None] = None
         """
-        The value of edq.net.request._make_request_exchange_complete_func when start() is called.
+        The value of edq.net.settings.get_request_complete_callback() when start() is called.
         The original value may be changed in start(), and will be reset in stop().
         """
 
@@ -76,27 +78,27 @@ class LMSServerRunner(edq.testing.serverrunner.ServerRunner):
 
         exchange_clean_func = BACKEND_REQUEST_CLEANING_FUNCS.get(self.backend_type, lms.util.net.clean_lms_response)
         exchange_clean_func_name = edq.util.reflection.get_qualified_name(exchange_clean_func)
-        self._old_exchanges_clean_func = edq.net.exchange._exchanges_clean_func
-        edq.net.exchange._exchanges_clean_func = exchange_clean_func_name
+        self._old_exchanges_clean_response_func = edq.net.settings.get_exchanges_clean_response_func()
+        edq.net.settings.set_exchanges_clean_response_func(exchange_clean_func_name)
 
-        self._old_exchanges_finalize_func = edq.net.exchange._exchanges_finalize_func
+        self._old_exchanges_finalize_func = edq.net.settings.get_exchanges_finalize_func()
         exchange_finalize_func = BACKEND_EXCHANGE_FINALIZING_FUNCS.get(self.backend_type, None)
         if (exchange_finalize_func is not None):
             exchange_finalize_func_name = edq.util.reflection.get_qualified_name(exchange_finalize_func)
-            edq.net.exchange._exchanges_finalize_func = exchange_finalize_func_name
+            edq.net.settings.set_exchanges_finalize_func(exchange_finalize_func_name)
         else:
-            edq.net.exchange._exchanges_finalize_func = None
+            edq.net.settings.set_exchanges_finalize_func()
 
-        self._old_set_exchanges_clean_func = lms.cli.parser._set_exchanges_clean_func
-        lms.cli.parser._set_exchanges_clean_func = False
+        self._old_set_exchanges_clean_response_func = lms.cli.parser._set_exchanges_clean_response_func
+        lms.cli.parser._set_exchanges_clean_response_func = False
 
-        def _make_request_callback(exchange: edq.net.exchange.HTTPExchange) -> None:
+        def _request_complete_callback(exchange: edq.net.exchange.HTTPExchange) -> None:
             # Restart if the request is a write.
             if (edq.util.parse.boolean(exchange.headers.get(lms.model.constants.HEADER_KEY_WRITE, False))):
                 self.restart()
 
-        self._old_make_request_exchange_complete_func = edq.net.request._make_request_exchange_complete_func
-        edq.net.request._make_request_exchange_complete_func = typing.cast(edq.net.exchange.HTTPExchangeComplete, _make_request_callback)
+        self._old_request_complete_callback = edq.net.settings.get_request_complete_callback()
+        edq.net.settings.set_request_complete_callback(typing.cast(edq.net.exchange.HTTPExchangeComplete, _request_complete_callback))
 
         # Disable logging from the runner, since it may disrupt CLI tests.
         logger = logging.getLogger('edq.testing.serverrunner')
@@ -117,14 +119,17 @@ class LMSServerRunner(edq.testing.serverrunner.ServerRunner):
 
         # Restore old configs.
 
-        edq.net.exchange._exchanges_clean_func = self._old_exchanges_clean_func
-        self._old_exchanges_clean_func = None
+        edq.net.settings.set_exchanges_clean_response_func(self._old_exchanges_clean_response_func)
+        self._old_exchanges_clean_response_func = None
 
-        lms.cli.parser._set_exchanges_clean_func = self._old_set_exchanges_clean_func
-        self._old_set_exchanges_clean_func = False
+        lms.cli.parser._set_exchanges_clean_response_func = self._old_set_exchanges_clean_response_func
+        self._old_set_exchanges_clean_response_func = False
 
-        edq.net.request._make_request_exchange_complete_func = self._old_make_request_exchange_complete_func
-        self._old_make_request_exchange_complete_func = None
+        edq.net.settings.set_request_complete_callback(self._old_request_complete_callback)
+        self._old_request_complete_callback = None
+
+        edq.net.settings.set_exchanges_finalize_func(self._old_exchanges_finalize_func)
+        self._old_exchanges_finalize_func = None
 
         return True
 

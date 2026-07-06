@@ -88,14 +88,18 @@ def _list_groups(
 
     groups = []
     for raw_group in raw_objects.get('quiz_groups', []):
-        groups.append(quizcomp.model.group.Group(
+        group = quizcomp.model.group.Group(
             name = raw_group['name'],
             children = questions.get(raw_group['id'], []),
-            lms_id = str(raw_group['id']),
             pick_count = raw_group['pick_count'],
-            position = raw_group['position'],
             points = raw_group['pick_count'] * raw_group['question_points'],
-        ))
+        )
+
+        shuffle_answers = raw_group.get('shuffle_answers', None)
+        if (shuffle_answers is not None):
+            group.attributes['shuffle_answers'] = shuffle_answers
+
+        groups.append(group)
 
     return groups
 
@@ -138,7 +142,6 @@ def _list_questions(
         prompt_text = lms.backend.canvas.common.html_to_markdown(raw_question['question_text'])
 
         question = quizcomp.model.question.Question(
-            lms_id = raw_question['id'],
             name = raw_question['question_name'],
             question_type = question_type,
             prompt = quizcomp.parser.document.ParsedDocument.parse_text(prompt_text),

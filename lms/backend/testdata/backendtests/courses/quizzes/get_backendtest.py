@@ -27,7 +27,7 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                lms.model.testdata.quizzes.COURSE_QUIZZES['Course 101']['Regular Expressions'],
+                lms.model.testdata.quizzes.COURSE_QUIZZES_METADATA['Course 101']['Regular Expressions'],
             ],
             None,
         ),
@@ -42,7 +42,7 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                lms.model.testdata.quizzes.COURSE_QUIZZES['Course 101']['Regular Expressions'],
+                lms.model.testdata.quizzes.COURSE_QUIZZES_METADATA['Course 101']['Regular Expressions'],
             ],
             None,
         ),
@@ -56,7 +56,7 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
                 ],
             },
             [
-                lms.model.testdata.quizzes.COURSE_QUIZZES['Course 101']['Regular Expressions'],
+                lms.model.testdata.quizzes.COURSE_QUIZZES_METADATA['Course 101']['Regular Expressions'],
             ],
             None,
         ),

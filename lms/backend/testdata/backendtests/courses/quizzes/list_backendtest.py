@@ -11,7 +11,7 @@ def test_courses_quizzes_list_base(test: lms.backend.testing.BackendTest):
                 'course_id': '110000000',
             },
             [
-                lms.model.testdata.quizzes.COURSE_QUIZZES['Course 101']['Regular Expressions'],
+                lms.model.testdata.quizzes.COURSE_QUIZZES_METADATA['Course 101']['Regular Expressions'],
             ],
             None,
         ),

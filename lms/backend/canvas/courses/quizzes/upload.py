@@ -146,7 +146,10 @@ def _upload_quiz_metadata(
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
     raw_data = typing.cast(typing.Dict[str, typing.Any],
-            lms.backend.canvas.common.make_post_request(url, headers = headers, data = data))
+        lms.backend.canvas.common.make_post_request(
+            url, headers = headers, data = data, raise_on_404 = True,
+        )
+    )
 
     return lms.model.assignments.Assignment(
         id = str(raw_data['id']),
@@ -173,7 +176,12 @@ def _upload_group(
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
     raw_data = typing.cast(typing.Dict[str, typing.Any],
-            lms.backend.canvas.common.make_post_request(url, headers = headers, data = data))
+        lms.backend.canvas.common.make_post_request(
+            url, headers = headers, data = data, raise_on_404 = True,
+            # Add additional data to the request so testing can easily identify this request.
+            additional_requests_options = {'params': {'name': group.get_name()}},
+        )
+    )
 
     group_id = raw_data['quiz_groups'][0]['id']
 
@@ -196,7 +204,15 @@ def _upload_question(
     headers = backend.get_standard_headers()
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
-    lms.backend.canvas.common.make_post_request(url, headers = headers, data = data)
+    lms.backend.canvas.common.make_post_request(
+        url, headers = headers, data = data, raise_on_404 = True,
+        # Add additional data to the request so testing can easily identify this request.
+        additional_requests_options = {'params': {
+            'index': index,
+            'group_id': group_id,
+            'name': question.get_name(),
+        }},
+    )
 
 def _create_question_json(
         group_id: int,
@@ -500,7 +516,12 @@ def _create_folder(
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
     raw_object = typing.cast(typing.Dict[str, typing.Any],
-            lms.backend.canvas.common.make_post_request(url, headers = headers, data = data, raise_on_404 = True))
+        lms.backend.canvas.common.make_post_request(
+            url, headers = headers, data = data, raise_on_404 = True,
+            # Add additional data to the request so testing can easily identify this request.
+            additional_requests_options = {'params': data}
+        )
+    )
     return int(raw_object['id'])
 
 def _hide_folder(
@@ -523,7 +544,11 @@ def _hide_folder(
     headers = backend.get_standard_headers()
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
-    lms.backend.canvas.common.make_put_request(url, headers = headers, data = data, raise_on_404 = True)
+    lms.backend.canvas.common.make_put_request(
+        url, headers = headers, data = data, raise_on_404 = True,
+        # Add additional data to the request so testing can easily identify this request.
+        additional_requests_options = {'params': data},
+    )
 
 def _upload_file(
         backend: typing.Any,
@@ -535,6 +560,10 @@ def _upload_file(
     """ Upload a file to the specified Canvas path. """
 
     upload_url, upload_params = _init_file_upload(backend, course_id, path, parent_dir_id, canvas_path)
+
+    # The upload URL may have a slug in it (if read from test data).
+    upload_url = upload_url.replace(lms.model.constants.SERVER_SLUG, backend.server)
+
     return _upload_file_contents(backend, path, upload_url, upload_params)
 
 def _init_file_upload(
@@ -561,7 +590,12 @@ def _init_file_upload(
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
     raw_object = typing.cast(typing.Dict[str, typing.Any],
-            lms.backend.canvas.common.make_post_request(url, headers = headers, data = data))
+        lms.backend.canvas.common.make_post_request(
+            url, headers = headers, data = data, raise_on_404 = True,
+            # Add additional data to the request so testing can easily identify this request.
+            additional_requests_options = {'params': data},
+        )
+    )
 
     return (raw_object['upload_url'], raw_object['upload_params'])
 
@@ -581,5 +615,11 @@ def _upload_file_contents(
     headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
 
     raw_object = typing.cast(typing.Dict[str, typing.Any],
-            lms.backend.canvas.common.make_post_request(upload_url, headers = headers, data = upload_params, files = files))
+        lms.backend.canvas.common.make_post_request(
+            upload_url, headers = headers, data = upload_params, files = files, raise_on_404 = True,
+            # Add additional data to the request so testing can easily identify this request.
+            additional_requests_options = {'params': {'filename': upload_params['Filename']}},
+        )
+    )
+
     return int(raw_object['id'])

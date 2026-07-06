@@ -1,7 +1,7 @@
 import os
-import typing
 
 import edq.net.request
+import edq.net.settings
 import edq.testing.cli
 
 import lms.backend.testing
@@ -16,13 +16,6 @@ DEFAULT_USER: str = 'course-owner'
 
 class BlackboardBackendTest(lms.backend.testing.BackendTest):
     """ A backend test for Blackboard. """
-
-    def __init__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
-        super().__init__(*args, **kwargs)
-
-        # Skip exchange verification tests, since Blackboard users are not logged in ahead of time.
-        # This makes the exchanges dependent on the login.
-        self.skip_test_exchanges_base = True
 
     @classmethod
     def child_class_setup(cls) -> None:
@@ -46,7 +39,7 @@ class BlackboardBackendTest(lms.backend.testing.BackendTest):
             'x-blackboard-xsrf',
         ]
 
-        edq.net.request._disable_https_verification()
+        edq.net.settings.set_https_verification(False)
 
     def modify_cli_test_info(self, test_info: edq.testing.cli.CLITestInfo) -> None:
         super().modify_cli_test_info(test_info)

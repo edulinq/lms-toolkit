@@ -12,7 +12,7 @@ def test_courses_quizzes_resolve_and_list_base(test: lms.backend.testing.Backend
                 'course_query': lms.model.courses.CourseQuery(id = '110000000'),
             },
             [
-                lms.model.testdata.quizzes.COURSE_QUIZZES['Course 101']['Regular Expressions'],
+                lms.model.testdata.quizzes.COURSE_QUIZZES_METADATA['Course 101']['Regular Expressions'],
             ],
             None,
         ),
@@ -22,7 +22,7 @@ def test_courses_quizzes_resolve_and_list_base(test: lms.backend.testing.Backend
                 'course_query': lms.model.courses.CourseQuery(name = 'Course 101'),
             },
             [
-                lms.model.testdata.quizzes.COURSE_QUIZZES['Course 101']['Regular Expressions'],
+                lms.model.testdata.quizzes.COURSE_QUIZZES_METADATA['Course 101']['Regular Expressions'],
             ],
             None,
         ),
