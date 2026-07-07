@@ -436,14 +436,16 @@ def _upload_quiz_images(
                 canvas_filename,
             ])
 
-            image_token.attrSet('original_src', source)
-            image_token.attrSet('src', canvas_path)
-
             # Ensure that a parent directory exists for these quiz resources.
             if (parent_dir_id is None):
                 parent_dir_id = _ensure_folder(backend, course_id, os.path.dirname(canvas_path))
 
-            _upload_file(backend, course_id, path, parent_dir_id, canvas_path)
+            file_id = _upload_file(backend, course_id, path, parent_dir_id, canvas_path)
+
+            new_source = f"/courses/{course_id}/files/{file_id}/preview"
+
+            image_token.attrSet('original_src', source)
+            image_token.attrSet('src', new_source)
 
 def _restore_image_sources(quiz: quizcomp.model.quiz.Quiz) -> None:
     """ Replace any modified image sources with their original source. """
@@ -607,11 +609,13 @@ def _upload_file_contents(
 
     headers = backend.get_standard_headers(write = True)
 
+    filename = upload_params.get('filename', upload_params.get('Filename', None))
+
     raw_object = typing.cast(typing.Dict[str, typing.Any],
         lms.backend.canvas.common.make_post_request(
             upload_url, headers = headers, data = upload_params, files = files, raise_on_404 = True,
             # Add additional data to the request so testing can easily identify this request.
-            additional_requests_options = {'params': {'filename': upload_params['Filename']}},
+            additional_requests_options = {'params': {'filename': filename}},
         )
     )
 
