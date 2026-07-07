@@ -69,7 +69,7 @@ class APIBackend():
 
         return self.testing
 
-    def get_standard_headers(self) -> typing.Dict[str, str]:
+    def get_standard_headers(self, write: bool = False) -> typing.Dict[str, str]:
         """
         Get standard headers for this backend.
         Children should take care to set the write header when performing a write operation.
@@ -77,7 +77,7 @@ class APIBackend():
 
         return {
             lms.model.constants.HEADER_KEY_BACKEND: self.backend_type.value,
-            lms.model.constants.HEADER_KEY_WRITE: 'false',
+            lms.model.constants.HEADER_KEY_WRITE: str(write).lower(),
         }
 
     def not_found(self, operation: str, identifiers: typing.Dict[str, typing.Any]) -> None:

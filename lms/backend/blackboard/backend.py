@@ -42,6 +42,14 @@ class BlackboardBackend(lms.model.backend.APIBackend):
         self._session_headers: typing.Union[typing.Dict[str, typing.Any], None] = None
         """ The headers (e.g., cookies) for our logged in Blackboard session. """
 
+    def get_standard_headers(self, write: bool = False) -> typing.Dict[str, str]:
+        headers = super().get_standard_headers(write)
+
+        if (self._session_headers is not None):
+            headers.update(self._session_headers)
+
+        return headers
+
     def _login(self) -> None:
         """ Try to login to the Blackboard server. """
 
@@ -120,7 +128,7 @@ class BlackboardBackend(lms.model.backend.APIBackend):
         data = {
             'availability.available': 'Yes',
         }
-        response, _ = edq.net.request.make_get(url, headers = self._session_headers, data = data)
+        response, _ = edq.net.request.make_get(url, headers = self.get_standard_headers(), data = data)
 
         courses = []
         for raw_course in response.json().get('results', []):
@@ -144,7 +152,7 @@ class BlackboardBackend(lms.model.backend.APIBackend):
             'expand': 'user',
         }
 
-        response, _ = edq.net.request.make_get(url, headers = self._session_headers, data = data)
+        response, _ = edq.net.request.make_get(url, headers = self.get_standard_headers(), data = data)
 
         users = []
         for raw_user in response.json().get('results', []):

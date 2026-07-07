@@ -142,8 +142,7 @@ def _upload_quiz_metadata(
     }
 
     url = backend.server + UPLOAD_QUIZ_METADATA_ENDPOINT.format(course_id = course_id)
-    headers = backend.get_standard_headers()
-    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
+    headers = backend.get_standard_headers(write = True)
 
     raw_data = typing.cast(typing.Dict[str, typing.Any],
         lms.backend.canvas.common.make_post_request(
@@ -172,8 +171,7 @@ def _upload_group(
     }
 
     url = backend.server + UPLOAD_GROUP_ENDPOINT.format(course_id = course_id, quiz_id = quiz_id)
-    headers = backend.get_standard_headers()
-    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
+    headers = backend.get_standard_headers(write = True)
 
     raw_data = typing.cast(typing.Dict[str, typing.Any],
         lms.backend.canvas.common.make_post_request(
@@ -201,8 +199,7 @@ def _upload_question(
     data = _create_question_json(group_id, question, index)
 
     url = backend.server + UPLOAD_QUESTION_ENDPOINT.format(course_id = course_id, quiz_id = quiz_id)
-    headers = backend.get_standard_headers()
-    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
+    headers = backend.get_standard_headers(write = True)
 
     lms.backend.canvas.common.make_post_request(
         url, headers = headers, data = data, raise_on_404 = True,
@@ -512,8 +509,7 @@ def _create_folder(
     }
 
     url = backend.server + CREATE_FOLDER_ENDPOINT.format(course_id = course_id)
-    headers = backend.get_standard_headers()
-    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
+    headers = backend.get_standard_headers(write = True)
 
     raw_object = typing.cast(typing.Dict[str, typing.Any],
         lms.backend.canvas.common.make_post_request(
@@ -541,8 +537,7 @@ def _hide_folder(
     }
 
     url = backend.server + HIDE_FOLDER_ENDPOINT.format(folder_id = folder_id)
-    headers = backend.get_standard_headers()
-    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
+    headers = backend.get_standard_headers(write = True)
 
     lms.backend.canvas.common.make_put_request(
         url, headers = headers, data = data, raise_on_404 = True,
@@ -586,8 +581,7 @@ def _init_file_upload(
     }
 
     url = backend.server + UPLOAD_FILE_ENDPOINT.format(course_id = course_id)
-    headers = backend.get_standard_headers()
-    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
+    headers = backend.get_standard_headers(write = True)
 
     raw_object = typing.cast(typing.Dict[str, typing.Any],
         lms.backend.canvas.common.make_post_request(
@@ -611,8 +605,7 @@ def _upload_file_contents(
         'file': open(path, 'rb'),  # pylint: disable=consider-using-with
     }
 
-    headers = backend.get_standard_headers()
-    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
+    headers = backend.get_standard_headers(write = True)
 
     raw_object = typing.cast(typing.Dict[str, typing.Any],
         lms.backend.canvas.common.make_post_request(

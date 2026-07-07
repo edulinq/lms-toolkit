@@ -54,8 +54,8 @@ class CanvasBackend(lms.model.backend.APIBackend):
         This is set in config and compied for type checking.
         """
 
-    def get_standard_headers(self) -> typing.Dict[str, str]:
-        headers = super().get_standard_headers()
+    def get_standard_headers(self, write: bool = False) -> typing.Dict[str, str]:
+        headers = super().get_standard_headers(write)
 
         headers['Authorization'] = f"Bearer {self.auth_token}"
 

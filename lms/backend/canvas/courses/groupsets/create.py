@@ -2,7 +2,6 @@ import typing
 
 import lms.backend.canvas.common
 import lms.backend.canvas.model
-import lms.model.constants
 import lms.model.groupsets
 
 BASE_ENDPOINT = "/api/v1/courses/{course_id}/group_categories"
@@ -14,9 +13,7 @@ def request(backend: typing.Any,
     """ Create a group set. """
 
     url = backend.server + BASE_ENDPOINT.format(course_id = course_id)
-    headers = backend.get_standard_headers()
-
-    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
+    headers = backend.get_standard_headers(write = True)
 
     data = {
         'name': name,

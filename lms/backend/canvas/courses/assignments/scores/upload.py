@@ -1,7 +1,6 @@
 import typing
 
 import lms.backend.canvas.common
-import lms.model.constants
 import lms.model.scores
 
 BASE_ENDPOINT = "/api/v1/courses/{course_id}/assignments/{assignment_id}/submissions/update_grades"
@@ -17,9 +16,7 @@ def request(backend: typing.Any,
         return 0
 
     url = backend.server + BASE_ENDPOINT.format(course_id = course_id, assignment_id = assignment_id)
-    headers = backend.get_standard_headers()
-
-    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
+    headers = backend.get_standard_headers(write = True)
 
     data = {}
     for (user_id, score) in scores.items():

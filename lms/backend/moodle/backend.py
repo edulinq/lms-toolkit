@@ -55,6 +55,14 @@ class MoodleBackend(lms.model.backend.APIBackend):
         self._session_headers: typing.Union[typing.Dict[str, typing.Any], None] = None
         """ The headers (e.g., cookies) for our logged in Moodle session. """
 
+    def get_standard_headers(self, write: bool = False) -> typing.Dict[str, str]:
+        headers = super().get_standard_headers(write)
+
+        if (self._session_headers is not None):
+            headers.update(self._session_headers)
+
+        return headers
+
     def _parse_cookies(self, response: requests.Response) -> typing.Dict[str, typing.Any]:
         """
         Parse Moodle cookies.
@@ -143,7 +151,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
         self._login()
 
         url = self.server + "/user/profile.php"
-        response, _ = edq.net.request.make_get(url, headers = self._session_headers)
+        response, _ = edq.net.request.make_get(url, headers = self.get_standard_headers())
 
         document = bs4.BeautifulSoup(response.text, 'html.parser')
         cards = document.select('div.card-body')
@@ -181,7 +189,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
             course_id: str,
             **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
         url = f"{self.server}/user/index.php?id={course_id}&perpage={RESULTS_PER_PAGE}"
-        response, _ = edq.net.request.make_get(url, headers = self._session_headers)
+        response, _ = edq.net.request.make_get(url, headers = self.get_standard_headers())
 
         document = bs4.BeautifulSoup(response.text, 'html.parser')
 
