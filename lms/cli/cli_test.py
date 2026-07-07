@@ -17,5 +17,34 @@ class CLITest(edq.testing.unittest.BaseTest):
 
         return edq.testing.cli.compute_ancestor_basename(path, TEST_CASES_DIR)
 
+def disable_serverrunner_reset(
+    test: edq.testing.unittest.BaseTest,
+    test_info: edq.testing.cli.CLITestInfo,
+    ) -> None:
+    """
+    A setup/teardown function for disabling server runner resets.
+    """
+
+    server_runner = getattr(test, 'server_runner', None)
+    if (server_runner is None):
+        return
+
+    server_runner.skip_restart = True
+
+def enable_serverrunner_reset(
+    test: edq.testing.unittest.BaseTest,
+    test_info: edq.testing.cli.CLITestInfo,
+    ) -> None:
+    """
+    A setup/teardown function for enabling server runner resets.
+    """
+
+    server_runner = getattr(test, 'server_runner', None)
+    if (server_runner is None):
+        return
+
+    server_runner.skip_restart = False
+    server_runner.restart()
+
 # Populate CLITest with all the test methods.
 edq.testing.cli.discover_test_cases(CLITest, TEST_CASES_DIR, DATA_DIR)
