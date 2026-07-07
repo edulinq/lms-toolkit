@@ -79,15 +79,15 @@ class Gradebook(lms.model.base.BaseType):
     ]
 
     def __init__(self,
-            assignments: typing.List[lms.model.assignments.AssignmentQuery],
-            users: typing.List[lms.model.users.UserQuery],
+            assignments: typing.Sequence[lms.model.assignments.AssignmentQuery],
+            users: typing.Sequence[lms.model.users.UserQuery],
             **kwargs: typing.Any) -> None:
         super().__init__(**kwargs)
 
-        self.assignments: typing.List[lms.model.assignments.AssignmentQuery] = assignments
+        self.assignments: typing.List[lms.model.assignments.AssignmentQuery] = list(assignments)
         """ The assignments represented in this gradebook. """
 
-        self.users: typing.List[lms.model.users.UserQuery] = users
+        self.users: typing.List[lms.model.users.UserQuery] = list(users)
         """ The users represented in this gradebook. """
 
         self._entries: typing.Dict[str, AssignmentScore] = {}

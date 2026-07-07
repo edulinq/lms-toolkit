@@ -1,3 +1,5 @@
+import typing
+
 import lms.backend.testing
 import lms.model.assignments
 import lms.model.courses
@@ -7,11 +9,11 @@ import lms.model.testdata.users
 import lms.model.testdata.scores
 import lms.model.users
 
-def test_courses_gradebook_get_base(test: lms.backend.testing.BackendTest):
+def test_courses_gradebook_get_base(test: lms.backend.testing.BackendTest) -> None:
     """ Test the base functionality of getting a course's gradebook. """
 
     # [(kwargs (and overrides), expected, error substring), ...]
-    test_cases = [
+    test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], typing.Any, typing.Union[str, None]]] = [
         # Base
         (
             {
@@ -100,9 +102,13 @@ def test_courses_gradebook_get_base(test: lms.backend.testing.BackendTest):
         ),
     ]
 
-    test.base_request_test(test.backend.courses_gradebook_get, test_cases)
+    test.base_request_test(test.get_backend().courses_gradebook_get, test_cases)
 
-def _build_gradebook(course_name, allowed_assignment_names, allowed_user_names):
+def _build_gradebook(
+        course_name: str,
+        allowed_assignment_names: typing.Union[typing.List[str], None],
+        allowed_user_names: typing.Union[typing.List[str], None],
+        ) -> lms.model.scores.Gradebook:
     assignment_queries = []
     for assignment in sorted(lms.model.testdata.assignments.COURSE_ASSIGNMENTS[course_name].values()):
         if ((allowed_assignment_names is None) or (assignment.name in allowed_assignment_names)):

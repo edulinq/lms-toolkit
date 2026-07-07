@@ -1,10 +1,12 @@
+import typing
+
 import lms.backend.testing
 
-def test_courses_syllabus_fetch_base(test: lms.backend.testing.BackendTest):
+def test_courses_syllabus_fetch_base(test: lms.backend.testing.BackendTest) -> None:
     """ Test the base functionality of fetching a course's syllabus. """
 
     # [(kwargs (and overrides), expected, error substring), ...]
-    test_cases = [
+    test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], typing.Any, typing.Union[str, None]]] = [
         # Base
         (
             {
@@ -33,4 +35,4 @@ def test_courses_syllabus_fetch_base(test: lms.backend.testing.BackendTest):
         ),
     ]
 
-    test.base_request_test(test.backend.courses_syllabus_fetch, test_cases)
+    test.base_request_test(test.get_backend().courses_syllabus_fetch, test_cases)

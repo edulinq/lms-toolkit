@@ -1,4 +1,5 @@
 import copy
+import typing
 
 import lms.backend.testing
 import lms.model.courses
@@ -7,11 +8,11 @@ import lms.model.groupsets
 import lms.model.users
 import lms.model.testdata.groups
 
-def test_courses_groupsets_memberships_resolve_and_subtract_base(test: lms.backend.testing.BackendTest):
+def test_courses_groupsets_memberships_resolve_and_subtract_base(test: lms.backend.testing.BackendTest) -> None:
     """ Test the base functionality of resolving and subtracting group set memberships. """
 
     # [(kwargs (and overrides), expected, error substring), ...]
-    test_cases = [
+    test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], typing.Any, typing.Union[str, None]]] = [
         # No Op
         (
             {
@@ -72,8 +73,8 @@ def test_courses_groupsets_memberships_resolve_and_subtract_base(test: lms.backe
         ),
     ]
 
-    def _assertion_func(expected, actual):
-        # Convert the non-JSON keys.
+    def _assertion_func(expected: typing.Any, actual: typing.Any) -> None:
+        """ Convert the non-JSON keys. """
 
         clean_expected = {}
         for (key, value) in expected.items():
@@ -85,5 +86,5 @@ def test_courses_groupsets_memberships_resolve_and_subtract_base(test: lms.backe
 
         test.assertDictEqual(clean_expected, clean_actual)
 
-    test.base_request_test(test.backend.courses_groupsets_memberships_resolve_and_subtract, test_cases,
+    test.base_request_test(test.get_backend().courses_groupsets_memberships_resolve_and_subtract, test_cases,
             assertion_func = _assertion_func)

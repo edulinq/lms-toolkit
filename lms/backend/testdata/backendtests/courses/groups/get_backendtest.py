@@ -1,14 +1,16 @@
+import typing
+
 import lms.backend.testing
 import lms.model.courses
 import lms.model.groups
 import lms.model.groupsets
 import lms.model.testdata.groups
 
-def test_courses_groups_get_base(test: lms.backend.testing.BackendTest):
+def test_courses_groups_get_base(test: lms.backend.testing.BackendTest) -> None:
     """ Test the base functionality of getting course groups. """
 
     # [(kwargs (and overrides), expected, error substring), ...]
-    test_cases = [
+    test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], typing.Any, typing.Union[str, None]]] = [
         # Empty
         (
             {
@@ -170,4 +172,4 @@ def test_courses_groups_get_base(test: lms.backend.testing.BackendTest):
         ),
     ]
 
-    test.base_request_test(test.backend.courses_groups_get, test_cases)
+    test.base_request_test(test.get_backend().courses_groups_get, test_cases)

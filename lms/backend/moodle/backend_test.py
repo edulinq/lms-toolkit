@@ -1,7 +1,9 @@
 import os
+import typing
 
 import edq.testing.cli
 
+import lms.backend.moodle.backend
 import lms.backend.testing
 import lms.model.constants
 
@@ -39,20 +41,24 @@ class MoodleBackendTest(lms.backend.testing.BackendTest):
     def modify_cli_test_info(self, test_info: edq.testing.cli.CLITestInfo) -> None:
         super().modify_cli_test_info(test_info)
 
+        backend = typing.cast(lms.backend.moodle.backend.MoodleBackend, self.backend)
+
         if (test_info.extra_options.get('skip_auth', False) is not True):
             test_info.arguments += [
-                '--auth-user', self.backend.auth_user,
-                '--auth-password', self.backend.auth_password,
+                '--auth-user', backend.auth_user,
+                '--auth-password', backend.auth_password,
             ]
 
     def set_user(self, email: str) -> None:
         super().set_user(email)
 
+        backend = typing.cast(lms.backend.moodle.backend.MoodleBackend, self.backend)
+
         username = email.split('@')[0]
 
         # Remember that test passwords are the same as usernames.
-        self.backend.auth_user = username
-        self.backend.auth_password = username
+        backend.auth_user = username
+        backend.auth_password = username
 
 # Attatch tests to this class.
 lms.backend.testing.attach_test_cases(MoodleBackendTest)

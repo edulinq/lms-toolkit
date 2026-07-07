@@ -1,3 +1,5 @@
+import typing
+
 import edq.testing.unittest
 
 import lms.model.base
@@ -10,7 +12,7 @@ class TestBaseType(edq.testing.unittest.BaseTest):
 
     # JSON Dict
 
-    def test_as_json_dict_base(self):
+    def test_as_json_dict_base(self) -> None:
         """ Test converting to a JSON dict. """
 
         # [(input, kwargs, expected), ...]
@@ -69,11 +71,15 @@ class TestBaseType(edq.testing.unittest.BaseTest):
                 actual = value.as_json_dict(**kwargs)
                 self.assertJSONDictEqual(expected, actual)
 
-    def test_from_json_dict_base(self):
+    def test_from_json_dict_base(self) -> None:
         """ Test converting from a JSON dict. """
 
         # [(input, kwargs, expected), ...]
-        test_cases = [
+        test_cases: typing.List[typing.Tuple[
+            typing.Dict[str, typing.Any],
+            typing.Dict[str, typing.Any],
+            lms.model.base.BaseType,
+        ]] = [
             # Base - User
             (
                 {
@@ -109,7 +115,7 @@ class TestBaseType(edq.testing.unittest.BaseTest):
                 actual = type(expected).from_json_dict(value, **kwargs)
                 self.assertJSONEqual(expected, actual)
 
-    def test_json_dict_cyclic_serialization(self):
+    def test_json_dict_cyclic_serialization(self) -> None:
         """ Test converting to a JSON dict and back to an object. """
 
         # [(input, kwargs), ...]
@@ -147,7 +153,7 @@ class TestBaseType(edq.testing.unittest.BaseTest):
 
     # Text Rows
 
-    def test_as_text_rows_base(self):
+    def test_as_text_rows_base(self) -> None:
         """ Test converting to text rows. """
 
         # [(input, kwargs, expected), ...]
@@ -248,7 +254,7 @@ class TestBaseType(edq.testing.unittest.BaseTest):
 
     # Table Rows
 
-    def test_as_table_rows_base(self):
+    def test_as_table_rows_base(self) -> None:
         """ Test converting to table rows. """
 
         # [(input, kwargs, expected), ...]

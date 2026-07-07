@@ -11,7 +11,7 @@ def test_courses_quizzes_resolve_and_upload_base(test: lms.backend.testing.Backe
     """ Test the base functionality of resolving and uploading course quizzes. """
 
     # [(kwargs (and overrides), expected, error substring), ...]
-    test_cases = [
+    test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], typing.Any, typing.Union[str, None]]] = [
         # Base
         (
             {
@@ -24,7 +24,7 @@ def test_courses_quizzes_resolve_and_upload_base(test: lms.backend.testing.Backe
         ),
     ]
 
-    test.base_request_test(test.backend.courses_quizzes_resolve_and_upload, test_cases,
+    test.base_request_test(test.get_backend().courses_quizzes_resolve_and_upload, test_cases,
         disable_server_restart = True,
         actual_clean_func = _get_quiz_name,
     )
@@ -33,4 +33,4 @@ def _get_quiz_name(raw_quiz_metadata: typing.Any) -> str:
     """ Get the quiz name from the assignment. """
 
     quiz_metadata = typing.cast(lms.model.assignments.Assignment, raw_quiz_metadata)
-    return quiz_metadata.name
+    return str(quiz_metadata.name)

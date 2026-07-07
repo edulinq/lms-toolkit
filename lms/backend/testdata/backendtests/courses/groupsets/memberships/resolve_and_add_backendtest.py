@@ -1,4 +1,5 @@
 import copy
+import typing
 
 import lms.backend.testing
 import lms.model.courses
@@ -9,14 +10,14 @@ import lms.model.testdata.groups
 
 DUMMY_ID: str = '123456789'
 
-def test_courses_groupsets_memberships_resolve_and_add_base(test: lms.backend.testing.BackendTest):
+def test_courses_groupsets_memberships_resolve_and_add_base(test: lms.backend.testing.BackendTest) -> None:
     """ Test the base functionality of resolving and adding group set memberships. """
 
     created_group_name = 'test_group_1'
     created_group = lms.model.groups.Group(id = DUMMY_ID, name = created_group_name)
 
     # [(kwargs (and overrides), expected, error substring), ...]
-    test_cases = [
+    test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], typing.Any, typing.Union[str, None]]] = [
         # No Op
         (
             {
@@ -115,12 +116,12 @@ def test_courses_groupsets_memberships_resolve_and_add_base(test: lms.backend.te
         ),
     ]
 
-    def _assertion_func(expected, actual):
+    def _assertion_func(expected: typing.Any, actual: typing.Any) -> None:
+        """ Convert the non-JSON keys. """
+
         if (isinstance(expected, list)):
             test.assertJSONListEqual(expected, actual)
             return
-
-        # Convert the non-JSON keys.
 
         clean_expected = {}
         for (key, value) in expected.items():
@@ -132,8 +133,9 @@ def test_courses_groupsets_memberships_resolve_and_add_base(test: lms.backend.te
 
         test.assertDictEqual(clean_expected, clean_actual)
 
-    # IDs from the backend may be inconsistent.
-    def _clean_result(result):
+    def _clean_result(result: typing.Any) -> typing.Any:
+        """ IDs from the backend may be inconsistent. """
+
         result = copy.deepcopy(result)
 
         # Clean the created groups.
@@ -147,6 +149,6 @@ def test_courses_groupsets_memberships_resolve_and_add_base(test: lms.backend.te
 
         return result
 
-    test.base_request_test(test.backend.courses_groupsets_memberships_resolve_and_add, test_cases,
+    test.base_request_test(test.get_backend().courses_groupsets_memberships_resolve_and_add, test_cases,
             assertion_func = _assertion_func,
             actual_clean_func = _clean_result)

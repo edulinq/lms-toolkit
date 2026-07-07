@@ -141,6 +141,14 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
 
         self.clear_user()
 
+    def get_backend(self) -> lms.model.backend.APIBackend:
+        """ Get the backend or fail if there is no backend. """
+
+        if (self.backend is None):
+            self.fail("No backend is set.")
+
+        return self.backend
+
     def set_user(self, email: str) -> None:
         """
         Set the current user for this test.
