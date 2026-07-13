@@ -1,7 +1,15 @@
 {
     "cli": "lms.cli.courses.quizzes.upload",
-    "setup_funcs": ["lms.cli.cli_test.disable_serverrunner_reset"],
+    "setup_funcs": [
+        "edq.testing.cli.check_paths_or_skip",
+        "lms.cli.cli_test.disable_serverrunner_reset",
+    ],
     "teardown_funcs": ["lms.cli.cli_test.enable_serverrunner_reset"],
+    "extra_options": {
+        'paths_or_skip': [
+            "__DATA_DIR__(../../../../../testdata/lms-docker-canvas-testdata/lms-testdata//cse-cracks-course/quizzes/regex/quiz.json)",
+        ],
+    },
     "arguments": [
         "--course", "Course 101",
         "--force",

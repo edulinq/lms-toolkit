@@ -24,11 +24,12 @@ COURSE_QUIZZES_METADATA['Course 101'] = {
         description = (
             'This quiz is open note, open book, and open world.'
             + ' Assume all regular expressions are done in Python using the `re` standard library.'
-            + " Good luck!\n\n  \n\n\n* * *\n\nVersion: UNKNOWN"
+            + " Good luck!"
         ),
     ),
 }
 
-COURSE_QUIZZES['Course 101'] = {
-    'Regular Expressions': quizcomp.model.quiz.Quiz.from_path(QUIZ_PATH),
-}
+if (os.path.exists(QUIZ_PATH)):
+    COURSE_QUIZZES['Course 101'] = {
+        'Regular Expressions': quizcomp.model.quiz.Quiz.from_path(QUIZ_PATH),
+    }

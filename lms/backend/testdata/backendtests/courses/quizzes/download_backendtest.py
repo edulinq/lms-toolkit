@@ -7,6 +7,10 @@ import lms.model.testdata.quizzes
 def test_courses_quizzes_download_base(test: lms.backend.testing.BackendTest) -> None:
     """ Test the base functionality of downloading course quizzes. """
 
+    test_quiz = lms.model.testdata.quizzes.COURSE_QUIZZES.get('Course 101', {}).get('Regular Expressions', None)
+    if (test_quiz is None):
+        test.skipTest('Test quiz does not exist, does submodule exist?')
+
     # [(kwargs (and overrides), expected, error substring), ...]
     test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], typing.Any, typing.Union[str, None]]] = [
         # Base
