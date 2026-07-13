@@ -9,6 +9,7 @@ import edq.testing.unittest
 import edq.testing.httpserver
 import edq.util.pyimport
 import edq.util.serial
+import quizcomp.parser.math
 
 import lms.model.backend
 import lms.model.base
@@ -89,6 +90,19 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
         # Most backends have to modify exchanges in some way that makes these tests unreliable.
         # Instead, exchanges are tested enough through normal testing usage.
         self.skip_test_exchanges_base = True
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+
+        # Disable KaTeX for testing.
+        quizcomp.parser.math._katex_available = False
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        super().tearDownClass()
+
+        quizcomp.parser.math._katex_available = None
 
     @classmethod
     def setup_server(cls, server: edq.net.exchangeserver.HTTPExchangeServer) -> None:

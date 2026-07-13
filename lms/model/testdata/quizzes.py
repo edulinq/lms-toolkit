@@ -7,11 +7,8 @@ import lms.model.assignments
 
 THIS_DIR: str = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 ROOT_DIR: str = os.path.join(THIS_DIR, '..', '..', '..')
-# TEST
-# QUIZ_PATH: str = os.path.join(ROOT_DIR, 'testdata', 'lms-docker-canvas-testdata',
-#                               'lms-testdata', 'cse-cracks-course', 'quizzes', 'regex', 'quiz.json')
-# QUIZ_PATH: str = '/home/eriq/code/cse-cracks-course/quizzes/regex/quiz.json'
-QUIZ_PATH: str = '/home/eriq/code/quiz-composer/testdata/cse-cracks-course/quizzes/regex/quiz.json'
+QUIZ_PATH: str = os.path.join(ROOT_DIR,
+        'testdata', 'lms-docker-canvas-testdata', 'lms-testdata', 'cse-cracks-course', 'quizzes', 'regex', 'quiz.json')
 
 # {course_name: {name: quiz metadata, ...}, ...}
 COURSE_QUIZZES_METADATA: typing.Dict[str, typing.Dict[str, lms.model.assignments.Assignment]] = {}

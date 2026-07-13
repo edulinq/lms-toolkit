@@ -6,8 +6,7 @@
         "--course", "Course 101",
         "--force",
         "--log-level", "ERROR",
-        /* TEST */
-        "/home/eriq/code/quiz-composer/testdata/cse-cracks-course/quizzes/regex/quiz.json",
+        "__DATA_DIR__(../../../../../testdata/lms-docker-canvas-testdata/lms-testdata//cse-cracks-course/quizzes/regex/quiz.json)",
     ],
 }
 ---
