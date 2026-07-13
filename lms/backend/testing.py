@@ -130,6 +130,9 @@ class BackendTest(edq.testing.httpserver.HTTPServerTest):
         config = lms.model.config.Config.from_dict(config_data)
         cls.backend = lms.backend.instance.get_backend(config, **cls.backend_args)
 
+        if (cls.server_runner is not None):
+            cls.server_runner.backend = cls.backend
+
     @classmethod
     def get_base_args(cls) -> typing.Dict[str, typing.Any]:
         """ Get a copy of the base arguments for a request (function). """

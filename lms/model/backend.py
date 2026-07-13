@@ -69,6 +69,13 @@ class APIBackend():
 
         return self.testing
 
+    def reset_connection(self) -> None:
+        """
+        Inform the backend that their connection has been reset.
+        Note that this is not on the individual HTTP connection level, but instead on the server level.
+        For example, this is called when a testing server is reset (e.g., in a server runner).
+        """
+
     def get_standard_headers(self, write: bool = False) -> typing.Dict[str, str]:
         """
         Get standard headers for this backend.

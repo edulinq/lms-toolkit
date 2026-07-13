@@ -11,6 +11,7 @@ import edq.util.reflection
 
 import lms.backend.instance
 import lms.cli.parser
+import lms.model.backend
 import lms.model.constants
 import lms.util.net
 
@@ -41,6 +42,12 @@ class LMSServerRunner(edq.testing.serverrunner.ServerRunner):
         The type of server being run.
         This value will be resolved after the server is started
         (since part of resolution may involve pinging the server.
+        """
+
+        self.backend: typing.Union[lms.model.backend.APIBackend, None] = None
+        """
+        The backend currently being used while this server runner is active.
+        This may not always be set.
         """
 
         self._old_exchanges_clean_response_func: typing.Union[str, None] = None
@@ -132,6 +139,13 @@ class LMSServerRunner(edq.testing.serverrunner.ServerRunner):
         self._old_exchanges_finalize_func = None
 
         return True
+
+    def restart(self) -> None:
+        super().restart()
+
+        # Inform the backend that a restart happened.
+        if (self.backend is not None):
+            self.backend.reset_connection()
 
     def identify_server(self) ->  bool:
         try:

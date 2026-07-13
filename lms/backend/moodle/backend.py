@@ -55,6 +55,9 @@ class MoodleBackend(lms.model.backend.APIBackend):
         self._session_headers: typing.Union[typing.Dict[str, typing.Any], None] = None
         """ The headers (e.g., cookies) for our logged in Moodle session. """
 
+    def reset_connection(self) -> None:
+        self._session_headers = None
+
     def get_standard_headers(self, write: bool = False) -> typing.Dict[str, str]:
         headers = super().get_standard_headers(write)
 
@@ -188,6 +191,8 @@ class MoodleBackend(lms.model.backend.APIBackend):
     def courses_users_list(self,
             course_id: str,
             **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
+        self._login()
+
         url = f"{self.server}/user/index.php?id={course_id}&perpage={RESULTS_PER_PAGE}"
         response, _ = edq.net.request.make_get(url, headers = self.get_standard_headers())
 

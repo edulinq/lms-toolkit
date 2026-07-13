@@ -42,6 +42,9 @@ class BlackboardBackend(lms.model.backend.APIBackend):
         self._session_headers: typing.Union[typing.Dict[str, typing.Any], None] = None
         """ The headers (e.g., cookies) for our logged in Blackboard session. """
 
+    def reset_connection(self) -> None:
+        self._session_headers = None
+
     def get_standard_headers(self, write: bool = False) -> typing.Dict[str, str]:
         headers = super().get_standard_headers(write)
 
