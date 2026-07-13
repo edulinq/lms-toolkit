@@ -31,7 +31,7 @@ function main() {
 
     # Build the base docs.
     # Ignore warnings caused by bugs in pdoc.
-    pdoc --output-directory "${outputDir}" "${PACKAGE_DIR}" ${FILE_PATTERNS} 2>&1 | $(grep -v "Import of PODType failed: name 'PODType' is not defined" || true)
+    pdoc --output-directory "${outputDir}" "${PACKAGE_DIR}" ${FILE_PATTERNS}
     if [[ $? -ne 0 ]] ; then
         echo "Failed to generate docs."
         return 2
