@@ -28,7 +28,7 @@ This project is not affiliated with any LMS developer/provider.
        - [Retrieve Gradebook](#retrieve-gradebook)
        - [Upload Gradebook](#upload-gradebook)
      - Quizzes
-       - [Retrieve Quiz Metadata](#retrieve-quizzes)
+       - [Retrieve Quiz Metadata](#retrieve-quiz-metadata)
        - [Download Quizzes](#download-quizzes)
        - [Upload Quizzes](#upload-quizzes)
        - [Remove Quizzes](#remove-quizzes)
