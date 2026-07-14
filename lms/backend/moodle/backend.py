@@ -1,5 +1,6 @@
 # pylint: disable=abstract-method
 
+import json
 import logging
 import re
 import typing
@@ -50,6 +51,53 @@ class MoodleBackend(lms.model.backend.APIBackend):
 
         self._session_headers: typing.Union[typing.Dict[str, typing.Any], None] = None
         """ The headers (e.g., cookies) for our logged in Moodle session. """
+
+        self._edit_mode_enabled = False
+        """ The session edit mode state. """
+
+    def _enable_edit_mode(self, url: str) -> None:
+        """
+        Enable Moodle edit mode if not yet enabled.
+        """
+
+        response, _ = edq.net.request.make_get(url, headers = self._session_headers)
+
+        sesskey_match = re.search(r'"sesskey":"([^"]+)"', response.text)
+        if (sesskey_match):
+            sesskey = sesskey_match.group(1)
+
+        document = bs4.BeautifulSoup(response.text, 'html.parser')
+
+        try:
+            context = document.select_one('input[name=setmode]').get('data-context', None)  # type: ignore[union-attr]
+        except AttributeError:
+            _logger.warning("Unable to enable edit mode.")
+            return
+
+        params = {
+            'sesskey': sesskey,
+            'info': 'core_change_editmode',
+        }
+
+        data = [
+            {
+                'index': 0,
+                'methodname': 'core_change_editmode',
+                'args': {
+                    'setmode': True,
+                    'context': int(context),
+                },
+            }
+        ]
+
+        response, _ = edq.net.request.make_post(
+            f"{self.server}/lib/ajax/service.php",
+            additional_requests_options = {'params': params},
+            data = json.dumps(data),
+            headers = self._session_headers,
+        )
+
+        self._edit_mode_enabled = True
 
     def _parse_cookies(self, response: requests.Response) -> typing.Dict[str, typing.Any]:
         """
@@ -110,6 +158,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
                 # Insert a header to identify the user.
                 'edq-lms-moodle-user': self._username,
             }
+
             return
 
         # Login Failed
@@ -176,6 +225,8 @@ class MoodleBackend(lms.model.backend.APIBackend):
     def courses_users_list(self,
             course_id: str,
             **kwargs: typing.Any) -> typing.List[lms.model.users.CourseUser]:
+        self._login()
+
         url = f"{self.server}/user/index.php?id={course_id}&perpage={RESULTS_PER_PAGE}"
         response, _ = edq.net.request.make_get(url, headers = self._session_headers)
 
@@ -241,7 +292,11 @@ class MoodleBackend(lms.model.backend.APIBackend):
                 course_id: str,
                 **kwargs: typing.Any) -> typing.List[lms.model.assignments.Assignment]:
         self._login()
+
         url = f"{self.server}/grade/report/grader/index.php?id={course_id}"
+
+        self._enable_edit_mode(url)
+
         response, _ = edq.net.request.make_get(url, headers = self._session_headers)
 
         document = bs4.BeautifulSoup(response.text, 'html.parser')
@@ -260,19 +315,20 @@ class MoodleBackend(lms.model.backend.APIBackend):
                     break
 
             try:
-                id = activity.select_one('div.dropdown-menu a[role=grader]').get('data-courseid', None)
-                name = activity.select_one('a.gradeitemheader').get_text()  # type: ignore[union-attr]
-                points_possible = document.select_one(f'td.gradecell div.cell.{target_class} input').get('max', None)
+                id = str(activity.get('data-itemid', None))
+                name = str(activity.select_one('a.gradeitemheader').get_text())  # type: ignore[union-attr]
+                points_possible = float(document.select_one(f'td.{target_class} input').get('max', None))
             except AttributeError:
                 _logger.warning("Unable to retrieve assignment. Moodle data structure has changed. Contact project developers.")
-
-            if (not type(points_possible) is str):
+                print("##############")
+                print(target_class)
+                print("##############")
                 continue
 
             assignments.append(lms.model.assignments.Assignment(
-                id = str(id),
-                name = str(name),
-                points_possible = float(points_possible),
+                id = id,
+                name = name,
+                points_possible = points_possible,
             ))
 
         return assignments
