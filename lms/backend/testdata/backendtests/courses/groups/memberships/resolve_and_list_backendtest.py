@@ -1,14 +1,16 @@
+import typing
+
 import lms.backend.testing
 import lms.model.courses
 import lms.model.groups
 import lms.model.groupsets
 import lms.model.testdata.groups
 
-def test_courses_groups_memberships_resolve_and_list_base(test: lms.backend.testing.BackendTest):
+def test_courses_groups_memberships_resolve_and_list_base(test: lms.backend.testing.BackendTest) -> None:
     """ Test the base functionality of resolving and listing group memberships. """
 
     # [(kwargs (and overrides), expected, error substring), ...]
-    test_cases = [
+    test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], typing.Any, typing.Union[str, None]]] = [
         (
             {
                 'course_query': lms.model.courses.CourseQuery(id = '110000000'),
@@ -77,4 +79,4 @@ def test_courses_groups_memberships_resolve_and_list_base(test: lms.backend.test
         ),
     ]
 
-    test.base_request_test(test.backend.courses_groups_memberships_resolve_and_list, test_cases)
+    test.base_request_test(test.get_backend().courses_groups_memberships_resolve_and_list, test_cases)

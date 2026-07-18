@@ -1,0 +1,32 @@
+{
+    "cli": "lms.cli.config.list",
+    "setup_funcs": [
+        "edq.testing.cli.create_directory_structure",
+    ],
+    "arguments": [
+        "--config-global", "global.json",
+        "--config-file", "foo.json",
+        "--config-file", "bar.json",
+        "--config", "pass=password1234",
+        "--config", "server=http://test.edulinq.org"
+    ],
+    "work_dir": "__TEMP_DIR__()",
+    "extra_options": {
+        "directory_structure": [
+            ["global.json", {
+            }],
+            ["foo.json", {
+                "user": "user@test.edulinq.org",
+            }],
+            ["bar.json", {
+                "api-key": "KEY-1234567890",
+            }],
+        ],
+    },
+}
+---
+Key	Value
+api-key	KEY-1234567890
+pass	password1234
+server	http://test.edulinq.org
+user	user@test.edulinq.org

@@ -1,14 +1,14 @@
 import re
 import typing
 
-import edq.util.json
+import edq.util.serial
 
 import lms.model.base
 import lms.util.string
 
 T = typing.TypeVar('T')
 
-class BaseQuery(edq.util.json.DictConverter):
+class BaseQuery(edq.util.serial.DictConverter):
     """
     Queries are ways that users can attempt to refer to some object with uncertainty.
     This allows users to refer to objects by name, for example, instead of by id.
@@ -78,8 +78,10 @@ class BaseQuery(edq.util.json.DictConverter):
 
         return True
 
-    def to_dict(self) -> typing.Dict[str, typing.Any]:
-        data = {
+    def to_dict(self,
+            context: typing.Union[edq.util.serial.SerializationContext, None] = None,
+            ) -> typing.Dict[str, edq.util.serial.PODType]:
+        data: typing.Dict[str, edq.util.serial.PODType] = {
             'id': self.id,
             'name': self.name,
         }

@@ -17,7 +17,7 @@ function main() {
         exit 1
     fi
 
-    set -e
+    set -o pipefail
     trap exit SIGINT
 
     local outputDir=$DEFAULT_OUT_DIR
@@ -30,6 +30,7 @@ function main() {
     mkdir -p "${outputDir}"
 
     # Build the base docs.
+    # Ignore warnings caused by bugs in pdoc.
     pdoc --output-directory "${outputDir}" "${PACKAGE_DIR}" ${FILE_PATTERNS}
     if [[ $? -ne 0 ]] ; then
         echo "Failed to generate docs."

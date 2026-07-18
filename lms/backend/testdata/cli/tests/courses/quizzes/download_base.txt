@@ -1,0 +1,12 @@
+{
+    "cli": "lms.cli.courses.quizzes.download",
+    "arguments": [
+        "--course", "Course 101",
+        "--out-dir", "__TEMP_DIR__()",
+        "--skip-fetch-images",
+        "Regular Expressions",
+    ],
+}
+---
+Wrote quiz 'Regular Expressions' to '__TEMP_DIR__(Regular Expressions)'.
+1 quizzes written.

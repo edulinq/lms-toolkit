@@ -1,12 +1,14 @@
+import typing
+
 import lms.backend.testing
-import lms.model.quizzes
+import lms.model.assignments
 import lms.model.testdata.quizzes
 
-def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
+def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest) -> None:
     """ Test the base functionality of getting course quizzes. """
 
     # [(kwargs (and overrides), expected, error substring), ...]
-    test_cases = [
+    test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], typing.Any, typing.Union[str, None]]] = [
         # Empty
         (
             {
@@ -23,11 +25,11 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
             {
                 'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'quiz_queries': [
-                    lms.model.quizzes.QuizQuery(id = '110000200'),
+                    lms.model.assignments.AssignmentQuery(id = '110000200'),
                 ],
             },
             [
-                lms.model.testdata.quizzes.COURSE_QUIZZES['Course 101']['Regular Expressions'],
+                lms.model.testdata.quizzes.COURSE_QUIZZES_METADATA['Course 101']['Regular Expressions'],
             ],
             None,
         ),
@@ -38,11 +40,11 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
             {
                 'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'quiz_queries': [
-                    lms.model.quizzes.QuizQuery(name = 'Regular Expressions'),
+                    lms.model.assignments.AssignmentQuery(name = 'Regular Expressions'),
                 ],
             },
             [
-                lms.model.testdata.quizzes.COURSE_QUIZZES['Course 101']['Regular Expressions'],
+                lms.model.testdata.quizzes.COURSE_QUIZZES_METADATA['Course 101']['Regular Expressions'],
             ],
             None,
         ),
@@ -52,11 +54,11 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
             {
                 'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'quiz_queries': [
-                    lms.model.quizzes.QuizQuery(name = 'Regular Expressions', id = '110000200'),
+                    lms.model.assignments.AssignmentQuery(name = 'Regular Expressions', id = '110000200'),
                 ],
             },
             [
-                lms.model.testdata.quizzes.COURSE_QUIZZES['Course 101']['Regular Expressions'],
+                lms.model.testdata.quizzes.COURSE_QUIZZES_METADATA['Course 101']['Regular Expressions'],
             ],
             None,
         ),
@@ -66,7 +68,7 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
             {
                 'course_query': lms.model.courses.CourseQuery(id = '999'),
                 'quiz_queries': [
-                    lms.model.quizzes.QuizQuery(id = '110000200'),
+                    lms.model.assignments.AssignmentQuery(id = '110000200'),
                 ],
             },
             None,
@@ -78,7 +80,7 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
             {
                 'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'quiz_queries': [
-                    lms.model.quizzes.QuizQuery(id = '999'),
+                    lms.model.assignments.AssignmentQuery(id = '999'),
                 ],
             },
             [
@@ -91,7 +93,7 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
             {
                 'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'quiz_queries': [
-                    lms.model.quizzes.QuizQuery(name = 'ZZZ'),
+                    lms.model.assignments.AssignmentQuery(name = 'ZZZ'),
                 ],
             },
             [
@@ -104,7 +106,7 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
             {
                 'course_query': lms.model.courses.CourseQuery(id = '110000000'),
                 'quiz_queries': [
-                    lms.model.quizzes.QuizQuery(id = '110000200', name = 'ZZZ'),
+                    lms.model.assignments.AssignmentQuery(id = '110000200', name = 'ZZZ'),
                 ],
             },
             [
@@ -113,4 +115,4 @@ def test_courses_quizzes_get_base(test: lms.backend.testing.BackendTest):
         ),
     ]
 
-    test.base_request_test(test.backend.courses_quizzes_get, test_cases)
+    test.base_request_test(test.get_backend().courses_quizzes_get, test_cases)

@@ -1,0 +1,18 @@
+{
+    "cli": "lms.cli.courses.users.get",
+    "extra_options": {
+        "skip_auth": true
+    },
+    "arguments": [
+        "--course", "Course 101",
+        "--auth-user", "course-owner",
+        "--auth-password", "course-owner",
+        "--auth-token", "xkC8V8BWX4RFx7JMYyZuyDvtDAKRxuGHRxTR268eHzXCPYU46vw89DrBADat4n6U",
+        "course-owner@test.edulinq.org",
+    ],
+}
+---
+id: 100040000
+name: course-owner
+email: course-owner@test.edulinq.org
+role: owner

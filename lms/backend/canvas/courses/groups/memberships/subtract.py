@@ -1,7 +1,6 @@
 import typing
 
 import lms.backend.canvas.common
-import lms.model.constants
 
 BASE_ENDPOINT = "/api/v1/groups/{group_id}/users"
 
@@ -14,9 +13,7 @@ def request(backend: typing.Any,
     """ Subtract users from a group. """
 
     url = backend.server + BASE_ENDPOINT.format(group_id = group_id)
-    headers = backend.get_standard_headers()
-
-    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
+    headers = backend.get_standard_headers(write = True)
 
     data = {
         'user_ids[]': sorted(user_ids),

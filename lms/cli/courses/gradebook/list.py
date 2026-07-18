@@ -12,9 +12,8 @@ import lms.cli.parser
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
-    config = args._config
-
-    backend = lms.backend.instance.get_backend(**config)
+    config = args._config_info.application_config
+    backend = lms.backend.instance.get_backend(config)
 
     course_query = lms.cli.common.check_required_course(backend, config)
     if (course_query is None):
@@ -22,7 +21,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
     gradebook = backend.courses_gradebook_resolve_and_list(course_query)
 
-    output = lms.model.base.base_list_to_output_format([gradebook], args.output_format,
+    output = lms.model.base.base_list_to_output_format([gradebook], config.output_format,
             skip_headers = args.skip_headers,
             pretty_headers = args.pretty_headers,
             include_extra_fields = args.include_extra_fields,

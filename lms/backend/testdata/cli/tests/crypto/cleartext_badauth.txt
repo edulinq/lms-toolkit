@@ -1,0 +1,17 @@
+{
+    "cli": "lms.cli.courses.users.get",
+    "extra_options": {
+        "skip_auth": true,
+        "skip_backends": ['blackboard']
+    },
+    "arguments": [
+        "--course", "Course 101",
+        "--auth-user", "course-owner",
+        "--auth-password", "ZZZ",
+        "--auth-token", "ZZZ",
+        "course-owner@test.edulinq.org",
+    ],
+    "error": true,
+    "stdout_assertion_func": "edq.testing.asserts.has_content",
+}
+---

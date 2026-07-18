@@ -19,9 +19,8 @@ import lms.model.users
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
-    config = args._config
-
-    backend = lms.backend.instance.get_backend(**config)
+    config = args._config_info.application_config
+    backend = lms.backend.instance.get_backend(config)
 
     course_query = lms.cli.common.check_required_course(backend, config)
     if (course_query is None):
@@ -37,7 +36,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(f"Uploaded {count} Scores")
 
-    return lms.cli.common.strict_check(args.strict, (count != len(scores)),
+    return lms.cli.common.strict_check(config, (count != len(scores)),
         f"Expected to upload {len(scores)} scores, but uploaded {count}.", 3)
 
 def _load_scores(

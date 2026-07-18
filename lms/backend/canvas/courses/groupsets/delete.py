@@ -1,7 +1,6 @@
 import typing
 
 import lms.backend.canvas.common
-import lms.model.constants
 
 BASE_ENDPOINT = "/api/v1/group_categories/{groupset_id}"
 
@@ -12,9 +11,7 @@ def request(backend: typing.Any,
     """ Delete a group set. """
 
     url = backend.server + BASE_ENDPOINT.format(groupset_id = groupset_id)
-    headers = backend.get_standard_headers()
-
-    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
+    headers = backend.get_standard_headers(write = True)
 
     raw_object = lms.backend.canvas.common.make_delete_request(url, headers = headers)
     if (raw_object is None):

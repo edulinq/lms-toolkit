@@ -4,7 +4,6 @@ import typing
 import edq.util.dirent
 
 import lms.backend.canvas.common
-import lms.model.constants
 
 BASE_ENDPOINT = "/api/v1/group_categories/{groupset_id}/import"
 
@@ -17,9 +16,7 @@ def request(backend: typing.Any,
     """ Add users to a group. """
 
     url = backend.server + BASE_ENDPOINT.format(groupset_id = groupset_id)
-    headers = backend.get_standard_headers()
-
-    headers[lms.model.constants.HEADER_KEY_WRITE] = 'true'
+    headers = backend.get_standard_headers(write = True)
 
     # Build a CSV.
     rows = ["canvas_user_id,canvas_group_id"]

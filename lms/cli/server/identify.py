@@ -12,14 +12,14 @@ import lms.cli.parser
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
-    config = args._config
+    config = args._config_info.application_config
 
-    backend_type = lms.backend.instance.guess_backend_type(**config)
-    if (backend_type is None):
+    lms.backend.instance.guess_backend_type(config)
+    if (config.backend_type is None):
         print(f"ERROR: Unable to determine backend type from server '{config.get('server', '')}'.")
         return 1
 
-    print(backend_type)
+    print(config.backend_type.value)
     return 0
 
 def main() -> int:

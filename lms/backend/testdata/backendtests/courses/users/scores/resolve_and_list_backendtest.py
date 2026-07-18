@@ -1,14 +1,16 @@
+import typing
+
 import lms.backend.testing
 import lms.model.courses
 import lms.model.testdata.scores
 
-def test_courses_users_scores_resolve_and_list_base(test: lms.backend.testing.BackendTest):
+def test_courses_users_scores_resolve_and_list_base(test: lms.backend.testing.BackendTest) -> None:
     """ Test the base functionality of listing users' scores. """
 
     scores = lms.model.testdata.scores.COURSE_ASSIGNMENT_SCORES
 
     # [(kwargs (and overrides), expected, error substring), ...]
-    test_cases = [
+    test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], typing.Any, typing.Union[str, None]]] = [
         (
             {
                 'course_query': lms.model.courses.CourseQuery(id = '110000000'),
@@ -93,4 +95,4 @@ def test_courses_users_scores_resolve_and_list_base(test: lms.backend.testing.Ba
         ),
     ]
 
-    test.base_request_test(test.backend.courses_users_scores_resolve_and_list, test_cases)
+    test.base_request_test(test.get_backend().courses_users_scores_resolve_and_list, test_cases)

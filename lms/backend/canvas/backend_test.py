@@ -3,6 +3,7 @@ import typing
 
 import edq.testing.cli
 
+import lms.backend.canvas.backend
 import lms.backend.testing
 import lms.model.constants
 
@@ -36,9 +37,9 @@ class CanvasBackendTest(lms.backend.testing.BackendTest):
 
     @classmethod
     def child_class_setup(cls) -> None:
-        cls.server_key = lms.model.constants.BACKEND_TYPE_CANVAS
+        cls.server_key = lms.model.constants.BackendType.CANVAS.value
 
-        cls.backend_type = lms.model.constants.BACKEND_TYPE_CANVAS
+        cls.backend_type = lms.model.constants.BackendType.CANVAS
 
         cls.exchanges_dir = CANVAS_TEST_EXCHANGES_DIR
 
@@ -56,21 +57,28 @@ class CanvasBackendTest(lms.backend.testing.BackendTest):
     def modify_cli_test_info(self, test_info: edq.testing.cli.CLITestInfo) -> None:
         super().modify_cli_test_info(test_info)
 
-        test_info.arguments += [
-            '--auth-token', self.backend.auth_token,
-        ]
+        backend = typing.cast(lms.backend.canvas.backend.CanvasBackend, self.backend)
+
+        if (test_info.extra_options.get('skip_auth', False) is not True):
+            test_info.arguments += [
+                '--auth-token', backend.auth_token,
+            ]
 
     def set_user(self, email: str) -> None:
         super().set_user(email)
 
+        backend = typing.cast(lms.backend.canvas.backend.CanvasBackend, self.backend)
+
         # Update the token the backend is using.
-        self.backend.auth_token = USER_TOKENS[email]
+        backend.auth_token = USER_TOKENS[email]
 
     def clear_user(self) -> None:
         super().clear_user()
 
+        backend = typing.cast(lms.backend.canvas.backend.CanvasBackend, self.backend)
+
         # Switch back to the default token.
-        self.backend.auth_token = DEFAULT_TOKEN
+        backend.auth_token = DEFAULT_TOKEN
 
 # Attatch tests to this class.
 lms.backend.testing.attach_test_cases(CanvasBackendTest)

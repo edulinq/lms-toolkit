@@ -11,6 +11,7 @@ This project is not affiliated with any LMS developer/provider.
  - [Installation](#installation)
  - [Usage Notes](#usage-notes)
    - [Authentication](#authentication)
+     - [Canvas Access Tokens](#canvas-access-tokens)
    - [Object Queries](#object-queries)
    - [Output Formats](#output-formats)
    - [Retrieval Operations](#retrieval-operations)
@@ -27,13 +28,10 @@ This project is not affiliated with any LMS developer/provider.
        - [Retrieve Gradebook](#retrieve-gradebook)
        - [Upload Gradebook](#upload-gradebook)
      - Quizzes
-       - [Retrieve Quizzes](#retrieve-quizzes)
-       - [Write Quizzes](#write-quizzes)
-       - Questions
-         - [Retrieve Quiz Questions](#retrieve-quiz-questions)
-         - [Write Quiz Questions](#write-quiz-questions)
-       - Question Groups
-         - [Retrieve Quiz Question Groups](#retrieve-quiz-question-groups)
+       - [Retrieve Quiz Metadata](#retrieve-quiz-metadata)
+       - [Download Quizzes](#download-quizzes)
+       - [Upload Quizzes](#upload-quizzes)
+       - [Remove Quizzes](#remove-quizzes)
      - Syllabus
        - [Retrieve Syllabus](#retrieve-syllabus)
      - User Groupings
@@ -118,6 +116,14 @@ Whereas a Blackboard/Moodle config file may look like:
     "auth_password": "abc123"
 }
 ```
+
+#### Canvas Access Tokens
+
+Canvas access tokens are generated tokens (random numbers/letters) unique to a specific Canvas user.
+A token provides a means of authenticating a user and password in one piece of information.
+To acquire a Canvas access token, see [Instructure's directions](https://community.instructure.com/en/kb/articles/662901-how-do-i-manage-api-access-tokens-in-my-user-account).
+The standard procedure for obtaining a new token is to go to your account settings ("Account" -> "Settings"), and under "Approved Integrations" click "+ New Access Token".
+This process may be different for your specific institution and you should contact your institution's Canvas administrators for support.
 
 ### Object Queries
 
@@ -281,71 +287,57 @@ Only the assignments and students of interest need to be included.
 An empty cell (missing score) will be ignored,
 but all rows must have the correct number of cells (tabs).
 
-### Retrieve Quizzes
+### Retrieve Quiz Metadata
 
 List all quizzes associated with a course with `lms.cli.courses.quizzes.list`:
 ```sh
 python3 -m lms.cli.courses.quizzes.list --course 'Course 101'
 ```
 
+Note that this will only retrieve information about a quiz,
+not the full quiz itself (see [Downoad Quizzes](#download-quizzes) for that).
+
 You can get a single quiz with `lms.cli.courses.quizzes.get`:
 ```sh
 python3 -m lms.cli.courses.quizzes.get --course 'Course 101' 'Regular Expressions'
 ```
 
-### Write Quizzes
+### Download Quizzes
 
-Write all quizzes in a course to a directory (in the [Quiz Composer](https://github.com/edulinq/quiz-composer) format)
-with `lms.cli.courses.quizzes.write`:
+Download all quizzes in a course to a directory (in the [Quiz Composer](https://github.com/edulinq/quiz-composer) format)
+with `lms.cli.courses.quizzes.download`:
 ```sh
-python3 -m lms.cli.courses.quizzes.write --course 'Course 101' --out-dir 'out'
+python3 -m lms.cli.courses.quizzes.download --course 'Course 101' --out-dir 'out'
 ```
 
-You can also specify specific quizzes to write instead of all quizzes:
+You can also specify specific quizzes to download instead of all quizzes:
 ```sh
-python3 -m lms.cli.courses.quizzes.write --course 'Course 101' --out-dir 'out' 'Regular Expressions'
+python3 -m lms.cli.courses.quizzes.download --course 'Course 101' --out-dir 'out' 'Regular Expressions'
+```
+
+### Upload Quizzes
+
+Upload a quiz (in the [Quiz Composer](https://github.com/edulinq/quiz-composer) format)
+with `lms.cli.courses.quizzes.upload`:
+```sh
+python3 -m lms.cli.courses.quizzes.upload --course 'Course 101' --out-dir 'out'
+```
+
+You can also specify specific quizzes to upload instead of all quizzes:
+```sh
+python3 -m lms.cli.courses.quizzes.upload --course 'Course 101' my-quiz/quiz.json
 ```
 
 ### Retrieve Quiz Questions
 
-List all questions for a quiz with `lms.cli.courses.quizzes.questions.list`:
+Remove a quiz from the LMS with `lms.cli.courses.quizzes.remove`:
 ```sh
-python3 -m lms.cli.courses.quizzes.questions.list --course 'Course 101' --quiz 'Regular Expressions'
+python3 -m lms.cli.courses.quizzes.remove --course 'Course 101' 'Regular Expressions'
 ```
 
-You can get a single question with `lms.cli.courses.quizzes.questions.get`:
+You can remove multiple quizzes at once by specifying each quiz you want to remove:
 ```sh
-python3 -m lms.cli.courses.quizzes.questions.get --course 'Course 101' --quiz 'Regular Expressions' 'Regex Golf'
-```
-
-### Write Quiz Questions
-
-Write all questions for a quiz to a directory (in the [Quiz Composer](https://github.com/edulinq/quiz-composer) format)
-with `lms.cli.courses.quizzes.questions.write`:
-```sh
-python3 -m lms.cli.courses.quizzes.questions.write --course 'Course 101' --quiz 'Regular Expressions' --out-dir 'out'
-```
-
-You can also specify specific questions to write instead of all questions:
-```sh
-python3 -m lms.cli.courses.quizzes.write --course 'Course 101' --quiz 'Regular Expressions' --out-dir 'out' 'Regex Golf'
-```
-
-### Retrieve Quiz Question Groups
-
-A "question group" (or just "group") is a collection of possible quiz questions.
-When creating a quiz, questions are placed into a group.
-Then, when the quiz is printed/generated/taken, a subset of a group's questions are chosen (usually at random).
-This allows for different quiz variants.
-
-List all question groups for a quiz with `lms.cli.courses.quizzes.groups.list`:
-```sh
-python3 -m lms.cli.courses.quizzes.groups.list --course 'Course 101' --quiz 'Regular Expressions'
-```
-
-You can get a single question group with `lms.cli.courses.quizzes.groups.get`:
-```sh
-python3 -m lms.cli.courses.quizzes.groups.get --course 'Course 101' --quiz 'Regular Expressions' 'General Quantification'
+python3 -m lms.cli.courses.quizzes.remove --course 'Course 101' 'Regular Expressions' 'Some Other Quiz'
 ```
 
 ### Retrieve Syllabus
@@ -572,14 +564,11 @@ Legend:
 | lms.cli.courses.groupsets.memberships.list      | `-`        | ✅     | `-`    |
 | lms.cli.courses.groupsets.memberships.set       | `-`        | ✅     | `-`    |
 | lms.cli.courses.groupsets.memberships.subtract  | `-`        | ✅     | `-`    |
+| lms.cli.courses.quizzes.download                | `-`        | ✅     | `-`    |
 | lms.cli.courses.quizzes.get                     | `-`        | ✅     | `-`    |
 | lms.cli.courses.quizzes.list                    | `-`        | ✅     | `-`    |
-| lms.cli.courses.quizzes.write                   | `-`        | ✅     | `-`    |
-| lms.cli.courses.quizzes.groups.get              | `-`        | ✅     | `-`    |
-| lms.cli.courses.quizzes.groups.list             | `-`        | ✅     | `-`    |
-| lms.cli.courses.quizzes.questions.get           | `-`        | ✅     | `-`    |
-| lms.cli.courses.quizzes.questions.list          | `-`        | ✅     | `-`    |
-| lms.cli.courses.quizzes.questions.write         | `-`        | ✅     | `-`    |
+| lms.cli.courses.quizzes.remove                  | `-`        | ✅     | `-`    |
+| lms.cli.courses.quizzes.upload                  | `-`        | ✅     | `-`    |
 | lms.cli.courses.syllabus.get                    | `-`        | ✅     | `-`    |
 | lms.cli.courses.users.get                       | ✅         | ✅     | ✅     |
 | lms.cli.courses.users.list                      | ✅         | ✅     | ✅     |

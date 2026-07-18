@@ -6,18 +6,21 @@ import argparse
 import typing
 
 import edq.core.argparser
-import edq.net.exchange
+import edq.net.settings
 import edq.util.reflection
 
 import lms
+import lms.model.config
 import lms.model.constants
 import lms.util.net
 
 CONFIG_FILENAME: str = 'edq-lms.json'
+ENV_CONFIG_PREFIX: str = 'EDQLMS__'
+DEFAULT_ENCRYPTION_KEY: str = 'EDQLMS'
 
 DEFAULT_SKIP_ROWS: int = 0
 
-_set_exchanges_clean_func: bool = True  # pylint: disable=invalid-name
+_set_exchanges_clean_response_func: bool = True  # pylint: disable=invalid-name
 """
 Whether to set the exchanges clean function when creating the parser.
 This may be disabled for testing.
@@ -41,34 +44,22 @@ def get_parser(description: str,
     Get an argument parser specialized for LMS Toolkit.
     """
 
-    config_options = {
-        'config_filename': CONFIG_FILENAME,
-        'cli_arg_config_map': {
-            'server': 'server',
-            'backend_type': 'backend_type',
-            'auth_user': 'auth_user',
-            'auth_password': 'auth_password',
-            'auth_token': 'auth_token',
-            'course': 'course',
-            'assignment': 'assignment',
-            'quiz': 'quiz',
-            'user': 'user',
-            'group': 'group',
-            'groupset': 'groupset',
-        },
-    }
+    # Set config options.
+    edq.config.settings.set_config_filename(CONFIG_FILENAME)
+    edq.config.settings.set_application_config_class(lms.model.config.Config)
+    edq.config.settings.set_env_prefix(ENV_CONFIG_PREFIX)
+    edq.config.settings.set_default_encryption_key(DEFAULT_ENCRYPTION_KEY)
 
     parser = edq.core.argparser.get_default_parser(
             description,
             version = f"v{lms.__version__}",
             include_net = include_net,
-            config_options = config_options,
     )
 
     # Ensure that responses are cleaned as LMS responses.
     if (include_net):
-        if (_set_exchanges_clean_func):
-            edq.net.exchange._exchanges_clean_func = edq.util.reflection.get_qualified_name(lms.util.net.clean_lms_response)
+        if (_set_exchanges_clean_response_func):
+            edq.net.settings.set_exchanges_clean_response_func(edq.util.reflection.get_qualified_name(lms.util.net.clean_lms_response))
 
     if (include_server):
         group = parser.add_argument_group('server options')
@@ -79,7 +70,8 @@ def get_parser(description: str,
 
         group.add_argument('--server-type', dest = 'backend_type',
             action = 'store', type = str,
-            default = None, choices = lms.model.constants.BACKEND_TYPES,
+            default = None,
+            choices = [choice.value for choice in lms.model.constants.BackendType],
             help = 'The type of LMS being connected to (this can normally be guessed from the server address).')
 
     if (include_auth):
@@ -132,7 +124,8 @@ def get_parser(description: str,
 
         group.add_argument('--format', dest = 'output_format',
             action = 'store', type = str,
-            default = lms.model.constants.OUTPUT_FORMAT_TEXT, choices = lms.model.constants.OUTPUT_FORMATS,
+            default = lms.model.constants.OutputFormat.TEXT.value,
+            choices = [choice.value for choice in lms.model.constants.OutputFormat],
             help = 'The format to display the output as (default: %(default)s).')
 
         group.add_argument('--include-extra-fields', dest = 'include_extra_fields',

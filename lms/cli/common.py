@@ -1,23 +1,25 @@
 import typing
 
-import lms.model.backend
 import lms.model.assignments
+import lms.model.backend
+import lms.model.config
 import lms.model.courses
 import lms.model.groupsets
-import lms.model.quizzes
 import lms.model.users
 import lms.util.parse
 
+DEFAULT_STRICT_EXIT_CODE: int = 101
+
 def check_required_assignment(
         backend: lms.model.backend.APIBackend,
-        config: typing.Dict[str, typing.Any],
+        config: lms.model.config.Config,
         ) -> typing.Union[lms.model.assignments.AssignmentQuery, None]:
     """
     Fetch and ensure that an assignment is provided in the config.
     If no assignment is provided, print a message and return None.
     """
 
-    assignment = lms.util.parse.optional_string(config.get('assignment', None))
+    assignment = lms.util.parse.optional_string(config.assignment)
     if (assignment is None):
         print('ERROR: No assignment has been provided.')
         return None
@@ -31,14 +33,14 @@ def check_required_assignment(
 
 def check_required_course(
         backend: lms.model.backend.APIBackend,
-        config: typing.Dict[str, typing.Any],
+        config: lms.model.config.Config,
         ) -> typing.Union[lms.model.courses.CourseQuery, None]:
     """
     Fetch and ensure that a course is provided in the config.
     If no course is provided, print a message and return None.
     """
 
-    course = lms.util.parse.optional_string(config.get('course', None))
+    course = lms.util.parse.optional_string(config.course)
     if (course is None):
         print('ERROR: No course has been provided.')
         return None
@@ -52,14 +54,14 @@ def check_required_course(
 
 def check_required_groupset(
         backend: lms.model.backend.APIBackend,
-        config: typing.Dict[str, typing.Any],
+        config: lms.model.config.Config,
         ) -> typing.Union[lms.model.groupsets.GroupSetQuery, None]:
     """
     Fetch and ensure that a group set is provided in the config.
     If no group set is provided, print a message and return None.
     """
 
-    groupset = lms.util.parse.optional_string(config.get('groupset', None))
+    groupset = lms.util.parse.optional_string(config.groupset)
     if (groupset is None):
         print('ERROR: No group set has been provided.')
         return None
@@ -73,14 +75,14 @@ def check_required_groupset(
 
 def check_required_group(
         backend: lms.model.backend.APIBackend,
-        config: typing.Dict[str, typing.Any],
+        config: lms.model.config.Config,
         ) -> typing.Union[lms.model.groups.GroupQuery, None]:
     """
     Fetch and ensure that a group is provided in the config.
     If no group is provided, print a message and return None.
     """
 
-    group = lms.util.parse.optional_string(config.get('group', None))
+    group = lms.util.parse.optional_string(config.group)
     if (group is None):
         print('ERROR: No group has been provided.')
         return None
@@ -92,37 +94,16 @@ def check_required_group(
 
     return query
 
-def check_required_quiz(
-        backend: lms.model.backend.APIBackend,
-        config: typing.Dict[str, typing.Any],
-        ) -> typing.Union[lms.model.quizzes.QuizQuery, None]:
-    """
-    Fetch and ensure that a quiz is provided in the config.
-    If no quiz is provided, print a message and return None.
-    """
-
-    quiz = lms.util.parse.optional_string(config.get('quiz', None))
-    if (quiz is None):
-        print('ERROR: No quiz has been provided.')
-        return None
-
-    query = backend.parse_quiz_query(quiz)
-    if (query is None):
-        print('ERROR: Quiz query is malformed.')
-        return None
-
-    return query
-
 def check_required_user(
         backend: lms.model.backend.APIBackend,
-        config: typing.Dict[str, typing.Any],
+        config: lms.model.config.Config,
         ) -> typing.Union[lms.model.users.UserQuery, None]:
     """
     Fetch and ensure that a user is provided in the config.
     If no user is provided, print a message and return None.
     """
 
-    user = lms.util.parse.optional_string(config.get('user', None))
+    user = lms.util.parse.optional_string(config.user)
     if (user is None):
         print('ERROR: No user has been provided.')
         return None
@@ -134,10 +115,8 @@ def check_required_user(
 
     return query
 
-DEFAULT_STRICT_EXIT_CODE: int = 101
-
 def strict_check(
-        strict: bool,
+        config: lms.model.config.Config,
         has_error: bool,
         message: str,
         exit_code: int = DEFAULT_STRICT_EXIT_CODE,
@@ -148,7 +127,7 @@ def strict_check(
     Otherwise, return 0.
     """
 
-    if (not strict):
+    if (not config.strict):
         return 0
 
     if (has_error):

@@ -2,8 +2,10 @@ import os
 import typing
 
 import edq.net.request
+import edq.net.settings
 import edq.testing.cli
 
+import lms.backend.blackboard.backend
 import lms.backend.testing
 import lms.model.constants
 
@@ -17,18 +19,11 @@ DEFAULT_USER: str = 'course-owner'
 class BlackboardBackendTest(lms.backend.testing.BackendTest):
     """ A backend test for Blackboard. """
 
-    def __init__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
-        super().__init__(*args, **kwargs)
-
-        # Skip exchange verification tests, since Blackboard users are not logged in ahead of time.
-        # This makes the exchanges dependent on the login.
-        self.skip_test_exchanges_base = True
-
     @classmethod
     def child_class_setup(cls) -> None:
-        cls.server_key = lms.model.constants.BACKEND_TYPE_BLACKBOARD
+        cls.server_key = lms.model.constants.BackendType.BLACKBOARD.value
 
-        cls.backend_type = lms.model.constants.BACKEND_TYPE_BLACKBOARD
+        cls.backend_type = lms.model.constants.BackendType.BLACKBOARD
 
         cls.exchanges_dir = BLACKBOARD_TEST_EXCHANGES_DIR
 
@@ -46,24 +41,29 @@ class BlackboardBackendTest(lms.backend.testing.BackendTest):
             'x-blackboard-xsrf',
         ]
 
-        edq.net.request._disable_https_verification()
+        edq.net.settings.set_https_verification(False)
 
     def modify_cli_test_info(self, test_info: edq.testing.cli.CLITestInfo) -> None:
         super().modify_cli_test_info(test_info)
 
-        test_info.arguments += [
-            '--auth-user', self.backend._username,
-            '--auth-password', self.backend._password,
-        ]
+        backend = typing.cast(lms.backend.blackboard.backend.BlackboardBackend, self.backend)
+
+        if (test_info.extra_options.get('skip_auth', False) is not True):
+            test_info.arguments += [
+                '--auth-user', backend.auth_user,
+                '--auth-password', backend.auth_password,
+            ]
 
     def set_user(self, email: str) -> None:
         super().set_user(email)
 
+        backend = typing.cast(lms.backend.blackboard.backend.BlackboardBackend, self.backend)
+
         username = email.split('@')[0]
 
         # Remember that test passwords are the same as usernames.
-        self.backend._username = username
-        self.backend._password = username
+        backend.auth_user = username
+        backend.auth_password = username
 
 # Attatch tests to this class.
 lms.backend.testing.attach_test_cases(BlackboardBackendTest)

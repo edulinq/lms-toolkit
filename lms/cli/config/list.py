@@ -1,20 +1,18 @@
 """
-List the current configuration options.
+Shallow frontend for edq.config.cmd.list.
 """
 
 import argparse
 import sys
 
-import edq.cli.config.list
+import edq.config.cmd.list
 
 import lms.cli.parser
-
-CONFIG_FIELD_SEPARATOR: str = "\t"
 
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
-    return int(edq.cli.config.list.run_cli(args))
+    return edq.config.cmd.list.run(args)
 
 def main() -> int:
     """ Get a parser, parse the args, and call run. """
@@ -24,12 +22,11 @@ def main() -> int:
 def _get_parser() -> argparse.ArgumentParser:
     """ Get a parser and add addition flags. """
 
-    parser = lms.cli.parser.get_parser(__doc__.strip(),
-            include_server = False,
-            include_auth = False,
+    parser = lms.cli.parser.get_parser(edq.config.cmd.list.__doc__.strip(),
+        include_server = False,
+        include_auth = False,
     )
-
-    edq.cli.config.list.modify_parser(parser)
+    edq.config.cmd.list.modify_parser(parser)
 
     return parser
 

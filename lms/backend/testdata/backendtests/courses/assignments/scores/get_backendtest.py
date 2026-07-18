@@ -1,16 +1,18 @@
+import typing
+
 import lms.backend.testing
 import lms.model.assignments
 import lms.model.courses
 import lms.model.testdata.scores
 import lms.model.users
 
-def test_courses_assignments_scores_get_base(test: lms.backend.testing.BackendTest):
+def test_courses_assignments_scores_get_base(test: lms.backend.testing.BackendTest) -> None:
     """ Test the base functionality of getting assignments scores. """
 
     scores = lms.model.testdata.scores.COURSE_ASSIGNMENT_SCORES
 
     # [(kwargs (and overrides), expected, error substring), ...]
-    test_cases = [
+    test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], typing.Any, typing.Union[str, None]]] = [
         # Empty
         (
             {
@@ -69,4 +71,4 @@ def test_courses_assignments_scores_get_base(test: lms.backend.testing.BackendTe
         ),
     ]
 
-    test.base_request_test(test.backend.courses_assignments_scores_get, test_cases)
+    test.base_request_test(test.get_backend().courses_assignments_scores_get, test_cases)

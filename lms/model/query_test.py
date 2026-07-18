@@ -5,7 +5,7 @@ import lms.model.query
 class TestQuery(edq.testing.unittest.BaseTest):
     """ Test queries. """
 
-    def test_parse_int_query_base(self):
+    def test_parse_int_query_base(self) -> None:
         """ Test parsing an int-id query. """
 
         # [(text, check email, expected), ...]
@@ -109,7 +109,7 @@ class TestQuery(edq.testing.unittest.BaseTest):
                 actual = lms.model.query.parse_int_query(lms.model.query.BaseQuery, text, check_email)
                 self.assertJSONEqual(expected, actual)
 
-    def test_match_base(self):
+    def test_match_base(self) -> None:
         """ Test base matching. """
 
         # [(query, target, expected), ...]

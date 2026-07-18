@@ -8,6 +8,7 @@ import urllib.parse
 
 import bs4
 import edq.net.exchange
+import edq.util.hash
 import edq.util.json
 import requests
 
@@ -40,7 +41,6 @@ BLACKBOARD_CLEAN_REMOVE_HEADERS: typing.Set[str] = {
     'expires',
     'last-modified',
     'p3p',
-    'pragma',
     'strict-transport-security',
     'transfer-encoding',
     'vary',
@@ -57,7 +57,6 @@ MOODLE_CLEAN_REMOVE_HEADERS: typing.Set[str] = {
     'expires',
     'keep-alive',
     'last-modified',
-    'pragma',
     'vary',
 }
 """ Keys to remove from Moodle headers. """
@@ -96,12 +95,12 @@ def clean_lms_response(response: requests.Response, body: str) -> str:
     """
 
     # Check the standard LMS Toolkit backend header.
-    backend_type = response.headers.get(lms.model.constants.HEADER_KEY_BACKEND, '').lower()
+    raw_backend_type = response.headers.get(lms.model.constants.HEADER_KEY_BACKEND, '').lower()
 
-    if (backend_type == lms.model.constants.BACKEND_TYPE_CANVAS):
+    if (raw_backend_type == lms.model.constants.BackendType.CANVAS.value):
         return clean_canvas_response(response, body)
 
-    if (backend_type == lms.model.constants.BACKEND_TYPE_MOODLE):
+    if (raw_backend_type == lms.model.constants.BackendType.MOODLE.value):
         return clean_moodle_response(response, body)
 
     # Try looking inside the header keys.
@@ -159,6 +158,13 @@ def clean_canvas_response(response: requests.Response, body: str) -> str:
     """
 
     body = _clean_base_response(response, body)
+    url = str(response.request.url)
+
+    if ('/files_api' in url):
+        # Replace the scheme + netloc (host + port) with a slug that can be replaced when testing.
+        parts = urllib.parse.urlsplit(response.headers['location'])
+        parts = parts._replace(netloc = lms.model.constants.SERVER_SLUG, scheme = '')
+        response.headers['location'] = parts.geturl().replace(f"//{lms.model.constants.SERVER_SLUG}", lms.model.constants.SERVER_SLUG)
 
     # Most canvas responses are JSON.
     try:
@@ -170,15 +176,55 @@ def clean_canvas_response(response: requests.Response, body: str) -> str:
     # Remove any content keys.
     _recursive_remove_keys(data, set(CANVAS_CLEAN_REMOVE_CONTENT_KEYS))
 
-    # Remove special fields.
-
-    if ('submissions/update_grades' in str(response.request.url)):
+    # Handle endpoint-specific cases.
+    if ('submissions/update_grades' in url):
         data.pop('id', None)
+    elif (re.search(r'api/v1/courses/\w+/files', url) is not None):
+        # Replace the scheme + netloc (host + port) with a slug that can be replaced when testing.
+        parts = urllib.parse.urlsplit(data['upload_url'])
+        parts = parts._replace(netloc = lms.model.constants.SERVER_SLUG, scheme = '')
+        data['upload_url'] = parts.geturl().replace(f"//{lms.model.constants.SERVER_SLUG}", lms.model.constants.SERVER_SLUG)
 
     # Convert body back to a string.
     body = edq.util.json.dumps(data)
 
     return body
+
+def finalize_canvas_exchange(exchange: edq.net.exchange.HTTPExchange) -> edq.net.exchange.HTTPExchange:
+    """ Finalize Canvas exchanges. """
+
+    if (re.search(r'^api/v1/courses/\w+/files$', exchange.url_path) is not None):
+        # Clean out random data for the file upload.
+        data = edq.util.json.loads(str(exchange.response_body))
+
+        body_data = {
+            'upload_params': {
+                'Filename': data['upload_params']['Filename'],
+            },
+            'upload_url': data['upload_url'],
+        }
+
+        exchange.response_body = edq.util.json.dumps(body_data)
+    elif (exchange.url_path == 'files_api'):
+        # File upload calls contain several random pieces of information generated from the server.
+        # Drop information we don't need in testing and make the rest consistent.
+
+        filename = exchange.parameters['Filename']
+        exchange.parameters = {'filename': filename}
+        exchange.files = []
+
+        location = exchange.response_headers.get('location', None)
+        if (location is not None):
+            location = re.sub(r'uuid=.*$', f"uuid={edq.util.hash.sha256_hex(filename)}", str(location))
+
+        exchange.response_headers['location'] = location
+    elif (re.search(r'^api/v1/files/\w+/create_success$', exchange.url_path) is not None):
+        # Change the uuid parameter to match the one set in files_api (which redirects to this URL).
+        data = edq.util.json.loads(str(exchange.response_body))
+        exchange.parameters['uuid'] = edq.util.hash.sha256_hex(data['display_name'])
+        exchange.response_body = edq.util.json.dumps({'id': data['id']})
+
+    return exchange
 
 def clean_moodle_response(response: requests.Response, body: str) -> str:
     """

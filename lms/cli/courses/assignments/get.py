@@ -13,9 +13,8 @@ import lms.model.base
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
-    config = args._config
-
-    backend = lms.backend.instance.get_backend(**config)
+    config = args._config_info.application_config
+    backend = lms.backend.instance.get_backend(config)
 
     course_query = lms.cli.common.check_required_course(backend, config)
     if (course_query is None):
@@ -25,7 +24,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
     assignments = backend.courses_assignments_get(course_query, queries)
 
-    output = lms.model.base.base_list_to_output_format(assignments, args.output_format,
+    output = lms.model.base.base_list_to_output_format(assignments, config.output_format,
             skip_headers = args.skip_headers,
             pretty_headers = args.pretty_headers,
             include_extra_fields = args.include_extra_fields,
@@ -33,7 +32,7 @@ def run_cli(args: argparse.Namespace) -> int:
 
     print(output)
 
-    return lms.cli.common.strict_check(args.strict, (len(assignments) != len(queries)),
+    return lms.cli.common.strict_check(config, (len(assignments) != len(queries)),
         f"Expected to find {len(queries)} assignments, but found {len(assignments)}.", 2)
 
 def main() -> int:

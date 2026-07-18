@@ -1,3 +1,5 @@
+import typing
+
 import lms.backend.testing
 import lms.model.courses
 import lms.model.scores
@@ -5,11 +7,11 @@ import lms.model.testdata.assignments
 import lms.model.testdata.scores
 import lms.model.testdata.users
 
-def test_courses_gradebook_upload_base(test: lms.backend.testing.BackendTest):
+def test_courses_gradebook_upload_base(test: lms.backend.testing.BackendTest) -> None:
     """ Test the base functionality of uploading gradebooks. """
 
     # [(kwargs (and overrides), expected, error substring), ...]
-    test_cases = [
+    test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], typing.Any, typing.Union[str, None]]] = [
         # Base
         (
             {
@@ -21,13 +23,13 @@ def test_courses_gradebook_upload_base(test: lms.backend.testing.BackendTest):
         ),
     ]
 
-    test.base_request_test(test.backend.courses_gradebook_upload, test_cases)
+    test.base_request_test(test.get_backend().courses_gradebook_upload, test_cases)
 
-def test_courses_gradebook_resolve_and_upload_base(test: lms.backend.testing.BackendTest):
+def test_courses_gradebook_resolve_and_upload_base(test: lms.backend.testing.BackendTest) -> None:
     """ Test the base functionality of resolving and uploading gradebooks. """
 
     # [(kwargs (and overrides), expected, error substring), ...]
-    test_cases = [
+    test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], typing.Any, typing.Union[str, None]]] = [
         # Base
         (
             {
@@ -39,9 +41,9 @@ def test_courses_gradebook_resolve_and_upload_base(test: lms.backend.testing.Bac
         ),
     ]
 
-    test.base_request_test(test.backend.courses_gradebook_resolve_and_upload, test_cases)
+    test.base_request_test(test.get_backend().courses_gradebook_resolve_and_upload, test_cases)
 
-def _get_base_gradebook():
+def _get_base_gradebook() -> lms.model.scores.Gradebook:
     base_assignments = [
         lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 1'].to_query(),
         lms.model.testdata.assignments.COURSE_ASSIGNMENTS['Extra Course']['Assignment 2'].to_query(),

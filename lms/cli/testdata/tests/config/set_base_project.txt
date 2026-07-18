@@ -1,0 +1,28 @@
+{
+    "cli": "edq.cli.config.set",
+    "setup_funcs": [
+        "edq.testing.cli.create_directory_structure",
+    ],
+    "teardown_funcs": [
+        "edq.config.testing.verify_cli_test_config_content",
+    ],
+    "arguments": [
+        "pass=password1234",
+        "--project",
+    ],
+    "work_dir": "__TEMP_DIR__()",
+    "extra_options": {
+        "directory_structure": [
+            ["edq-lms.json", {
+                "user": "user@test.edulinq.org",
+            }],
+        ],
+        "path": "edq-lms.json",
+        "data": {
+            'pass': 'password1234',
+            'user': 'user@test.edulinq.org',
+        },
+    },
+}
+---
+Wrote 1 config option(s) to: '__TEMP_DIR__(edq-lms.json)'.

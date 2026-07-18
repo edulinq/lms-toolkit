@@ -31,36 +31,38 @@ class MoodleBackend(lms.model.backend.APIBackend):
     """ An API backend for the Moodle LMS. """
 
     def __init__(self,
-            server: str,
-            auth_user: typing.Union[str, None] = None,
-            auth_password: typing.Union[str, None] = None,
             **kwargs: typing.Any) -> None:
-        super().__init__(server, lms.model.constants.BACKEND_TYPE_MOODLE, **kwargs)
+        super().__init__(**kwargs)
 
-        if (auth_user is None):
+        assert(self.config.backend_type == lms.model.constants.BackendType.MOODLE)
+
+        if (self.config.auth_user is None):
             raise ValueError("Moodle backends require a username.")
 
-        if (auth_password is None):
+        self.auth_user: str = self.config.auth_user
+        """
+        The user to authenticate with.
+        This is set in config and compied for type checking.
+        """
+
+        if (self.config.auth_password is None):
             raise ValueError("Moodle backends require a password.")
 
-        self._username = auth_user
-        """ The username to authenticate with. """
-
-        self._password = auth_password
-        """ The password to authenticate with. """
+        self.auth_password: str = self.config.auth_password.cleartext
+        """
+        The (cleartext) password to authenticate with.
+        This is set in config and compied for type checking.
+        """
 
         self._session_headers: typing.Union[typing.Dict[str, typing.Any], None] = None
         """ The headers (e.g., cookies) for our logged in Moodle session. """
 
-        self._edit_mode_enabled = False
-        """ The session edit mode state. """
-
     def _enable_edit_mode(self, url: str) -> None:
         """
-        Enable Moodle edit mode if not yet enabled.
+        Enable Moodle edit mode for a specific page.
         """
 
-        response, _ = edq.net.request.make_get(url, headers = self._session_headers)
+        response, _ = edq.net.request.make_get(url, headers = self.get_standard_headers())
 
         sesskey_match = re.search(r'"sesskey":"([^"]+)"', response.text)
         if (sesskey_match):
@@ -94,10 +96,20 @@ class MoodleBackend(lms.model.backend.APIBackend):
             f"{self.server}/lib/ajax/service.php",
             additional_requests_options = {'params': params},
             data = json.dumps(data),
-            headers = self._session_headers,
+            headers = self.get_standard_headers(),
         )
+        print(response)
 
-        self._edit_mode_enabled = True
+    def reset_connection(self) -> None:
+        self._session_headers = None
+
+    def get_standard_headers(self, write: bool = False) -> typing.Dict[str, str]:
+        headers = super().get_standard_headers(write)
+
+        if (self._session_headers is not None):
+            headers.update(self._session_headers)
+
+        return headers
 
     def _parse_cookies(self, response: requests.Response) -> typing.Dict[str, typing.Any]:
         """
@@ -142,8 +154,8 @@ class MoodleBackend(lms.model.backend.APIBackend):
 
         data = {
             'logintoken': token,
-            'username': self._username,
-            'password': self._password,
+            'username': self.auth_user,
+            'password': self.auth_password,
         }
 
         response, _ = edq.net.request.make_post(self.server + '/login/index.php',
@@ -156,7 +168,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
             self._session_headers = {
                 'cookie': response.headers.get('set-cookie', None),
                 # Insert a header to identify the user.
-                'edq-lms-moodle-user': self._username,
+                'edq-lms-moodle-user': self.auth_user,
             }
 
             return
@@ -181,14 +193,14 @@ class MoodleBackend(lms.model.backend.APIBackend):
             self._login(update_server = False)
             return
 
-        raise ValueError(f"Could not log into Moodle server ({self.server}) with user '{self._username}'. Is username/password correct?")
+        raise ValueError(f"Could not log into Moodle server ({self.server}) with user '{self.auth_user}'. Is username/password correct?")
 
     def courses_list(self,
             **kwargs: typing.Any) -> typing.List[lms.model.courses.Course]:
         self._login()
 
         url = self.server + "/user/profile.php"
-        response, _ = edq.net.request.make_get(url, headers = self._session_headers)
+        response, _ = edq.net.request.make_get(url, headers = self.get_standard_headers())
 
         document = bs4.BeautifulSoup(response.text, 'html.parser')
         cards = document.select('div.card-body')
@@ -228,7 +240,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
         self._login()
 
         url = f"{self.server}/user/index.php?id={course_id}&perpage={RESULTS_PER_PAGE}"
-        response, _ = edq.net.request.make_get(url, headers = self._session_headers)
+        response, _ = edq.net.request.make_get(url, headers = self.get_standard_headers())
 
         document = bs4.BeautifulSoup(response.text, 'html.parser')
 
@@ -294,11 +306,9 @@ class MoodleBackend(lms.model.backend.APIBackend):
         self._login()
 
         url = f"{self.server}/grade/report/grader/index.php?id={course_id}"
-
         self._enable_edit_mode(url)
 
-        response, _ = edq.net.request.make_get(url, headers = self._session_headers)
-
+        response, _ = edq.net.request.make_get(url, headers = self.get_standard_headers())
         document = bs4.BeautifulSoup(response.text, 'html.parser')
 
         activities = document.select('table#user-grades th.item')
@@ -320,9 +330,6 @@ class MoodleBackend(lms.model.backend.APIBackend):
                 points_possible = float(document.select_one(f'td.{target_class} input').get('max', None))
             except AttributeError:
                 _logger.warning("Unable to retrieve assignment. Moodle data structure has changed. Contact project developers.")
-                print("##############")
-                print(target_class)
-                print("##############")
                 continue
 
             assignments.append(lms.model.assignments.Assignment(

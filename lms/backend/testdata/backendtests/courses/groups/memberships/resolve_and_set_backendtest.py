@@ -1,4 +1,5 @@
 import copy
+import typing
 
 import lms.backend.testing
 import lms.model.courses
@@ -7,11 +8,11 @@ import lms.model.groupsets
 import lms.model.users
 import lms.model.testdata.groups
 
-def test_courses_groups_memberships_resolve_and_set_base(test: lms.backend.testing.BackendTest):
+def test_courses_groups_memberships_resolve_and_set_base(test: lms.backend.testing.BackendTest) -> None:
     """ Test the base functionality of resolving and seting group memberships. """
 
     # [(kwargs (and overrides), expected, error substring), ...]
-    test_cases = [
+    test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], typing.Any, typing.Union[str, None]]] = [
         # Only Add
         (
             {
@@ -84,4 +85,4 @@ def test_courses_groups_memberships_resolve_and_set_base(test: lms.backend.testi
         ),
     ]
 
-    test.base_request_test(test.backend.courses_groups_memberships_resolve_and_set, test_cases)
+    test.base_request_test(test.get_backend().courses_groups_memberships_resolve_and_set, test_cases)

@@ -3,6 +3,8 @@ import http
 import re
 import typing
 
+import html2text
+
 import edq.net.request
 import edq.util.json
 import edq.util.time
@@ -66,6 +68,11 @@ def make_post_request(url: str, **kwargs: typing.Any) -> typing.Union[typing.Any
 
     return make_request('POST', url, **kwargs)
 
+def make_put_request(url: str, **kwargs: typing.Any) -> typing.Union[typing.Any, None]:
+    """ Make a single Canvas PUT request. """
+
+    return make_request('PUT', url, **kwargs)
+
 def make_delete_request(url: str, **kwargs: typing.Any) -> typing.Union[typing.Any, None]:
     """ Make a single Canvas DELETE request. """
 
@@ -112,3 +119,29 @@ def parse_timestamp(value: typing.Union[str, None]) -> typing.Union[edq.util.tim
 
     pytime = datetime.datetime.fromisoformat(value)
     return edq.util.time.Timestamp.from_pytime(pytime)
+
+def html_to_markdown(html: typing.Union[str, None]) -> str:
+    """
+    Parse the text from a Canvas quiz question into markdown.
+    We intend for the resulting markdown to have a little HTML as possible.
+    This is an impossible task, but we want to do our best.
+    """
+
+    if (html is None):
+        return ''
+
+    converter = html2text.HTML2Text()
+
+    converter.body_width = 0
+    converter.mark_code = True
+
+    text = converter.handle(html)
+    text = text.strip()
+
+    # Replace code tags with fences.
+    text = re.sub(r'\[/?code\]', '```', text)
+
+    # Replace placeholders (e.g., for fill in the blank questions).
+    text = re.sub(r'\[(\w+?)\]', r'<placeholder>\1</placeholder>', text)
+
+    return text

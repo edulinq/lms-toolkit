@@ -14,9 +14,8 @@ import lms.model.base
 def run_cli(args: argparse.Namespace) -> int:
     """ Run the CLI. """
 
-    config = args._config
-
-    backend = lms.backend.instance.get_backend(**config)
+    config = args._config_info.application_config
+    backend = lms.backend.instance.get_backend(config)
 
     course_query = lms.cli.common.check_required_course(backend, config)
     if (course_query is None):
@@ -47,7 +46,7 @@ def run_cli(args: argparse.Namespace) -> int:
         print(f"Added {add_count} and subtracted {sub_count} users to/from group {group_query}.")
         total_add_count += add_count
 
-    return lms.cli.common.strict_check(args.strict, (total_add_count != len(memberships)),
+    return lms.cli.common.strict_check(config, (total_add_count != len(memberships)),
         f"Expected to set {len(memberships)} memberships in groupset, but set {total_add_count}.", 3)
 
 def main() -> int:
