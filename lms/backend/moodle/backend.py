@@ -98,7 +98,8 @@ class MoodleBackend(lms.model.backend.APIBackend):
             data = json.dumps(data),
             headers = self.get_standard_headers(),
         )
-        print(response)
+
+        return response
 
     def reset_connection(self) -> None:
         self._session_headers = None
@@ -306,31 +307,51 @@ class MoodleBackend(lms.model.backend.APIBackend):
         self._login()
 
         url = f"{self.server}/grade/report/grader/index.php?id={course_id}"
-        self._enable_edit_mode(url)
+
+        if(self._enable_edit_mode(url).status_code != 200)
+            edit_mode_enabled = True
 
         response, _ = edq.net.request.make_get(url, headers = self.get_standard_headers())
         document = bs4.BeautifulSoup(response.text, 'html.parser')
 
-        activities = document.select('table#user-grades th.item')
-
         assignments = []
-        for activity in activities:
-            # Parse and store the column's class (e.g. "c0").
-            target_class = None
-            column_classes = activity.get('class', None)
-            column_class_pattern = re.compile(r'^c\d+$')
-            for column_class in column_classes:
-                if(column_class_pattern.match(column_class)):
-                    target_class = column_class
-                    break
+        if (edit_mode_enabled):
+            activities = document.select('table#user-grades th.item')
 
-            try:
-                id = str(activity.get('data-itemid', None))
-                name = str(activity.select_one('a.gradeitemheader').get_text())  # type: ignore[union-attr]
-                points_possible = float(document.select_one(f'td.{target_class} input').get('max', None))
-            except AttributeError:
-                _logger.warning("Unable to retrieve assignment. Moodle data structure has changed. Contact project developers.")
-                continue
+            for activity in activities:
+                # Parse and store the column's class (e.g. "c0").
+                target_class = None
+                column_classes = activity.get('class', None)
+                column_class_pattern = re.compile(r'^c\d+$')
+                for column_class in column_classes:
+                    if(column_class_pattern.match(column_class)):
+                        target_class = column_class
+                        break
+
+                try:
+                    id = str(activity.get('data-itemid', None))
+                    name = str(activity.select_one('a.gradeitemheader').get_text())  # type: ignore[union-attr]
+                    points_possible = float(document.select_one(f'td.{target_class} input').get('max', None))
+                except AttributeError:
+                    _logger.warning("Unable to retrieve assignment. Moodle data structure has changed. Contact project developers.")
+                    continue
+
+                assignments.append(lms.model.assignments.Assignment(
+                    id = id,
+                    name = name,
+                    points_possible = points_possible,
+                ))
+        else:
+            activities = document.select('table.user-gradei tr.cat_2:not(.spacer)')
+
+            for activity in activities:
+                try:
+                    id = str(activity.select_one('th').get('id').split('_')[1])
+                    name = str(activity.select_one('th a').get_text())
+                    points_possible = float(activity.select_one('td.column-range').get_text().split('-')[1])
+                except AttributeError:
+                    _logger.warning("Unable to retrieve assignment. Moodle data structure has changed. Contact project developers.")
+                    continue
 
             assignments.append(lms.model.assignments.Assignment(
                 id = id,
