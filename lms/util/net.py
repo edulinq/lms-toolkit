@@ -275,9 +275,9 @@ def clean_moodle_response(response: requests.Response, body: str) -> str:
 
 def clean_html(
         html: str,
-        decompose_selectors: typing.List[str] = {},
-        attrs_to_keep: typing.Dict[str, typing.List[str]] = {},
-        remove_all_attrs_selectors: typing.List[str] = [],
+        decompose_selectors: typing.List[str],
+        attrs_to_keep: typing.Dict[str, typing.List[str]],
+        remove_all_attrs_selectors: typing.List[str],
         final_selector: str = 'body',
         ) -> str:
     """

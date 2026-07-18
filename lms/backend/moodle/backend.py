@@ -57,24 +57,31 @@ class MoodleBackend(lms.model.backend.APIBackend):
         self._session_headers: typing.Union[typing.Dict[str, typing.Any], None] = None
         """ The headers (e.g., cookies) for our logged in Moodle session. """
 
-    def _enable_edit_mode(self, url: str) -> None:
+    def _enable_edit_mode(self, url: str) -> bool:
         """
         Enable Moodle edit mode for a specific page.
         """
 
-        response, _ = edq.net.request.make_get(url, headers = self.get_standard_headers())
+        try:
+            response, _ = edq.net.request.make_get(url, headers = self.get_standard_headers())
+        except requests.exceptions.HTTPError:
+            _logger.warning("Unable to enable edit mode.")
+            return False
 
         sesskey_match = re.search(r'"sesskey":"([^"]+)"', response.text)
         if (sesskey_match):
             sesskey = sesskey_match.group(1)
+        else:
+            _logger.warning("Unable to retrieve session key.")
+            return False
 
         document = bs4.BeautifulSoup(response.text, 'html.parser')
 
         try:
-            context = document.select_one('input[name=setmode]').get('data-context', None)  # type: ignore[union-attr]
+            context = int(document.select_one('input[name=setmode]').get('data-context', None))
         except AttributeError:
             _logger.warning("Unable to enable edit mode.")
-            return
+            return False
 
         params = {
             'sesskey': sesskey,
@@ -87,7 +94,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
                 'methodname': 'core_change_editmode',
                 'args': {
                     'setmode': True,
-                    'context': int(context),
+                    'context': context,
                 },
             }
         ]
@@ -99,7 +106,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
             headers = self.get_standard_headers(),
         )
 
-        return response
+        return True
 
     def reset_connection(self) -> None:
         self._session_headers = None
@@ -308,14 +315,14 @@ class MoodleBackend(lms.model.backend.APIBackend):
 
         url = f"{self.server}/grade/report/grader/index.php?id={course_id}"
 
-        if(self._enable_edit_mode(url).status_code != 200)
-            edit_mode_enabled = True
-
-        response, _ = edq.net.request.make_get(url, headers = self.get_standard_headers())
-        document = bs4.BeautifulSoup(response.text, 'html.parser')
+        # Attempt to enable edit mode on the gradebook page.
+        edit_mode_enabled = self._enable_edit_mode(url)
 
         assignments = []
         if (edit_mode_enabled):
+            response, _ = edq.net.request.make_get(url, headers = self.get_standard_headers())
+            document = bs4.BeautifulSoup(response.text, 'html.parser')
+
             activities = document.select('table#user-grades th.item')
 
             for activity in activities:
@@ -323,7 +330,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
                 target_class = None
                 column_classes = activity.get('class', None)
                 column_class_pattern = re.compile(r'^c\d+$')
-                for column_class in column_classes:
+                for column_class in column_classes:  # type: ignore[union-attr]
                     if(column_class_pattern.match(column_class)):
                         target_class = column_class
                         break
@@ -342,21 +349,30 @@ class MoodleBackend(lms.model.backend.APIBackend):
                     points_possible = points_possible,
                 ))
         else:
-            activities = document.select('table.user-gradei tr.cat_2:not(.spacer)')
+            # Fetch assignment data for non-grader users.
+            url = f"{self.server}/grade/report/user/index.php?id={course_id}"
+            response, _ = edq.net.request.make_get(url, headers = self.get_standard_headers())
+            document = bs4.BeautifulSoup(response.text, 'html.parser')
+
+            activities = [
+                tr
+                for tr in document.find_all('tr')
+                if tr.get('class') and not any(c in tr['class'] for c in ['spacer', 'lastrow'])
+            ]
 
             for activity in activities:
                 try:
-                    id = str(activity.select_one('th').get('id').split('_')[1])
+                    id = str(activity.select_one('th').get('id', None).split('_')[1])  # type: ignore[union-attr]
                     name = str(activity.select_one('th a').get_text())
-                    points_possible = float(activity.select_one('td.column-range').get_text().split('-')[1])
+                    points_possible = float(activity.select_one('td.column-range').get_text().split('–')[1])
                 except AttributeError:
                     _logger.warning("Unable to retrieve assignment. Moodle data structure has changed. Contact project developers.")
                     continue
 
-            assignments.append(lms.model.assignments.Assignment(
-                id = id,
-                name = name,
-                points_possible = points_possible,
-            ))
+                assignments.append(lms.model.assignments.Assignment(
+                    id = id,
+                    name = name,
+                    points_possible = points_possible,
+                ))
 
         return assignments
