@@ -79,7 +79,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
 
         try:
             context_str = document.select_one('input[name=setmode]').get('data-context', None)  # type: ignore[union-attr]
-            if (isinstance(context_str, str)):
+            if (not isinstance(context_str, str)):
                 return False
 
             context = int(context_str)
@@ -344,7 +344,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
                     name = str(activity.select_one('a.gradeitemheader').get_text())  # type: ignore[union-attr]
 
                     points_possible_str = document.select_one(f'td.{target_class} input').get('max', None)  # type: ignore[union-attr]
-                    if (isinstance(points_possible_str, str)):
+                    if (not isinstance(points_possible_str, str)):
                         points_possible = 0.0
                     else:
                         points_possible = float(points_possible_str)
