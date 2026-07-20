@@ -59,7 +59,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
 
     def _enable_edit_mode(self, url: str) -> bool:
         """
-        Enable Moodle edit mode for a specific page.
+        Enable Moodle edit mode for a specific url.
         """
 
         try:
@@ -78,7 +78,11 @@ class MoodleBackend(lms.model.backend.APIBackend):
         document = bs4.BeautifulSoup(response.text, 'html.parser')
 
         try:
-            context = int(document.select_one('input[name=setmode]').get('data-context', None))
+            context_str = document.select_one('input[name=setmode]').get('data-context', None)  # type: ignore[union-attr]
+            if (isinstance(context_str, str)):
+                return False
+
+            context = int(context_str)
         except AttributeError:
             _logger.warning("Unable to enable edit mode.")
             return False
@@ -338,7 +342,12 @@ class MoodleBackend(lms.model.backend.APIBackend):
                 try:
                     id = str(activity.get('data-itemid', None))
                     name = str(activity.select_one('a.gradeitemheader').get_text())  # type: ignore[union-attr]
-                    points_possible = float(document.select_one(f'td.{target_class} input').get('max', None))
+
+                    points_possible_str = document.select_one(f'td.{target_class} input').get('max', None)  # type: ignore[union-attr]
+                    if (isinstance(points_possible_str, str)):
+                        points_possible = 0.0
+                    else:
+                        points_possible = float(points_possible_str)
                 except AttributeError:
                     _logger.warning("Unable to retrieve assignment. Moodle data structure has changed. Contact project developers.")
                     continue
@@ -354,7 +363,7 @@ class MoodleBackend(lms.model.backend.APIBackend):
             response, _ = edq.net.request.make_get(url, headers = self.get_standard_headers())
             document = bs4.BeautifulSoup(response.text, 'html.parser')
 
-            activities = [
+            activities: list[bs4.Tag] = [  # type: ignore[no-redef]
                 tr
                 for tr in document.find_all('tr')
                 if tr.get('class') and not any(c in tr['class'] for c in ['spacer', 'lastrow'])
@@ -363,8 +372,8 @@ class MoodleBackend(lms.model.backend.APIBackend):
             for activity in activities:
                 try:
                     id = str(activity.select_one('th').get('id', None).split('_')[1])  # type: ignore[union-attr]
-                    name = str(activity.select_one('th a').get_text())
-                    points_possible = float(activity.select_one('td.column-range').get_text().split('–')[1])
+                    name = str(activity.select_one('th a').get_text())  # type: ignore[union-attr]
+                    points_possible = float(activity.select_one('td.column-range').get_text().split('–')[1])  # type: ignore[union-attr]
                 except AttributeError:
                     _logger.warning("Unable to retrieve assignment. Moodle data structure has changed. Contact project developers.")
                     continue
