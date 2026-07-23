@@ -1,4 +1,4 @@
-# LMS Tools
+# LMS Toolkit
 
 A suite of tools and a Python interface for interacting with different
 [Learning Management Systems (LMSs)](https://en.wikipedia.org/wiki/Learning_management_system).
