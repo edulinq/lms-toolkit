@@ -354,8 +354,9 @@ class APIBackend():
             comment: str,
             **kwargs: typing.Any) -> bool:
         """
-        Add a comment to a user's assignment submission without changing its score.
-        Return whether the comment was added. Empty comments are not allowed.
+        Add a comment to a user's assignment submission.
+        Return False if the submission was not found, and True otherwise.
+        Empty comments are not allowed.
         """
 
         raise NotImplementedError('courses_assignments_scores_comments_add')
@@ -366,7 +367,7 @@ class APIBackend():
             user_query: lms.model.users.UserQuery,
             comment: str,
             **kwargs: typing.Any) -> bool:
-        """ Resolve queries and add a comment without changing the existing score. """
+        """ Resolve queries and add a comment to an assignment submission. """
 
         resolved_course = self.resolve_course_query(course_query, **kwargs)
         resolved_assignment = self.resolve_assignment_query(resolved_course.get_id(), assignment_query, **kwargs)

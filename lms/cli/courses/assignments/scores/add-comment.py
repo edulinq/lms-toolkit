@@ -1,7 +1,7 @@
 # pylint: disable=invalid-name
 
 """
-Add a comment to an assignment submission without changing its score.
+Add a comment to an assignment submission.
 """
 
 import argparse
@@ -31,10 +31,10 @@ def run_cli(args: argparse.Namespace) -> int:
 
     result = backend.courses_assignments_scores_comments_resolve_and_add(course_query, assignment_query, user_query, args.comment)
     if (not result):
-        print(f"ERROR: Could not add comment for user: '{user_query}'.")
+        print('ERROR: Could not add comment.')
         return 4
 
-    print(f"Added comment for user: '{user_query}'.")
+    print('Added comment.')
     return 0
 
 def main() -> int:
@@ -49,9 +49,11 @@ def _get_parser() -> argparse.ArgumentParser:
             include_assignment = True,
             include_user = True,
     )
+
     parser.add_argument('comment', metavar = 'COMMENT',
         action = 'store', type = str,
-        help = 'Comment to add without changing the existing score.')
+        help = 'Comment to add.')
+
     return parser
 
 if (__name__ == '__main__'):

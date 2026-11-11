@@ -11,4 +11,4 @@
     ]
 }
 ---
-Added comment for user: 'course-student'.
+Added comment.

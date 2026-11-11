@@ -229,14 +229,13 @@ python3 -m lms.cli.courses.assignments.scores.list --course 'Course 101' --assig
 
 ### Add an Assignment Comment
 
-Add a comment to a student's submission without changing its existing score with
+Add a comment to a student's submission with
 `lms.cli.courses.assignments.scores.add-comment` (currently supported by Canvas):
 ```sh
 python3 -m lms.cli.courses.assignments.scores.add-comment --course 'Course 101' --assignment 'Homework 0' --user 'course-student' 'Please explain your reasoning.'
 ```
 
-This adds to the existing comments and leaves the score of graded and ungraded submissions unchanged.
-The comment must contain non-whitespace text. Editing or removing comments is not supported by this command.
+The comment must contain non-whitespace text.
 
 ### Upload Assignment Scores
 
