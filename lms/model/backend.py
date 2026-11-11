@@ -347,6 +347,36 @@ class APIBackend():
 
         raise NotImplementedError('courses_assignments_scores_upload')
 
+    def courses_assignments_scores_comments_add(self,
+            course_id: str,
+            assignment_id: str,
+            user_id: str,
+            comment: str,
+            **kwargs: typing.Any) -> bool:
+        """
+        Add a comment to a user's assignment submission without changing its score.
+        Return whether the comment was added. Empty comments are not allowed.
+        """
+
+        raise NotImplementedError('courses_assignments_scores_comments_add')
+
+    def courses_assignments_scores_comments_resolve_and_add(self,
+            course_query: lms.model.courses.CourseQuery,
+            assignment_query: lms.model.assignments.AssignmentQuery,
+            user_query: lms.model.users.UserQuery,
+            comment: str,
+            **kwargs: typing.Any) -> bool:
+        """ Resolve queries and add a comment without changing the existing score. """
+
+        resolved_course = self.resolve_course_query(course_query, **kwargs)
+        resolved_assignment = self.resolve_assignment_query(resolved_course.get_id(), assignment_query, **kwargs)
+        resolved_users = self.resolve_user_queries(resolved_course.get_id(), [user_query], **kwargs)
+        if (len(resolved_users) != 1):
+            raise ValueError(f"Could not resolve user query: '{user_query}'.")
+
+        return self.courses_assignments_scores_comments_add(
+                resolved_course.get_id(), resolved_assignment.get_id(), resolved_users[0].get_id(), comment, **kwargs)
+
     def courses_gradebook_get(self,
             course_query: lms.model.courses.CourseQuery,
             assignment_queries: typing.Collection[lms.model.assignments.AssignmentQuery],

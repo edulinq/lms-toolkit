@@ -24,6 +24,7 @@ This project is not affiliated with any LMS developer/provider.
        - Scores
          - [Retrieve Assignment Scores](#retrieve-assignment-scores)
          - [Upload Assignment Scores](#upload-assignment-scores)
+         - [Add an Assignment Comment](#add-an-assignment-comment)
      - Gradebook
        - [Retrieve Gradebook](#retrieve-gradebook)
        - [Upload Gradebook](#upload-gradebook)
@@ -225,6 +226,17 @@ The `table` format is especially useful for listing scores:
 ```sh
 python3 -m lms.cli.courses.assignments.scores.list --course 'Course 101' --assignment 'Homework 0' --format table
 ```
+
+### Add an Assignment Comment
+
+Add a comment to a student's submission without changing its existing score with
+`lms.cli.courses.assignments.scores.add-comment` (currently supported by Canvas):
+```sh
+python3 -m lms.cli.courses.assignments.scores.add-comment --course 'Course 101' --assignment 'Homework 0' --user 'course-student' 'Please explain your reasoning.'
+```
+
+This adds to the existing comments and leaves the score of graded and ungraded submissions unchanged.
+The comment must contain non-whitespace text. Editing or removing comments is not supported by this command.
 
 ### Upload Assignment Scores
 

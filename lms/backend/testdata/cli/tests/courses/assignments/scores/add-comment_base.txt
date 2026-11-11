@@ -1,0 +1,14 @@
+{
+    "cli": "lms.cli.courses.assignments.scores.add-comment",
+    "arguments": [
+        "--course",
+        "Course 101",
+        "--assignment",
+        "Homework 0",
+        "--user",
+        "course-student",
+        "Feedback without a grade change."
+    ]
+}
+---
+Added comment for user: 'course-student'.
