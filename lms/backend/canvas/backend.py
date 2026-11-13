@@ -5,6 +5,7 @@ import typing
 import quizcomp.model.quiz
 
 import lms.backend.canvas.courses.assignments.list
+import lms.backend.canvas.courses.assignments.scores.comments.add
 import lms.backend.canvas.courses.assignments.scores.list
 import lms.backend.canvas.courses.assignments.scores.upload
 import lms.backend.canvas.courses.gradebook.fetch
@@ -88,6 +89,18 @@ class CanvasBackend(lms.model.backend.APIBackend):
         parsed_assignment_id = lms.util.parse.required_int(assignment_id, 'assignment_id')
         parsed_scores = {lms.util.parse.required_int(user_id, 'user_id'): score for (user_id, score) in scores.items()}
         return lms.backend.canvas.courses.assignments.scores.upload.request(self, parsed_course_id, parsed_assignment_id, parsed_scores)
+
+    def courses_assignments_scores_comments_add(self,
+            course_id: str,
+            assignment_id: str,
+            user_id: str,
+            comment: str,
+            **kwargs: typing.Any) -> bool:
+        parsed_course_id = lms.util.parse.required_int(course_id, 'course_id')
+        parsed_assignment_id = lms.util.parse.required_int(assignment_id, 'assignment_id')
+        parsed_user_id = lms.util.parse.required_int(user_id, 'user_id')
+        return lms.backend.canvas.courses.assignments.scores.comments.add.request(
+                self, parsed_course_id, parsed_assignment_id, parsed_user_id, comment)
 
     def courses_gradebook_fetch(self,
             course_id: str,
