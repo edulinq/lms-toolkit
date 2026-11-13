@@ -235,8 +235,6 @@ Add a comment to a student's submission with
 python3 -m lms.cli.courses.assignments.scores.add-comment --course 'Course 101' --assignment 'Homework 0' --user 'course-student' 'Please explain your reasoning.'
 ```
 
-The comment must contain non-whitespace text.
-
 ### Upload Assignment Scores
 
 Upload a single score for an assignment and user with `lms.cli.courses.assignments.scores.upload-score`.
