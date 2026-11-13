@@ -12,9 +12,6 @@ def request(backend: typing.Any,
         ) -> bool:
     """ Add a submission comment. """
 
-    if (len(comment.strip()) == 0):
-        raise ValueError('Comment must not be empty.')
-
     url = backend.server + BASE_ENDPOINT.format(course_id = course_id, assignment_id = assignment_id, user_id = user_id)
     headers = backend.get_standard_headers(write = True)
 

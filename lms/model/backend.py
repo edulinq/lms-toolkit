@@ -355,8 +355,7 @@ class APIBackend():
             **kwargs: typing.Any) -> bool:
         """
         Add a comment to a user's assignment submission.
-        Return False if the submission was not found, and True otherwise.
-        Empty comments are not allowed.
+        Return false if the submission was not found, and true otherwise.
         """
 
         raise NotImplementedError('courses_assignments_scores_comments_add')

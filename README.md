@@ -230,7 +230,7 @@ python3 -m lms.cli.courses.assignments.scores.list --course 'Course 101' --assig
 ### Add an Assignment Comment
 
 Add a comment to a student's submission with
-`lms.cli.courses.assignments.scores.add-comment` (currently supported by Canvas):
+`lms.cli.courses.assignments.scores.add-comment`:
 ```sh
 python3 -m lms.cli.courses.assignments.scores.add-comment --course 'Course 101' --assignment 'Homework 0' --user 'course-student' 'Please explain your reasoning.'
 ```

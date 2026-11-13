@@ -1,15 +1,12 @@
 {
     "cli": "lms.cli.courses.assignments.scores.add-comment",
     "arguments": [
-        "--course",
-        "999",
-        "--assignment",
-        "Homework 0",
-        "--user",
-        "course-student",
-        "Feedback without a grade change."
+        "--course", "999",
+        "--assignment", "Homework 0",
+        "--user", "course-student",
+        "Feedback without a grade change.",
     ],
-    "error": true
+    "error": true,
 }
 ---
 builtins.ValueError: Could not resolve course query: '999'.
