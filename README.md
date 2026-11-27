@@ -127,9 +127,9 @@ This process may be different for your specific institution and you should conta
 
 ### Object Queries
 
-LMS's typically require that you refer to objects using their specified identifier.
+LMSs typically require that you refer to objects using their specified identifier.
 Because this may be difficult,
-the LMS Toolkit provides a way for users to instead refer to object by other identifying fields.
+the LMS Toolkit provides a way for users to instead refer to objects by other identifying fields.
 Fields with this behavior are referred to as "queries".
 Unless specified, all inputs into the CLI can be assumed to be queries.
 
@@ -174,7 +174,7 @@ All groups must exist within a group set.
 
 ### TSV Files
 
-Various operations may require [TSV files](https://en.wikipedia.org/wiki/Tab-separated_values) (tab-separated) files as input.
+Various operations may require [TSV files](https://en.wikipedia.org/wiki/Tab-separated_values) (tab-separated files) as input.
 When used, they are usually paired with a `--skip-rows` option to allow you to skip the desired number of header rows
 (the default value is generally 0).
 Empty lines are ignored, and will not be counted against the `--skip-rows` count.
@@ -186,7 +186,7 @@ All CLI tools can be invoked with `-h` / `--help` to see the full usage and all 
 Examples listed here will assume that your authentication information is already defined in your global config file
 (use `--help` for more information on that).
 
-Examples listed here are not exhaustive in terms of the available tools or the full functionality of each comment.
+Examples listed here are not exhaustive in terms of the available tools or the full functionality of each command.
 
 The data used in these examples are part of the official test data used for this repo (and other LMS test images).
 
@@ -229,7 +229,7 @@ python3 -m lms.cli.courses.assignments.scores.list --course 'Course 101' --assig
 ### Upload Assignment Scores
 
 Upload a single score for an assignment and user with `lms.cli.courses.assignments.scores.upload-score`.
-For example, to upload a score of `1.0` for user `course-student` and assignment `Homework 0', use:
+For example, to upload a score of `1.0` for user `course-student` and assignment `Homework 0`, use:
 ```sh
 python3 -m lms.cli.courses.assignments.scores.upload-score --course 'Course 101' --assignment 'Homework 0' --user 'course-student' 1.0
 ```
@@ -295,7 +295,7 @@ python3 -m lms.cli.courses.quizzes.list --course 'Course 101'
 ```
 
 Note that this will only retrieve information about a quiz,
-not the full quiz itself (see [Downoad Quizzes](#download-quizzes) for that).
+not the full quiz itself (see [Download Quizzes](#download-quizzes) for that).
 
 You can get a single quiz with `lms.cli.courses.quizzes.get`:
 ```sh
@@ -328,7 +328,7 @@ You can also specify specific quizzes to upload instead of all quizzes:
 python3 -m lms.cli.courses.quizzes.upload --course 'Course 101' my-quiz/quiz.json
 ```
 
-### Retrieve Quiz Questions
+### Remove Quizzes
 
 Remove a quiz from the LMS with `lms.cli.courses.quizzes.remove`:
 ```sh
@@ -347,7 +347,7 @@ Get a course's syllabus with `lms.cli.courses.syllabus.get`:
 python3 -m lms.cli.courses.syllabus.get --course 'Course 101'
 ```
 
-If a course has no syllbus, a message like the following will be output:
+If a course has no syllabus, a message like the following will be output:
 ```
 <No syllabus found for course: 'Course 101'.>
 ```
@@ -396,14 +396,14 @@ My New Group 2	extra-course-student-3@test.edulinq.org
 My New Group 2	extra-course-student-4@test.edulinq.org
 ```
 
-We can add these user to the specified groups using:
+We can add these users to the specified groups using:
 ```sh
 python3 -m lms.cli.courses.groupsets.memberships.add --course 'Extra Course' --groupset 'Group Set 3' groupset-members.txt
 ```
 
 ### Subtract Users from a Group Set
 
-Add users to a group set with: `lms.cli.courses.groupsets.memberships.subtract`.
+Subtract users from a group set with: `lms.cli.courses.groupsets.memberships.subtract`.
 This tool takes a TSV file as input.
 Each data row must have two columns: group query and user query.
 
@@ -424,7 +424,7 @@ python3 -m lms.cli.courses.groupsets.memberships.subtract --course 'Extra Course
 Set the memberships for an entire group set with: `lms.cli.courses.groupsets.memberships.set`.
 This tool takes a TSV file as input.
 Each data row must have two columns: group query and user query.
-The group set will be modfied to match your file exactly.
+The group set will be modified to match your file exactly.
 This may involve creating or deleting groups.
 
 For example, assume we have a file `groupset-members.txt` with the following contents:
