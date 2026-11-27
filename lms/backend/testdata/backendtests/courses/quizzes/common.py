@@ -36,6 +36,7 @@ def _sketch_quiz(raw_quiz: typing.Any) -> typing.Dict[str, typing.Any]:
             question_data = {
                 'question_type': question_type,
                 'feedback': question.feedback,
+                'placeholders': list(sorted(question.prompt.collect_placeholders())),
             }
 
             group_data['questions'].append(question_data)

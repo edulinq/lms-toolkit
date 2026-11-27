@@ -139,7 +139,8 @@ def _list_questions(
 
         question_type = QUESTION_TYPE_MAP[raw_question_type]
 
-        prompt_text = lms.backend.canvas.common.html_to_markdown(raw_question['question_text'])
+        prompt_text = lms.backend.canvas.common.html_to_markdown(raw_question['question_text'],
+                replace_placeholders = (question_type in quizcomp.model.question.PLACEHOLDER_QUESTION_TYPES))
 
         question = quizcomp.model.question.Question(
             name = raw_question['question_name'],
