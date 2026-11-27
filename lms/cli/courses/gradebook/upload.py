@@ -24,7 +24,7 @@ def run_cli(args: argparse.Namespace) -> int:
     if (course_query is None):
         return 1
 
-    gradebook = _load_gradebook(backend, args.path)
+    gradebook = _load_gradebook(backend, args.path, args.table_delim)
 
     count = backend.courses_gradebook_resolve_and_upload(course_query, gradebook)
 
@@ -36,6 +36,7 @@ def run_cli(args: argparse.Namespace) -> int:
 def _load_gradebook(
         backend: lms.model.backend.APIBackend,
         path: str,
+        delim: str = "\t",
         ) -> lms.model.scores.Gradebook:
     assignments = []
     users = []
@@ -49,7 +50,7 @@ def _load_gradebook(
 
             lineno += 1
 
-            parts = [part.strip() for part in line.split("\t")]
+            parts = [part.strip() for part in line.split(delim)]
 
             # Process the assignment queries.
             if (lineno == 1):
@@ -112,6 +113,7 @@ def _get_parser() -> argparse.ArgumentParser:
 
     parser = lms.cli.parser.get_parser(__doc__.strip(),
             include_course = True,
+            include_table_delim = True,
             include_strict = True,
     )
 

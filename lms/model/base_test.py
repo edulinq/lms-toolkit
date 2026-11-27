@@ -312,3 +312,42 @@ class TestBaseType(edq.testing.unittest.BaseTest):
             with self.subTest(msg = f"Case {i} ('{value}'):"):
                 actual = value.as_table_rows(**kwargs)
                 self.assertJSONEqual(expected, actual)
+
+    def test_base_list_to_output_format_table_delim(self) -> None:
+        """ Test converting to table output with custom delimiters. """
+
+        values = [
+            lms.model.users.ServerUser(id = '123', name = 'Alice', email = 'alice@example.com'),
+            lms.model.users.ServerUser(id = '456', name = 'Bob', email = 'bob@example.com'),
+        ]
+
+        test_cases: typing.List[typing.Tuple[typing.Dict[str, typing.Any], str]] = [
+            (
+                {},
+                "id\tname\temail\n123\tAlice\talice@example.com\n456\tBob\tbob@example.com",
+            ),
+            (
+                {
+                    'delim': ',',
+                },
+                "id,name,email\n123,Alice,alice@example.com\n456,Bob,bob@example.com",
+            ),
+            (
+                {
+                    'delim': ' | ',
+                    'skip_headers': True,
+                },
+                "123 | Alice | alice@example.com\n456 | Bob | bob@example.com",
+            ),
+        ]
+
+        for (i, test_case) in enumerate(test_cases):
+            (kwargs, expected) = test_case
+
+            with self.subTest(msg = f"Case {i}:"):
+                actual = lms.model.base.base_list_to_output_format(
+                    values,
+                    lms.model.constants.OutputFormat.TABLE,
+                    **kwargs,
+                )
+                self.assertEqual(expected, actual)
