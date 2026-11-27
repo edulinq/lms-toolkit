@@ -28,6 +28,7 @@ class Config(edq.config.app.BaseApplicationConfig):
             group: typing.Union[str, None] = None,
             groupset: typing.Union[str, None] = None,
             output_format: typing.Union[lms.model.constants.OutputFormat, None] = None,
+            table_delim: typing.Union[str, None] = None,
             include_extra_fields: typing.Union[bool, None] = None,
             pretty_headers: typing.Union[bool, None] = None,
             skip_headers: typing.Union[bool, None] = None,
@@ -72,6 +73,9 @@ class Config(edq.config.app.BaseApplicationConfig):
 
         self.output_format: typing.Union[lms.model.constants.OutputFormat, None] = output_format
         """ The format to display the output as. """
+
+        self.table_delim: typing.Union[str, None] = table_delim
+        """ The delimiter to use for table formatting (both input and output). """
 
         self.include_extra_fields: typing.Union[bool, None] = include_extra_fields
         """ Include non-common (usually LMS-specific) fields in results. """

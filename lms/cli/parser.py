@@ -19,6 +19,7 @@ ENV_CONFIG_PREFIX: str = 'EDQLMS__'
 DEFAULT_ENCRYPTION_KEY: str = 'EDQLMS'
 
 DEFAULT_SKIP_ROWS: int = 0
+DEFAULT_TABLE_DELIM: str = "\t"
 
 _set_exchanges_clean_response_func: bool = True  # pylint: disable=invalid-name
 """
@@ -38,6 +39,7 @@ def get_parser(description: str,
         include_group: bool = False,
         include_net: bool = True,
         include_skip_rows: bool = False,
+        include_table_delim: bool = False,
         include_strict: bool = False,
         ) -> argparse.ArgumentParser:
     """
@@ -139,6 +141,11 @@ def get_parser(description: str,
         group.add_argument('--skip-headers', dest = 'skip_headers',
             action = 'store_true', default = False,
             help = 'Skip headers when outputting results, will not apply to all formats (default: %(default)s).')
+
+    if (include_output_format or include_table_delim):
+        parser.add_argument('--table-delim', dest = 'table_delim',
+            action = 'store', type = str, default = DEFAULT_TABLE_DELIM,
+            help = 'The delimiter to use for table input and output formats (default: tab).')
 
     if (include_skip_rows):
         parser.add_argument('--skip-rows', dest = 'skip_rows',

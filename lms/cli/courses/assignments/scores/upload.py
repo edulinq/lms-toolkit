@@ -30,7 +30,7 @@ def run_cli(args: argparse.Namespace) -> int:
     if (assignment_query is None):
         return 2
 
-    scores = _load_scores(backend, args.path, args.skip_rows)
+    scores = _load_scores(backend, args.path, args.skip_rows, args.table_delim)
 
     count = backend.courses_assignments_scores_resolve_and_upload(course_query, assignment_query, scores)
 
@@ -42,7 +42,8 @@ def run_cli(args: argparse.Namespace) -> int:
 def _load_scores(
         backend: lms.model.backend.APIBackend,
         path: str,
-        skip_rows: bool,
+        skip_rows: int,
+        delim: str = "\t",
         ) -> typing.Dict[lms.model.users.UserQuery, lms.model.scores.ScoreFragment]:
     scores = {}
 
@@ -60,7 +61,7 @@ def _load_scores(
             if (real_rows <= skip_rows):
                 continue
 
-            parts = [part.strip() for part in line.split("\t")]
+            parts = [part.strip() for part in line.split(delim)]
             if (len(parts) not in [2, 3]):
                 raise ValueError(f"File '{path}' line {lineno} has the incorrect number of values. Expecting 2-3, found {len(parts)}.")
 
@@ -94,6 +95,7 @@ def _get_parser() -> argparse.ArgumentParser:
             include_course = True,
             include_assignment = True,
             include_skip_rows = True,
+            include_table_delim = True,
             include_strict = True,
     )
 

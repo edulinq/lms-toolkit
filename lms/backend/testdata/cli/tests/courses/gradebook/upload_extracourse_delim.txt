@@ -1,0 +1,10 @@
+{
+    "cli": "lms.cli.courses.gradebook.upload",
+    "arguments": [
+        "--course", "Extra Course",
+        "--table-delim", ",",
+        "__DATA_DIR__(gradebooks/extracourse_delim.txt)",
+    ],
+}
+---
+Uploaded 4 Scores

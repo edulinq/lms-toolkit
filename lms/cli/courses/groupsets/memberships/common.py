@@ -8,7 +8,8 @@ import lms.model.groups
 def load_group_memberships(
         backend: lms.model.backend.APIBackend,
         path: str,
-        skip_rows: bool,
+        skip_rows: int,
+        delim: str = "\t",
         ) -> typing.List[lms.model.groups.GroupMembership]:
     """ Read a group membership TSV file. """
 
@@ -28,7 +29,7 @@ def load_group_memberships(
             if (real_rows <= skip_rows):
                 continue
 
-            parts = [part.strip() for part in line.split("\t")]
+            parts = [part.strip() for part in line.split(delim)]
             if (len(parts) != 2):
                 raise ValueError(f"File '{path}' line {lineno} has the incorrect number of values. Expecting 2, found {len(parts)}.")
 
