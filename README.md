@@ -174,7 +174,7 @@ All groups must exist within a group set.
 
 ### TSV Files
 
-Various operations may require [TSV files](https://en.wikipedia.org/wiki/Tab-separated_values) (tab-separated) as input.
+Various operations may require [TSV files](https://en.wikipedia.org/wiki/Tab-separated_values) (tab-separated files) as input.
 When used, they are usually paired with a `--skip-rows` option to allow you to skip the desired number of header rows
 (the default value is generally 0).
 Empty lines are ignored, and will not be counted against the `--skip-rows` count.
@@ -229,7 +229,7 @@ python3 -m lms.cli.courses.assignments.scores.list --course 'Course 101' --assig
 ### Upload Assignment Scores
 
 Upload a single score for an assignment and user with `lms.cli.courses.assignments.scores.upload-score`.
-For example, to upload a score of `1.0` for user `course-student` and assignment 'Homework 0', use:
+For example, to upload a score of `1.0` for user `course-student` and assignment `Homework 0`, use:
 ```sh
 python3 -m lms.cli.courses.assignments.scores.upload-score --course 'Course 101' --assignment 'Homework 0' --user 'course-student' 1.0
 ```
