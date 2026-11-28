@@ -24,6 +24,7 @@ This project is not affiliated with any LMS developer/provider.
        - Scores
          - [Retrieve Assignment Scores](#retrieve-assignment-scores)
          - [Upload Assignment Scores](#upload-assignment-scores)
+         - [Add an Assignment Comment](#add-an-assignment-comment)
      - Gradebook
        - [Retrieve Gradebook](#retrieve-gradebook)
        - [Upload Gradebook](#upload-gradebook)
@@ -224,6 +225,14 @@ python3 -m lms.cli.courses.assignments.scores.list --course 'Course 101' --assig
 The `table` format is especially useful for listing scores:
 ```sh
 python3 -m lms.cli.courses.assignments.scores.list --course 'Course 101' --assignment 'Homework 0' --format table
+```
+
+### Add an Assignment Comment
+
+Add a comment to a student's submission with
+`lms.cli.courses.assignments.scores.add-comment`:
+```sh
+python3 -m lms.cli.courses.assignments.scores.add-comment --course 'Course 101' --assignment 'Homework 0' --user 'course-student' 'Please explain your reasoning.'
 ```
 
 ### Upload Assignment Scores

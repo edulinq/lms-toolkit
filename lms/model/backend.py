@@ -347,6 +347,34 @@ class APIBackend():
 
         raise NotImplementedError('courses_assignments_scores_upload')
 
+    def courses_assignments_scores_comments_add(self,
+            course_id: str,
+            assignment_id: str,
+            user_id: str,
+            comment: str,
+            **kwargs: typing.Any) -> bool:
+        """
+        Add a comment to a user's assignment submission.
+        Return false if the submission was not found, and true otherwise.
+        """
+
+        raise NotImplementedError('courses_assignments_scores_comments_add')
+
+    def courses_assignments_scores_comments_resolve_and_add(self,
+            course_query: lms.model.courses.CourseQuery,
+            assignment_query: lms.model.assignments.AssignmentQuery,
+            user_query: lms.model.users.UserQuery,
+            comment: str,
+            **kwargs: typing.Any) -> bool:
+        """ Resolve queries and add a comment to an assignment submission. """
+
+        resolved_course = self.resolve_course_query(course_query, **kwargs)
+        resolved_assignment = self.resolve_assignment_query(resolved_course.get_id(), assignment_query, **kwargs)
+        resolved_user = self.resolve_user_query(resolved_course.get_id(), user_query, **kwargs)
+
+        return self.courses_assignments_scores_comments_add(
+                resolved_course.get_id(), resolved_assignment.get_id(), resolved_user.get_id(), comment, **kwargs)
+
     def courses_gradebook_get(self,
             course_query: lms.model.courses.CourseQuery,
             assignment_queries: typing.Collection[lms.model.assignments.AssignmentQuery],
@@ -1761,6 +1789,22 @@ class APIBackend():
             **kwargs)
 
         return typing.cast(typing.List[lms.model.users.ResolvedUserQuery], results)
+
+    def resolve_user_query(self,
+            course_id: str,
+            query: lms.model.users.UserQuery,
+            **kwargs: typing.Any) -> lms.model.users.ResolvedUserQuery:
+        """ Resolve the user query or raise an exception. """
+
+        # Shortcut already resolved queries.
+        if (isinstance(query, lms.model.users.ResolvedUserQuery)):
+            return query
+
+        results = self.resolve_user_queries(course_id, [query], **kwargs)
+        if (len(results) == 0):
+            raise ValueError(f"Could not resolve user query: '{query}'.")
+
+        return results[0]
 
     def _resolve_queries(self,
             queries: typing.Collection[lms.model.query.BaseQuery],
