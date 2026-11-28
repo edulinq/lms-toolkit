@@ -120,11 +120,12 @@ def parse_timestamp(value: typing.Union[str, None]) -> typing.Union[edq.util.tim
     pytime = datetime.datetime.fromisoformat(value)
     return edq.util.time.Timestamp.from_pytime(pytime)
 
-def html_to_markdown(html: typing.Union[str, None]) -> str:
+def html_to_markdown(html: typing.Union[str, None], replace_placeholders: bool = False) -> str:
     """
     Parse the text from a Canvas quiz question into markdown.
     We intend for the resulting markdown to have a little HTML as possible.
     This is an impossible task, but we want to do our best.
+    If `replace_placeholders` is true, then Canvas placeholders (e.g., `[blank]`) will be replaced with Quiz Composer placeholders.
     """
 
     if (html is None):
@@ -142,6 +143,8 @@ def html_to_markdown(html: typing.Union[str, None]) -> str:
     text = re.sub(r'\[/?code\]', '```', text)
 
     # Replace placeholders (e.g., for fill in the blank questions).
-    text = re.sub(r'\[(\w+?)\]', r'<placeholder>\1</placeholder>', text)
+    # Skip links and images, e.g., `[text](url)`.
+    if (replace_placeholders):
+        text = re.sub(r'\[(\w+?)\](?!\()', r'<placeholder>\1</placeholder>', text)
 
     return text
